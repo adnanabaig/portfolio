@@ -1,0 +1,72 @@
+{
+  "name": "Adnan Baig",
+  "headerTaglineOne": "Engineering at the frontier",
+  "headerTaglineTwo": "of robotics, AI,",
+  "headerTaglineThree": "and the web.",
+  "headerTaglineFour": "",
+  "showBlog": true,
+  "socials": [
+    { "id": "github", "title": "GitHub", "link": "https://github.com/adnanabaig" },
+    { "id": "linkedin", "title": "LinkedIn", "link": "https://www.linkedin.com/in/adnanbaig916" },
+    { "id": "email", "title": "Email", "link": "mailto:adnanabaig@gmail.com" }
+  ],
+  "projects": [
+    {
+      "id": "teleop-meta",
+      "title": "Teleops Control Surface",
+      "description": "Low-latency operator UI for remote robotics at Meta Reality Labs — real-time state sync and operator feedback loops.",
+      "category": "Robotics Teleoperation",
+      "organization": "Meta",
+      "imageSrc": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=1400&q=60",
+      "url": "https://www.linkedin.com/in/adnanbaig916"
+    },
+    {
+      "id": "figure-humanoid",
+      "title": "Humanoid Robot Development",
+      "description": "Evaluated and iterated on humanoid robot behavior to push the boundaries of human-like motion at Figure AI.",
+      "category": "Robotics Teleoperation",
+      "organization": "Figure",
+      "imageSrc": "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1400&q=60",
+      "url": "https://www.linkedin.com/in/adnanbaig916"
+    },
+    {
+      "id": "vizualty-reel",
+      "title": "Cinematic Reel Pipeline",
+      "description": "End-to-end production workflow for cinematic delivery — color grading, pacing, and narrative structure at scale.",
+      "category": "Cinematic Videography",
+      "organization": "Vizualty LLC",
+      "imageSrc": "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&w=1400&q=60",
+      "url": "https://vizualty.com"
+    }
+  ],
+  "engineeringProjects": [
+    {
+      "id": "blockchain-dapp",
+      "title": "Blockchain Certificate System DApp",
+      "description": "Decentralized application for verifiable academic credentials — Solidity smart contracts handle on-chain issuance and revocation, IPFS stores document hashes, and a React frontend provides trustless verification without a central authority.",
+      "category": "Blockchain & Web3",
+      "organization": "Solidity · IPFS · React",
+      "imageSrc": "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&w=1400&q=60",
+      "url": "https://github.com/adnanabaig"
+    },
+    {
+      "id": "wram",
+      "title": "Wildfire Risk Assessment Model",
+      "description": "U-Net CNN trained on Sentinel-2 multispectral satellite imagery to segment high-risk wildfire zones. Achieved 80% training accuracy across California fire corridors — ingesting terrain, vegetation density, and moisture-index channels as input.",
+      "category": "Computer Vision & ML",
+      "organization": "PyTorch · Sentinel-2 · U-Net CNN",
+      "imageSrc": "https://images.unsplash.com/photo-1569154941061-e231b4725ef1?auto=format&fit=crop&w=1400&q=60",
+      "url": "https://github.com/adnanabaig"
+    },
+    {
+      "id": "sentrysight",
+      "title": "SentrySight",
+      "description": "Real-time AI firearm detection platform with a live interactive demo. Custom object-detection model with sub-100ms inference, responsive alert UI, and a public-facing demo for evaluating accuracy across diverse environments and lighting conditions.",
+      "category": "AI Safety & Detection",
+      "organization": "TensorFlow · OpenCV · React",
+      "imageSrc": "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1400&q=60",
+      "url": "https://github.com/adnanabaig"
+    }
+  ],
+  "aboutpara": "CS graduate (CSUS '25) with a focus on the systems layer where robotics, AI, and software meet the physical world. Currently at Meta Reality Labs via Sigma Design, building low-latency teleoperation interfaces for next-generation robotic systems in production. Previously a Humanoid Test Pilot at Figure AI — evaluating and pushing the boundaries of human-like robot motion. Founder of Vizualty LLC, an independent production and engineering studio active for 8+ years. Outside of work I build at the research frontier: satellite-driven wildfire risk models, on-chain credential systems, and real-time AI detection platforms. I ship with precision across every domain."
+}

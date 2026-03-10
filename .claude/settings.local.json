@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(yarn lint:*)",
+      "Bash(npx next:*)",
+      "Bash(npx browserslist@latest:*)",
+      "Bash(cmd:*)",
+      "Bash(powershell:*)",
+      "Bash(npm run:*)",
+      "Bash(taskkill:*)",
+      "Bash(rm:*)",
+      "Bash(node -e \"const d = require\\('./data/portfolio.json'\\); console.log\\(d.headerTaglineOne, '|', d.headerTaglineTwo, '|', d.headerTaglineThree, '|', d.headerTaglineFour\\)\")"
+    ]
+  }
+}
