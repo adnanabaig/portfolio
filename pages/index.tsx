@@ -8,7 +8,6 @@ import Socials from "../components/Socials";
 import WorkCard from "../components/WorkCard";
 import Footer from "../components/Footer";
 import { useIsomorphicLayoutEffect } from "../utils";
-import { stagger } from "../animations";
 
 import portfolioJson from "../data/portfolio.json";
 import type { PortfolioData, Project } from "../types/portfolio";
@@ -56,11 +55,10 @@ export default function Home() {
   const heroRef        = useRef<HTMLDivElement | null>(null);
   const heroContentRef = useRef<HTMLDivElement | null>(null);
 
-  // ── Tagline entrance refs ─────────────────────────────────────────────────
-  const textOne   = useRef<HTMLDivElement | null>(null);
-  const textTwo   = useRef<HTMLDivElement | null>(null);
-  const textThree = useRef<HTMLDivElement | null>(null);
-  const textFour  = useRef<HTMLDivElement | null>(null);
+  // ── Matrix-shine refs ─────────────────────────────────────────────────────
+  const matrixCanvasRef     = useRef<HTMLCanvasElement | null>(null);
+  const binaryOverlayRef    = useRef<HTMLDivElement | null>(null);   // receives mask-image
+  const taglineContainerRef = useRef<HTMLDivElement | null>(null);
 
   // ── Grid refs ─────────────────────────────────────────────────────────────
   const projectsGridRef    = useRef<HTMLDivElement | null>(null);
@@ -80,14 +78,184 @@ export default function Home() {
     window.scrollTo({ top: aboutRef.current.offsetTop, left: 0, behavior: "smooth" });
   };
 
-  // ── Stagger entrance for taglines + project cards ─────────────────────────
+  // ── Matrix-shine animation ────────────────────────────────────────────────
+  // Two-layer technique:
+  //   Layer 1 (bottom): the normal solid h1 text — always visible.
+  //   Layer 2 (top):    binaryOverlayRef div containing a canvas that draws
+  //                     scrolling green binary chars clipped to the letter
+  //                     shapes (canvas source-atop stencil).
+  //
+  // A GSAP tween sweeps a mask-image gradient left→right over Layer 2.
+  //   - Where the mask is WHITE  → Layer 2 shows (binary inside letters).
+  //   - Where the mask is TRANSPARENT → Layer 2 hidden → Layer 1 shows through.
+  //
+  // The binary canvas is already scrolling when the mask window arrives, so
+  // the reveal feels alive from the first letter it touches.
+  const runMatrixShine = useCallback(() => {
+    const canvas  = matrixCanvasRef.current;
+    const overlay = binaryOverlayRef.current;
+    const container = taglineContainerRef.current;
+    if (!canvas || !overlay || !container) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    // ── Size canvas to the container at device resolution ─────────────────
+    const dpr = Math.max(window.devicePixelRatio || 1, 1);
+    const cr  = container.getBoundingClientRect();
+    const W   = cr.width;
+    const H   = cr.height;
+    canvas.width  = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
+    canvas.style.width  = `${W}px`;
+    canvas.style.height = `${H}px`;
+    ctx.scale(dpr, dpr);
+
+    // ── Capture h1 positions + fonts relative to container ────────────────
+    const h1s  = Array.from(container.querySelectorAll<HTMLHeadingElement>("h1"));
+    const lines = h1s.map((el) => {
+      const r  = el.getBoundingClientRect();
+      const cs = window.getComputedStyle(el);
+      return {
+        text: el.textContent ?? "",
+        cx: r.left - cr.left + r.width / 2,
+        cy: r.top  - cr.top,
+        font: `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`,
+        letterSpacing: cs.letterSpacing,
+      };
+    });
+    if (lines.length === 0) return;
+
+    // ── Binary grid ───────────────────────────────────────────────────────
+    const basePx  = parseFloat(window.getComputedStyle(h1s[0]).fontSize);
+    const CHAR_PX = Math.max(8, Math.round(basePx * 0.16));
+    const cols    = Math.ceil(W / CHAR_PX) + 1;
+    const rows    = Math.ceil(H / CHAR_PX) + 2; // +2 for scroll wrap-around
+    const grid: string[] = Array.from({ length: cols * rows }, () =>
+      Math.random() > 0.5 ? "1" : "0",
+    );
+
+    // ── Shine + scroll params ─────────────────────────────────────────────
+    // shineHalfW: half-width of the visible mask window in pixels.
+    // Sized to ~2 rendered character widths so each letter is fully lit before
+    // the next begins, giving a clean letter-by-letter reveal.
+    const shineHalfW       = Math.max(56, basePx * 1.4);
+    const SCROLL_PX_PER_MS = (CHAR_PX * 8) / 1000; // ~8 char-rows / sec downward
+
+    // ── Show overlay; set mask to fully transparent (nothing visible yet) ─
+    gsap.set(overlay, { display: "block", opacity: 1 });
+    const setMask = (mask: string) => {
+      overlay.style.setProperty("-webkit-mask-image", mask);
+      overlay.style.setProperty("mask-image", mask);
+    };
+    setMask("linear-gradient(to right, transparent, transparent)");
+
+    // ── Canvas draw loop — runs continuously while overlay is mounted ─────
+    let rafId:    number;
+    let lastT     = performance.now();
+    let charTimer = 0;
+    let scrollY   = 0;
+
+    const drawFrame = (now: number) => {
+      const dt = Math.min(now - lastT, 50);
+      lastT      = now;
+      charTimer += dt;
+      scrollY   += SCROLL_PX_PER_MS * dt;
+
+      // Randomly flip ~4% of chars every ~80 ms for visual noise
+      if (charTimer >= 80) {
+        charTimer = 0;
+        const n = Math.floor(grid.length * 0.04);
+        for (let i = 0; i < n; i++) {
+          const idx = Math.floor(Math.random() * grid.length);
+          grid[idx] = grid[idx] === "1" ? "0" : "1";
+        }
+      }
+
+      ctx.clearRect(0, 0, W, H);
+
+      // Step 1 — Draw text as alpha stencil (white pixels define letter shapes)
+      ctx.globalCompositeOperation = "source-over";
+      ctx.fillStyle    = "#ffffff";
+      ctx.textBaseline = "top";
+      lines.forEach(({ text, cx, cy, font, letterSpacing }) => {
+        ctx.font      = font;
+        ctx.textAlign = "center";
+        (ctx as unknown as Record<string, unknown>).letterSpacing = letterSpacing;
+        ctx.fillText(text, cx, cy);
+      });
+
+      // Step 2 — source-atop: everything drawn here clips to the letter shapes
+      ctx.globalCompositeOperation = "source-atop";
+
+      // Black fill inside letters
+      ctx.fillStyle = "#000000";
+      ctx.fillRect(0, 0, W, H);
+
+      // Scrolling binary chars (uniform bright green — mask handles the reveal)
+      ctx.font       = `700 ${CHAR_PX}px "Roboto Mono","Courier New",monospace`;
+      ctx.textAlign  = "left";
+      ctx.textBaseline = "top";
+      (ctx as unknown as Record<string, unknown>).letterSpacing = "0px";
+      ctx.fillStyle  = "rgba(0, 230, 85, 0.92)";
+
+      const charOffset = Math.floor(scrollY / CHAR_PX);
+      const subPx      = scrollY % CHAR_PX;
+
+      for (let r = 0; r <= rows; r++) {
+        const py      = r * CHAR_PX - subPx;
+        if (py > H + CHAR_PX) break;
+        const gridRow = ((r + charOffset) % rows + rows) % rows;
+        for (let c = 0; c < cols; c++) {
+          ctx.fillText(grid[gridRow * cols + c], c * CHAR_PX, py);
+        }
+      }
+
+      rafId = requestAnimationFrame(drawFrame);
+    };
+    rafId = requestAnimationFrame(drawFrame);
+
+    // ── GSAP timeline: sweep mask window left→right ───────────────────────
+    const proxy = { x: -shineHalfW };
+
+    gsap.to(proxy, {
+      x: W + shineHalfW,
+      duration: 2.0,
+      ease: "none", // linear — every letter gets identical dwell time
+      onUpdate() {
+        const x  = proxy.x;
+        // Four-stop gradient: soft outer edges, solid inner window.
+        // Inner window = 60% of shineHalfW so letters are fully lit at center.
+        const a = `${x - shineHalfW}px`;
+        const b = `${x - shineHalfW * 0.4}px`;
+        const c2 = `${x + shineHalfW * 0.4}px`;
+        const d = `${x + shineHalfW}px`;
+        setMask(
+          `linear-gradient(to right, transparent ${a}, white ${b}, white ${c2}, transparent ${d})`,
+        );
+      },
+      onComplete() {
+        // Shine has exited — cancel RAF, clear canvas, hide overlay
+        cancelAnimationFrame(rafId);
+        gsap.to(overlay, {
+          opacity: 0,
+          duration: 0.3,
+          ease: "power2.in",
+          onComplete() {
+            gsap.set(overlay, { display: "none", opacity: 1 });
+            setMask("linear-gradient(to right, transparent, transparent)");
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+          },
+        });
+      },
+    });
+  }, []); // refs are stable — safe with empty deps
+
+  // ── Stagger entrance for project cards ────────────────────────────────────
+  // The landing quote (taglines) are intentionally excluded — they fade in
+  // with the global page reveal (pageRef opacity) simultaneously with the
+  // Nav and Hero section, immediately after the typewriter overlay exits.
   const runEntranceAnimations = useCallback(() => {
-    const targets = [textOne, textTwo, textThree, textFour]
-      .map((r) => r.current)
-      .filter((el): el is HTMLDivElement => el !== null);
-
-    if (targets.length > 0) stagger(targets, { y: 30 }, { y: 0 });
-
     const animateGrid = (ref: React.RefObject<HTMLDivElement>, sel: string, delay: number) => {
       if (!ref.current) return;
       const cards = ref.current.querySelectorAll<HTMLElement>(sel);
@@ -98,7 +266,10 @@ export default function Home() {
 
     animateGrid(projectsGridRef, "[data-project-card]", 0.1);
     animateGrid(engineeringGridRef, "[data-engineering-card]", 0.35);
-  }, []); // refs are stable — safe with empty deps
+
+    // Matrix shine fires 1 s after the page is fully visible
+    setTimeout(runMatrixShine, 1000);
+  }, [runMatrixShine]);
 
   // ── First vs. return visit ─────────────────────────────────────────────────
   // useLayoutEffect fires synchronously before the first browser paint.
@@ -314,32 +485,62 @@ export default function Home() {
             ref={heroContentRef}
             className="flex-1 flex flex-col items-center justify-center text-center px-6 pb-20 will-change-transform"
           >
-            <div ref={textOne}>
-              <h1 className="text-4xl tablet:text-6xl laptop:text-7xl laptopl:text-8xl font-bold leading-tight tracking-tight">
-                {data.headerTaglineOne}
-              </h1>
+            {/*
+             * ── TAGLINE CONTAINER ─────────────────────────────────────────
+             * position:relative so the matrix-shine canvas can sit on top.
+             * The canvas is sized + positioned by JS in runMatrixShine.
+             */}
+            <div ref={taglineContainerRef} style={{ position: "relative" }}>
+              <div>
+                <h1 className="text-4xl tablet:text-6xl laptop:text-7xl laptopl:text-8xl font-bold leading-tight tracking-tight">
+                  {data.headerTaglineOne}
+                </h1>
+              </div>
+              {data.headerTaglineTwo && (
+                <div>
+                  <h1 className="text-4xl tablet:text-6xl laptop:text-7xl laptopl:text-8xl font-bold leading-tight tracking-tight">
+                    {data.headerTaglineTwo}
+                  </h1>
+                </div>
+              )}
+              {data.headerTaglineThree && (
+                <div>
+                  <h1 className="text-4xl tablet:text-6xl laptop:text-7xl laptopl:text-8xl font-bold leading-tight tracking-tight">
+                    {data.headerTaglineThree}
+                  </h1>
+                </div>
+              )}
+              {data.headerTaglineFour && (
+                <div>
+                  <h1 className="text-4xl tablet:text-6xl laptop:text-7xl laptopl:text-8xl font-bold leading-tight tracking-tight">
+                    {data.headerTaglineFour}
+                  </h1>
+                </div>
+              )}
+
+              {/*
+               * ── BINARY OVERLAY (Layer 2) ───────────────────────────────
+               * Sits absolutely on top of the normal text (Layer 1).
+               * mask-image is updated by GSAP each frame: the transparent
+               * region of the gradient falls through to Layer 1 (solid text),
+               * the white region reveals the canvas binary content.
+               * display:none until runMatrixShine fires.
+               */}
+              <div
+                ref={binaryOverlayRef}
+                aria-hidden="true"
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  pointerEvents: "none",
+                  zIndex: 10,
+                  display: "none",
+                }}
+              >
+                <canvas ref={matrixCanvasRef} style={{ display: "block" }} />
+              </div>
             </div>
-            {data.headerTaglineTwo && (
-              <div ref={textTwo}>
-                <h1 className="text-4xl tablet:text-6xl laptop:text-7xl laptopl:text-8xl font-bold leading-tight tracking-tight">
-                  {data.headerTaglineTwo}
-                </h1>
-              </div>
-            )}
-            {data.headerTaglineThree && (
-              <div ref={textThree}>
-                <h1 className="text-4xl tablet:text-6xl laptop:text-7xl laptopl:text-8xl font-bold leading-tight tracking-tight">
-                  {data.headerTaglineThree}
-                </h1>
-              </div>
-            )}
-            {data.headerTaglineFour && (
-              <div ref={textFour}>
-                <h1 className="text-4xl tablet:text-6xl laptop:text-7xl laptopl:text-8xl font-bold leading-tight tracking-tight">
-                  {data.headerTaglineFour}
-                </h1>
-              </div>
-            )}
 
             <Socials className="mt-8 laptop:mt-10" />
           </div>
