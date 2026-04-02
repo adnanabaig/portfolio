@@ -5,6 +5,38 @@
 @tailwind utilities;
 @import "./markdown.css";
 
+/*
+ * Mesh gradient background animation (used in _app.tsx).
+ * Slowly rotates the hue of the four radial-gradient orbs so the palette
+ * breathes between cool-blue, cyan, and violet over 30 s.
+ * Negative hue values shift toward warmer purples; positive toward teal.
+ * Range kept narrow (±22°) so the background never leaves the professional
+ * dark-cool palette.
+ */
+@keyframes gradient-hue {
+  0%, 100% { filter: hue-rotate(0deg);   }
+  40%       { filter: hue-rotate(22deg);  }
+  70%       { filter: hue-rotate(-14deg); }
+}
+
+/*
+ * Lenis smooth-scroll required CSS.
+ * Lenis adds these classes to <html>; without height:auto the page can lock
+ * at 100vh and prevent scrolling past the first screen.
+ */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
 @layer base {
   :root {
     --tactile-bg: #121212;

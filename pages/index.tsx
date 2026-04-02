@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Head from "next/head";
 
 import gsap from "gsap";
+import { motion, useInView } from "framer-motion";
 import Header from "../components/Header";
 import GlassWrapper from "../components/GlassWrapper";
 import Socials from "../components/Socials";
@@ -59,6 +60,7 @@ export default function Home() {
   const matrixCanvasRef     = useRef<HTMLCanvasElement | null>(null);
   const binaryOverlayRef    = useRef<HTMLDivElement | null>(null);   // receives mask-image
   const taglineContainerRef = useRef<HTMLDivElement | null>(null);
+  const matrixRunningRef    = useRef(false);                         // re-entry guard
 
   // ── Grid refs ─────────────────────────────────────────────────────────────
   const projectsGridRef    = useRef<HTMLDivElement | null>(null);
@@ -68,6 +70,15 @@ export default function Home() {
   const workHeaderRef        = useRef<HTMLHeadingElement | null>(null);
   const engineeringHeaderRef = useRef<HTMLHeadingElement | null>(null);
   const aboutHeaderRef       = useRef<HTMLHeadingElement | null>(null);
+
+  // ── Framer Motion: section entrance triggers ──────────────────────────────
+  const workEntranceRef        = useRef<HTMLDivElement | null>(null);
+  const engineeringEntranceRef = useRef<HTMLDivElement | null>(null);
+  const aboutEntranceRef       = useRef<HTMLDivElement | null>(null);
+
+  const workVisible        = useInView(workEntranceRef,        { once: true, amount: 0.08 });
+  const engineeringVisible = useInView(engineeringEntranceRef, { once: true, amount: 0.08 });
+  const aboutVisible       = useInView(aboutEntranceRef,       { once: true, amount: 0.12 });
 
   const handleWorkScroll = () => {
     if (!workRef.current) return;
@@ -92,10 +103,13 @@ export default function Home() {
   // The binary canvas is already scrolling when the mask window arrives, so
   // the reveal feels alive from the first letter it touches.
   const runMatrixShine = useCallback(() => {
+    if (matrixRunningRef.current) return;
+    matrixRunningRef.current = true;
+
     const canvas  = matrixCanvasRef.current;
     const overlay = binaryOverlayRef.current;
     const container = taglineContainerRef.current;
-    if (!canvas || !overlay || !container) return;
+    if (!canvas || !overlay || !container) { matrixRunningRef.current = false; return; }
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
@@ -245,6 +259,7 @@ export default function Home() {
             gsap.set(overlay, { display: "none", opacity: 1 });
             setMask("linear-gradient(to right, transparent, transparent)");
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            matrixRunningRef.current = false;
           },
         });
       },
@@ -256,19 +271,11 @@ export default function Home() {
   // with the global page reveal (pageRef opacity) simultaneously with the
   // Nav and Hero section, immediately after the typewriter overlay exits.
   const runEntranceAnimations = useCallback(() => {
-    const animateGrid = (ref: React.RefObject<HTMLDivElement>, sel: string, delay: number) => {
-      if (!ref.current) return;
-      const cards = ref.current.querySelectorAll<HTMLElement>(sel);
-      gsap.fromTo(cards, { opacity: 0, y: 26 }, {
-        opacity: 1, y: 0, duration: 0.8, ease: "power3.out", stagger: 0.12, delay,
-      });
-    };
-
-    animateGrid(projectsGridRef, "[data-project-card]", 0.1);
-    animateGrid(engineeringGridRef, "[data-engineering-card]", 0.35);
-
-    // Matrix shine fires 1 s after the page is fully visible
-    setTimeout(runMatrixShine, 1000);
+    // Matrix shine fires 1 s after the page is fully visible, then repeats every 5 s
+    setTimeout(() => {
+      runMatrixShine();
+      setInterval(runMatrixShine, 5000);
+    }, 1000);
   }, [runMatrixShine]);
 
   // ── First vs. return visit ─────────────────────────────────────────────────
@@ -306,10 +313,7 @@ export default function Home() {
 
     const tl = gsap.timeline();
 
-    // 1. Brief dark-screen pause
-    tl.to({}, { duration: 0.3 });
-
-    // 2. Type "Adnan Baig." character-by-character via onUpdate proxy
+    // Type "Adnan Baig." character-by-character via onUpdate proxy — no delay
     tl.to(proxy, {
       n: TYPED_NAME.length,
       duration: TYPED_NAME.length * CHAR_DURATION,
@@ -469,7 +473,14 @@ export default function Home() {
        * On first visit: starts at opacity:0 (set by GSAP in useLayoutEffect).
        * Fades to opacity:1 once the overlay completes its exit.
        */}
-      <div ref={pageRef}>
+      {/*
+       * opacity:0 is set here in HTML so the page is invisible from the very
+       * first SSR paint, preventing a flash before JS hydrates.
+       * useIsomorphicLayoutEffect (above) overrides this to opacity:1 before
+       * the browser's first paint — on return visits instantly, on first visits
+       * after the typewriter overlay exits.
+       */}
+      <div ref={pageRef} style={{ opacity: 0 }}>
 
         {/* ── HERO ──────────────────────────────────────────────────────── */}
         <div ref={heroRef} className="relative min-h-screen flex flex-col overflow-hidden">
@@ -490,7 +501,13 @@ export default function Home() {
              * position:relative so the matrix-shine canvas can sit on top.
              * The canvas is sized + positioned by JS in runMatrixShine.
              */}
-            <div ref={taglineContainerRef} style={{ position: "relative" }}>
+            {/*
+             * w-full ensures the container spans the full available hero width
+             * on every breakpoint. The canvas in runMatrixShine reads this
+             * width via getBoundingClientRect() so the shine travels correctly
+             * across all viewport sizes including narrow mobile screens.
+             */}
+            <div ref={taglineContainerRef} className="relative w-full">
               <div>
                 <h1 className="text-4xl tablet:text-6xl laptop:text-7xl laptopl:text-8xl font-bold leading-tight tracking-tight">
                   {data.headerTaglineOne}
@@ -558,14 +575,97 @@ export default function Home() {
         <div className="container mx-auto mb-10">
 
           {/* Work — professional engagements (WRAM, SentrySight, etc.) */}
-          <div id="work-section" className="mt-10 laptop:mt-20 p-2 laptop:p-0" ref={workRef}>
-            <h1 ref={workHeaderRef} className="text-2xl font-bold">Work.</h1>
+          <div
+            id="work-section"
+            className="mt-10 laptop:mt-20 p-2 laptop:p-0"
+            ref={(el) => { workRef.current = el; workEntranceRef.current = el; }}
+          >
+            {/* ── Scan-line + char-by-char heading reveal ─────────────────── */}
+            <div style={{ position: "relative", display: "inline-block" }}>
+
+              {/*
+               * Neon scan line: sweeps left→right in 0.5 s then fades out.
+               * Fires before the heading letters slide up so the effect reads
+               * as: laser cuts → letters emerge from the incision.
+               */}
+              <motion.div
+                aria-hidden="true"
+                style={{
+                  position: "absolute",
+                  left: 0,
+                  right: 0,
+                  height: "1px",
+                  top: "50%",
+                  originX: 0,
+                  background:
+                    "linear-gradient(90deg, transparent, #0070f3 25%, #38bdf8 50%, #0070f3 75%, transparent)",
+                  boxShadow:
+                    "0 0 8px 2px rgba(0,112,243,0.9), 0 0 28px 6px rgba(56,189,248,0.35)",
+                  zIndex: 1,
+                  pointerEvents: "none",
+                }}
+                initial={{ scaleX: 0, opacity: 0 }}
+                animate={workVisible ? { scaleX: 1, opacity: [0, 1, 1, 0] } : undefined}
+                transition={{
+                  scaleX: { duration: 0.5,  ease: [0.25, 0.1, 0.25, 1] },
+                  opacity: { duration: 0.85, times: [0, 0.05, 0.65, 1]  },
+                }}
+              />
+
+              {/*
+               * "Work." — each character is wrapped in an overflow:hidden span
+               * so the motion.span below slides up from y:110% invisibly.
+               * The h1 element keeps its ref for GSAP scroll-out parallax.
+               */}
+              <h1
+                ref={workHeaderRef}
+                className="text-2xl font-bold"
+                style={{ display: "flex", lineHeight: 1 }}
+              >
+                {"Work.".split("").map((char, i) => (
+                  <span key={i} style={{ overflow: "hidden", display: "inline-block" }}>
+                    <motion.span
+                      style={{ display: "inline-block" }}
+                      initial={{ y: "110%" }}
+                      animate={workVisible ? { y: 0 } : undefined}
+                      transition={{
+                        duration: 0.48,
+                        delay: 0.22 + i * 0.065,
+                        ease: [0.22, 1, 0.36, 1],
+                      }}
+                    >
+                      {char}
+                    </motion.span>
+                  </span>
+                ))}
+              </h1>
+            </div>
+
+            {/*
+             * Cards cascade in with spring physics after the heading settles.
+             * perspective on the grid container makes the rotateX depth visible.
+             * Each card unfolds from a slight forward tilt (rotateX 6°) back to flat.
+             */}
             <div
               ref={projectsGridRef}
               className="mt-5 laptop:mt-10 grid grid-cols-1 tablet:grid-cols-2 gap-4"
+              style={{ perspective: "1200px" }}
             >
-              {data.projects.map((project: Project) => (
-                <div key={project.id} data-project-card>
+              {data.projects.map((project: Project, index: number) => (
+                <motion.div
+                  key={project.id}
+                  data-project-card
+                  initial={{ opacity: 0, y: 68, rotateX: 6 }}
+                  animate={workVisible ? { opacity: 1, y: 0, rotateX: 0 } : undefined}
+                  whileHover={{ y: -6, transition: { type: "spring", stiffness: 350, damping: 26 } }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 72,
+                    damping: 18,
+                    delay: 0.44 + index * 0.13,
+                  }}
+                  style={{ transformOrigin: "top center" }}
+                >
                   <WorkCard
                     img={project.imageSrc}
                     name={project.title}
@@ -574,26 +674,58 @@ export default function Home() {
                     organization={project.organization}
                     onClick={() => window.open(project.url)}
                   />
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
 
           {/* Technical Engineering — research & independent builds */}
-          <div className="mt-16 laptop:mt-24 p-2 laptop:p-0">
-            <h1 ref={engineeringHeaderRef} className="text-2xl font-bold">
-              Technical Engineering.
+          <div
+            className="mt-16 laptop:mt-24 p-2 laptop:p-0"
+            ref={(el) => { engineeringEntranceRef.current = el; }}
+          >
+            {/*
+             * Heading: single inner motion.span slides up so GSAP's scroll-out
+             * parallax (on the h1) doesn't conflict with FM entrance opacity.
+             */}
+            <h1 ref={engineeringHeaderRef} className="text-2xl font-bold" style={{ overflow: "hidden" }}>
+              <motion.span
+                style={{ display: "inline-block" }}
+                initial={{ y: "110%", opacity: 0 }}
+                animate={engineeringVisible ? { y: 0, opacity: 1 } : undefined}
+                transition={{ duration: 0.52, ease: [0.22, 1, 0.36, 1] }}
+              >
+                Technical Engineering.
+              </motion.span>
             </h1>
-            <p className="mt-2 opacity-50 text-base laptop:text-lg max-w-2xl">
+
+            {/* Description — forced single line; remove max-w so it doesn't wrap */}
+            <motion.p
+              className="mt-2 text-base laptop:text-lg whitespace-nowrap"
+              initial={{ opacity: 0, y: 14 }}
+              animate={engineeringVisible ? { opacity: 0.5, y: 0 } : undefined}
+              transition={{ duration: 0.5, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            >
               Research and independent builds — satellite ML, on-chain systems, and real-time AI.
-            </p>
+            </motion.p>
+
             <GlassWrapper className="mt-6">
               <div
                 ref={engineeringGridRef}
                 className="p-4 laptop:p-6 grid grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-3 gap-4"
+                style={{ perspective: "1200px" }}
               >
-                {data.engineeringProjects.map((project: Project) => (
-                  <div key={project.id} data-engineering-card>
+                {data.engineeringProjects.map((project: Project, index: number) => (
+                  <motion.div
+                    key={project.id}
+                    data-engineering-card
+                    initial={{ opacity: 0, y: 56, rotateX: 5 }}
+                    whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+                    whileHover={{ y: -6, transition: { type: "spring", stiffness: 350, damping: 26 } }}
+                    viewport={{ once: true, margin: "-40px" }}
+                    transition={{ type: "spring", stiffness: 72, damping: 18, delay: index * 0.09 }}
+                    style={{ transformOrigin: "top center" }}
+                  >
                     <WorkCard
                       img={project.imageSrc}
                       name={project.title}
@@ -602,18 +734,48 @@ export default function Home() {
                       organization={project.organization}
                       onClick={() => window.open(project.url)}
                     />
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </GlassWrapper>
           </div>
 
           {/* About */}
-          <div id="about-section" className="mt-16 laptop:mt-32 p-2 laptop:p-0" ref={aboutRef}>
-            <h1 ref={aboutHeaderRef} className="tablet:m-10 text-2xl font-bold">About.</h1>
-            <p className="tablet:m-10 mt-2 text-xl laptop:text-3xl w-full laptop:w-3/5">
+          <div
+            id="about-section"
+            className="mt-16 laptop:mt-32 p-2 laptop:p-0"
+            ref={(el) => { aboutRef.current = el; aboutEntranceRef.current = el; }}
+          >
+            {/* "About." — char-by-char slide-up; h1 keeps ref for GSAP scroll-out */}
+            <div className="tablet:m-10" style={{ display: "inline-block" }}>
+              <h1
+                ref={aboutHeaderRef}
+                className="text-2xl font-bold"
+                style={{ display: "flex", lineHeight: 1 }}
+              >
+                {"About.".split("").map((char, i) => (
+                  <span key={i} style={{ overflow: "hidden", display: "inline-block" }}>
+                    <motion.span
+                      style={{ display: "inline-block" }}
+                      initial={{ y: "110%" }}
+                      animate={aboutVisible ? { y: 0 } : undefined}
+                      transition={{ duration: 0.48, delay: 0.1 + i * 0.07, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      {char}
+                    </motion.span>
+                  </span>
+                ))}
+              </h1>
+            </div>
+
+            <motion.p
+              className="tablet:m-10 mt-2 text-xl laptop:text-3xl w-full laptop:w-3/5"
+              initial={{ opacity: 0, y: 28 }}
+              animate={aboutVisible ? { opacity: 1, y: 0 } : undefined}
+              transition={{ duration: 0.72, delay: 0.44, ease: [0.22, 1, 0.36, 1] }}
+            >
               {data.aboutpara}
-            </p>
+            </motion.p>
           </div>
 
           <Footer />
