@@ -25,17 +25,26 @@
   "projects": [
     {
       "id": "teleop-meta",
-      "title": "Teleops Control Surface",
-      "description": "Low-latency operator UI for remote robotics at Meta Reality Labs — real-time state sync and operator feedback loops.",
-      "category": "Robotics Teleoperation",
-      "organization": "Meta",
+      "title": "Robot Operator HMI",
+      "description": "React and TypeScript companion app for a wearable robotics data-collection kit: readiness checks, episode tracking, storage and upload visibility, and accessible audio workflows. Validated on physical kits with 348 regression tests.",
+      "category": "Operator Interfaces",
+      "organization": "Sigma Design @ Meta",
       "imageSrc": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=1400&q=60",
+      "url": "https://www.linkedin.com/in/adnanbaig916"
+    },
+    {
+      "id": "fleet-operations",
+      "title": "Fleet Operations Dashboard",
+      "description": "Production dashboard connecting robot inventory, heartbeats, build telemetry, collection episodes, Jira repairs, and technician workloads. OIDC SSO, responsive layouts down to 320 px, and 296 automated tests.",
+      "category": "Robotics Operations",
+      "organization": "Next.js · React · TypeScript",
+      "imageSrc": "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1400&q=60",
       "url": "https://www.linkedin.com/in/adnanbaig916"
     },
     {
       "id": "figure-humanoid",
       "title": "Humanoid Robot Development",
-      "description": "Evaluated and iterated on humanoid robot behavior to push the boundaries of human-like motion at Figure AI.",
+      "description": "Piloted humanoid robots with teleoperation, Foxglove, and Manus to collect AI training data, monitor actuator health and runtime faults, and label datasets with engineering teams.",
       "category": "Robotics Teleoperation",
       "organization": "Figure",
       "imageSrc": "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1400&q=60",
@@ -53,6 +62,15 @@
   ],
   "engineeringProjects": [
     {
+      "id": "so101-workstation",
+      "title": "SO-101 Robotics Workstation",
+      "description": "In progress: leader-follower teleoperation, RealSense capture, LeRobot dataset and training pipelines, and MuJoCo simulation. A fail-closed control plane includes exclusive motor-bus ownership, watchdog supervision, and a latched emergency stop.",
+      "category": "Robotics · In Progress",
+      "organization": "Python · FastAPI · React",
+      "imageSrc": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=1400&q=60",
+      "url": "https://github.com/adnanabaig"
+    },
+    {
       "id": "blockchain-dapp",
       "title": "Blockchain Certificate System DApp",
       "description": "Decentralized application for verifiable academic credentials — Solidity smart contracts handle on-chain issuance and revocation, IPFS stores document hashes, and a React frontend provides trustless verification without a central authority.",
@@ -64,21 +82,21 @@
     {
       "id": "wram",
       "title": "Wildfire Risk Assessment Model",
-      "description": "U-Net CNN trained on Sentinel-2 multispectral satellite imagery to segment high-risk wildfire zones. Achieved 80% training accuracy across California fire corridors — ingesting terrain, vegetation density, and moisture-index channels as input.",
+      "description": "U-Net CNN trained on 12-band Sentinel-2 satellite imagery to identify wildfire-risk zones, with augmentation, dropout, and validation against Cal Fire ground truth. Second place at the ACM AI Hackathon.",
       "category": "Computer Vision & ML",
-      "organization": "PyTorch · Sentinel-2 · U-Net CNN",
+      "organization": "Python · TensorFlow · U-Net",
       "imageSrc": "https://images.unsplash.com/photo-1569154941061-e231b4725ef1?auto=format&fit=crop&w=1400&q=60",
       "url": "https://github.com/adnanabaig/Wildfire-Risk-Assessment-Model"
     },
     {
       "id": "sentrysight",
       "title": "SentrySight",
-      "description": "Real-time AI firearm detection platform with a live interactive demo. Custom object-detection model with sub-100ms inference, responsive alert UI, and a public-facing demo for evaluating accuracy across diverse environments and lighting conditions.",
+      "description": "AI firearm-detection project combining computer vision with an interactive web interface for exploring detections and alerts.",
       "category": "AI Safety & Detection",
       "organization": "TensorFlow · OpenCV · React",
       "imageSrc": "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1400&q=60",
       "url": "https://github.com/adnanabaig/SentrySight"
     }
   ],
-  "aboutpara": "CS graduate (CSUS '25) with a focus on the systems layer where robotics, AI, and software meet the physical world. Currently at Meta Reality Labs via Sigma Design, building low-latency teleoperation interfaces for next-generation robotic systems in production. Previously a Humanoid Test Pilot at Figure AI — evaluating and pushing the boundaries of human-like robot motion. Founder of Vizualty LLC, an independent production and engineering studio active for 8+ years. Outside of work I build at the research frontier: satellite-driven wildfire risk models, on-chain credential systems, and real-time AI detection platforms. I ship with precision across every domain."
+  "aboutpara": "Robotics software engineer at Meta Reality Labs through Sigma Design, building operator interfaces, fleet tooling, and hardware-software integrations. I work across React and TypeScript frontends, Python services, Embedded Linux, NVIDIA Jetson systems, EtherCAT networks, and camera pipelines. Previously, I piloted humanoid robots at Figure AI and worked in cybersecurity at Cyber Proud / CalSTRS. I earned my B.S. in Computer Science from Sacramento State in May 2025. Outside work, I am developing an SO-101 robotics workstation and run Vizualty LLC, an independent production studio."
 }
