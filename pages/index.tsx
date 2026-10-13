@@ -9,6 +9,7 @@ import Socials from "../components/Socials";
 import WorkCard from "../components/WorkCard";
 import Footer from "../components/Footer";
 import { useIsomorphicLayoutEffect } from "../utils";
+import { scrollToSection } from "../utils/scroll";
 
 import portfolioJson from "../data/portfolio.json";
 import type { PortfolioData, Project } from "../types/portfolio";
@@ -60,6 +61,9 @@ export default function Home() {
   const matrixCanvasRef     = useRef<HTMLCanvasElement | null>(null);
   const binaryOverlayRef    = useRef<HTMLDivElement | null>(null);   // receives mask-image
   const taglineContainerRef = useRef<HTMLDivElement | null>(null);
+  const matrixTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const matrixInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+  const matrixCleanup = useRef<(() => void) | null>(null);
   const matrixRunningRef    = useRef(false);                         // re-entry guard
 
   // ── Grid refs ─────────────────────────────────────────────────────────────
@@ -103,7 +107,7 @@ export default function Home() {
   // The binary canvas is already scrolling when the mask window arrives, so
   // the reveal feels alive from the first letter it touches.
   const runMatrixShine = useCallback(() => {
-    if (matrixRunningRef.current) return;
+    if (matrixRunningRef.current || document.hidden || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     matrixRunningRef.current = true;
 
     const canvas  = matrixCanvasRef.current;
@@ -232,7 +236,7 @@ export default function Home() {
     // ── GSAP timeline: sweep mask window left→right ───────────────────────
     const proxy = { x: -shineHalfW };
 
-    gsap.to(proxy, {
+    const shineTween = gsap.to(proxy, {
       x: W + shineHalfW,
       duration: 2.0,
       ease: "none", // linear — every letter gets identical dwell time
@@ -264,6 +268,12 @@ export default function Home() {
         });
       },
     });
+    matrixCleanup.current = () => {
+      cancelAnimationFrame(rafId);
+      shineTween.kill();
+      gsap.killTweensOf(overlay);
+      matrixRunningRef.current = false;
+    };
   }, []); // refs are stable — safe with empty deps
 
   // ── Stagger entrance for project cards ────────────────────────────────────
@@ -272,9 +282,12 @@ export default function Home() {
   // Nav and Hero section, immediately after the typewriter overlay exits.
   const runEntranceAnimations = useCallback(() => {
     // Matrix shine fires 1 s after the page is fully visible, then repeats every 5 s
-    setTimeout(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (matrixTimeout.current) clearTimeout(matrixTimeout.current);
+    if (matrixInterval.current) clearInterval(matrixInterval.current);
+    matrixTimeout.current = setTimeout(() => {
       runMatrixShine();
-      setInterval(runMatrixShine, 5000);
+      matrixInterval.current = setInterval(runMatrixShine, 5000);
     }, 1000);
   }, [runMatrixShine]);
 
@@ -283,7 +296,7 @@ export default function Home() {
   // Return visits: collapse the overlay state and reveal the page immediately.
   // First visits:  hide the page so the overlay typewriter plays first.
   useIsomorphicLayoutEffect(() => {
-    const hasPlayed = safeStorage(INIT_KEY);
+    const hasPlayed = safeStorage(INIT_KEY) || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     if (hasPlayed) {
       setShowOverlay(false);
@@ -292,13 +305,18 @@ export default function Home() {
     } else {
       gsap.set(pageRef.current, { opacity: 0 });
     }
+    return () => {
+      if (matrixTimeout.current) clearTimeout(matrixTimeout.current);
+      if (matrixInterval.current) clearInterval(matrixInterval.current);
+      matrixCleanup.current?.();
+    };
   }, [runEntranceAnimations]);
 
   // ── Typewriter overlay — only runs on first visit ─────────────────────────
   // No async dynamic imports: gsap is imported at module level, proxy pattern
   // avoids TextPlugin entirely. Single timeline, no race conditions.
   useEffect(() => {
-    if (!showOverlay) return; // return visit — skip
+    if (!showOverlay || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return; // skip intro
 
     const proxy = { n: 0 };
 
@@ -363,6 +381,7 @@ export default function Home() {
 
   // ── ScrollTrigger: hero curtain + section header parallax ─────────────────
   useIsomorphicLayoutEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce), (max-width: 767px)").matches) return;
     let cancelled = false;
     const killFns: Array<() => void> = [];
 
@@ -410,13 +429,21 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>{data.name}</title>
+        <title>Adnan Baig — Robotics, AI & Software</title>
+        <link rel="canonical" href="https://adnanbaig.com/" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Adnan Baig — Robotics, AI & Software" />
+        <meta property="og:description" content="Selected work in robotics teleoperation, machine learning, and software engineering." />
+        <meta property="og:url" content="https://adnanbaig.com/" />
+        <meta name="twitter:card" content="summary" />
+        <noscript><style>{`[data-intro-overlay] { display: none !important; } .portfolio-content, .portfolio-content [style*="opacity"], .portfolio-content [style*="transform"] { opacity: 1 !important; transform: none !important; }`}</style></noscript>
         <meta
           name="description"
           content="Adnan Baig — robotics engineer, AI builder, and CS graduate (CSUS '25) currently at Meta Reality Labs."
         />
       </Head>
 
+      <a href="#main-content" className="skip-link">Skip to content</a>
       {/*
        * ── TYPEWRITER OVERLAY ──────────────────────────────────────────────
        * Fixed, full-screen, dark — sits above all page content.
@@ -426,6 +453,8 @@ export default function Home() {
       {showOverlay && (
         <div
           ref={overlayRef}
+          aria-hidden="true"
+          data-intro-overlay
           style={{
             position: "fixed",
             inset: 0,
@@ -480,7 +509,7 @@ export default function Home() {
        * the browser's first paint — on return visits instantly, on first visits
        * after the typewriter overlay exits.
        */}
-      <div ref={pageRef} style={{ opacity: 0 }}>
+      <main id="main-content" tabIndex={-1} ref={pageRef} className="portfolio-content" style={{ opacity: 0 }}>
 
         {/* ── HERO ──────────────────────────────────────────────────────── */}
         <div ref={heroRef} className="relative min-h-screen flex flex-col overflow-hidden">
@@ -494,7 +523,7 @@ export default function Home() {
           {/* Inner hero content — animated out by ScrollTrigger curtain on scroll */}
           <div
             ref={heroContentRef}
-            className="flex-1 flex flex-col items-center justify-center text-center px-6 pb-20 will-change-transform"
+            className="flex-1 flex flex-col items-center justify-center text-center px-6 pt-12 pb-32 will-change-transform"
           >
             {/*
              * ── TAGLINE CONTAINER ─────────────────────────────────────────
@@ -559,20 +588,26 @@ export default function Home() {
               </div>
             </div>
 
-            <Socials className="mt-8 laptop:mt-10" />
+            <p className="mt-6 max-w-2xl text-base tablet:text-lg leading-relaxed text-slate-300">Robotics teleoperation at Meta Reality Labs via Sigma Design. Previously at Figure AI. Building across robotics, machine learning, and software.</p>
+            <a href="#work-section" onClick={(event) => {
+              if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+              event.preventDefault();
+              scrollToSection("work-section");
+            }} className="mt-8 inline-flex min-h-[48px] items-center gap-3 rounded-lg bg-[#0070F3] px-6 py-3 font-medium text-white shadow-[0_0_30px_rgba(0,112,243,0.2)] transition-colors hover:bg-[#0060d0]">View selected work <span aria-hidden="true">↓</span></a>
+            <Socials className="mt-4 justify-center" />
           </div>
 
           {/* Scroll affordance */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-30 pointer-events-none select-none">
+          <a href="#work-section" aria-label="Explore selected work" className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-slate-400 select-none rounded-lg p-2">
             <span className="text-xs font-mono tracking-[0.25em] uppercase">Scroll</span>
             <svg width="16" height="20" viewBox="0 0 16 20" fill="none" className="animate-bounce" aria-hidden="true">
               <path d="M8 0v16M1 9l7 7 7-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-          </div>
+          </a>
         </div>
 
         {/* ── WORK + ENGINEERING + ABOUT ────────────────────────────────── */}
-        <div className="container mx-auto mb-10">
+        <div className="container mx-auto mb-10 px-4 laptop:px-6">
 
           {/* Work — professional engagements (WRAM, SentrySight, etc.) */}
           <div
@@ -648,7 +683,7 @@ export default function Home() {
              */}
             <div
               ref={projectsGridRef}
-              className="mt-5 laptop:mt-10 grid grid-cols-1 tablet:grid-cols-2 gap-4"
+              className="mt-5 laptop:mt-10 grid grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-3 gap-4"
               style={{ perspective: "1200px" }}
             >
               {data.projects.map((project: Project, index: number) => (
@@ -672,7 +707,7 @@ export default function Home() {
                     description={project.description}
                     category={project.category}
                     organization={project.organization}
-                    onClick={() => window.open(project.url)}
+                    href={project.url}
                   />
                 </motion.div>
               ))}
@@ -681,6 +716,7 @@ export default function Home() {
 
           {/* Technical Engineering — research & independent builds */}
           <div
+            id="engineering-section"
             className="mt-16 laptop:mt-24 p-2 laptop:p-0"
             ref={(el) => { engineeringEntranceRef.current = el; }}
           >
@@ -699,11 +735,11 @@ export default function Home() {
               </motion.span>
             </h1>
 
-            {/* Description — forced single line; remove max-w so it doesn't wrap */}
+            {/* Keep the introduction readable at every screen width. */}
             <motion.p
-              className="mt-2 text-base laptop:text-lg whitespace-nowrap"
+              className="mt-2 text-base laptop:text-lg max-w-3xl leading-relaxed text-slate-300"
               initial={{ opacity: 0, y: 14 }}
-              animate={engineeringVisible ? { opacity: 0.5, y: 0 } : undefined}
+              animate={engineeringVisible ? { opacity: 1, y: 0 } : undefined}
               transition={{ duration: 0.5, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
             >
               Research and independent builds — satellite ML, on-chain systems, and real-time AI.
@@ -732,7 +768,7 @@ export default function Home() {
                       description={project.description}
                       category={project.category}
                       organization={project.organization}
-                      onClick={() => window.open(project.url)}
+                      href={project.url}
                     />
                   </motion.div>
                 ))}
@@ -769,7 +805,7 @@ export default function Home() {
             </div>
 
             <motion.p
-              className="tablet:m-10 mt-2 text-xl laptop:text-3xl w-full laptop:w-3/5"
+              className="tablet:mx-10 mt-5 max-w-3xl text-lg tablet:text-xl laptop:text-2xl leading-relaxed text-slate-300"
               initial={{ opacity: 0, y: 28 }}
               animate={aboutVisible ? { opacity: 1, y: 0 } : undefined}
               transition={{ duration: 0.72, delay: 0.44, ease: [0.22, 1, 0.36, 1] }}
@@ -781,7 +817,7 @@ export default function Home() {
           <Footer />
         </div>
 
-      </div>{/* /pageRef */}
+      </main>{/* /pageRef */}
     </>
   );
 }

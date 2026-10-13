@@ -3,6 +3,7 @@ import "../styles/globals.css";
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import type LenisClass from "@studio-freight/lenis";
+import { setSmoothScroller } from "../utils/scroll";
 
 function App({ Component, pageProps }: AppProps) {
   // ── Liquid-distortion: mouse velocity drives feDisplacementMap scale ────────
@@ -13,6 +14,7 @@ function App({ Component, pageProps }: AppProps) {
 
   // ── Lenis smooth scroll — wired into GSAP ticker + ScrollTrigger ────────────
   useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     let lenis: InstanceType<typeof LenisClass> | null = null;
     let tick: ((time: number) => void) | null = null;
     let cancelled = false;
@@ -32,6 +34,7 @@ function App({ Component, pageProps }: AppProps) {
         smoothWheel: true,
         syncTouch: false, // keep native momentum on touch devices
       });
+      setSmoothScroller(lenis);
 
       // Keep ScrollTrigger's scroll position in sync with Lenis's virtual scroll
       lenis.on("scroll", ScrollTrigger.update);
@@ -58,11 +61,13 @@ function App({ Component, pageProps }: AppProps) {
       cancelled = true;
       if (tick) gsap.ticker.remove(tick);
       lenis?.destroy();
+      setSmoothScroller(null);
     };
   }, []);
 
   // ── Liquid-distortion: mouse velocity drives feDisplacementMap scale ────────
   useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const onMouseMove = (e: MouseEvent) => {
       const now = performance.now();
       const dt  = now - prevMouse.current.t;
@@ -95,7 +100,10 @@ function App({ Component, pageProps }: AppProps) {
     };
 
     window.addEventListener("mousemove", onMouseMove);
-    return () => window.removeEventListener("mousemove", onMouseMove);
+    return () => {
+      window.removeEventListener("mousemove", onMouseMove);
+      decayTween.current?.kill();
+    };
   }, []);
 
   return (
