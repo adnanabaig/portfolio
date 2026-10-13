@@ -80,7 +80,7 @@ const WorkCard = ({
           src={img}
           layout="fill"
           objectFit="cover"
-          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 50vw"
         />
       </div>
 
@@ -101,7 +101,7 @@ const WorkCard = ({
 
       <h3 className="mt-5 text-2xl laptop:text-3xl font-medium">{name ?? "Project Name"}</h3>
       <p className="mt-3 mb-6 text-base leading-relaxed text-slate-300">{description ?? "Description"}</p>
-      <span className="mt-auto flex items-center justify-between border-t border-white/10 pt-4 text-sm text-[#7db6ff]">{href.includes("github.com") ? "View source" : href.includes("linkedin.com") ? "View experience" : "Visit website"} <span aria-hidden="true" className="transition-transform group-hover:translate-x-1 group-focus-visible:translate-x-1">↗</span></span>
+      <span className="mt-auto flex items-center justify-between border-t border-white/10 pt-4 text-sm text-[#7db6ff]">{href === "https://github.com/adnanabaig" ? "View GitHub profile" : href.includes("github.com") ? "View source" : href.includes("linkedin.com") ? "View experience" : "Visit website"} <span aria-hidden="true" className="transition-transform group-hover:translate-x-1 group-focus-visible:translate-x-1">↗</span></span>
     </a>
   );
 };
