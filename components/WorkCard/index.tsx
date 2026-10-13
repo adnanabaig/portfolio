@@ -70,11 +70,10 @@ const WorkCard = ({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="block h-full overflow-hidden cursor-pointer rounded-2xl p-3 laptop:p-4 first:ml-0 border border-white/10 bg-white/5 backdrop-blur-md shadow-[0_12px_50px_rgba(0,0,0,0.35)] will-change-transform hover:border-white/20 transition-[border-color] duration-300"
+      className="group flex h-full min-w-0 flex-col overflow-hidden cursor-pointer rounded-2xl p-3 laptop:p-4 border border-white/10 bg-white/5 backdrop-blur-md shadow-[0_12px_50px_rgba(0,0,0,0.35)] will-change-transform hover:border-[#7db6ff]/40 focus-visible:border-[#7db6ff] transition-[border-color] duration-300"
     >
       <div
-        className="relative overflow-hidden rounded-lg transition-transform ease-out duration-300 hover:scale-95"
-        style={{ height: "clamp(220px, 32vw, 420px)" }}
+        className="relative aspect-[4/3] shrink-0 overflow-hidden rounded-lg"
       >
         <Image
           alt={name ?? "Project image"}
@@ -101,8 +100,8 @@ const WorkCard = ({
       )}
 
       <h3 className="mt-5 text-2xl laptop:text-3xl font-medium">{name ?? "Project Name"}</h3>
-      <p className="mt-3 text-base leading-relaxed text-slate-300">{description ?? "Description"}</p>
-      <span className="inline-block mt-5 text-sm text-[#7db6ff]">{href.includes("github.com") ? "View source" : href.includes("linkedin.com") ? "View experience" : "Visit website"} <span aria-hidden="true">↗</span></span>
+      <p className="mt-3 mb-6 text-base leading-relaxed text-slate-300">{description ?? "Description"}</p>
+      <span className="mt-auto flex items-center justify-between border-t border-white/10 pt-4 text-sm text-[#7db6ff]">{href.includes("github.com") ? "View source" : href.includes("linkedin.com") ? "View experience" : "Visit website"} <span aria-hidden="true" className="transition-transform group-hover:translate-x-1 group-focus-visible:translate-x-1">↗</span></span>
     </a>
   );
 };
