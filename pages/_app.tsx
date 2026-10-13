@@ -3,6 +3,7 @@ import "../styles/globals.css";
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import type LenisClass from "@studio-freight/lenis";
+import { setSmoothScroller } from "../utils/scroll";
 
 function App({ Component, pageProps }: AppProps) {
   // ── Liquid-distortion: mouse velocity drives feDisplacementMap scale ────────
@@ -33,6 +34,7 @@ function App({ Component, pageProps }: AppProps) {
         smoothWheel: true,
         syncTouch: false, // keep native momentum on touch devices
       });
+      setSmoothScroller(lenis);
 
       // Keep ScrollTrigger's scroll position in sync with Lenis's virtual scroll
       lenis.on("scroll", ScrollTrigger.update);
@@ -59,6 +61,7 @@ function App({ Component, pageProps }: AppProps) {
       cancelled = true;
       if (tick) gsap.ticker.remove(tick);
       lenis?.destroy();
+      setSmoothScroller(null);
     };
   }, []);
 
