@@ -130,7 +130,7 @@ export default function Home() {
     ctx.scale(dpr, dpr);
 
     // ── Capture h1 positions + fonts relative to container ────────────────
-    const h1s  = Array.from(container.querySelectorAll<HTMLHeadingElement>("h1"));
+    const h1s  = Array.from(container.querySelectorAll<HTMLElement>("[data-tagline-line]"));
     const lines = h1s.map((el) => {
       const r  = el.getBoundingClientRect();
       const cs = window.getComputedStyle(el);
@@ -537,32 +537,11 @@ export default function Home() {
              * across all viewport sizes including narrow mobile screens.
              */}
             <div ref={taglineContainerRef} className="relative w-full">
-              <div>
-                <h1 className="text-4xl tablet:text-6xl laptop:text-7xl laptopl:text-8xl font-bold leading-tight tracking-tight">
-                  {data.headerTaglineOne}
-                </h1>
-              </div>
-              {data.headerTaglineTwo && (
-                <div>
-                  <h1 className="text-4xl tablet:text-6xl laptop:text-7xl laptopl:text-8xl font-bold leading-tight tracking-tight">
-                    {data.headerTaglineTwo}
-                  </h1>
-                </div>
-              )}
-              {data.headerTaglineThree && (
-                <div>
-                  <h1 className="text-4xl tablet:text-6xl laptop:text-7xl laptopl:text-8xl font-bold leading-tight tracking-tight">
-                    {data.headerTaglineThree}
-                  </h1>
-                </div>
-              )}
-              {data.headerTaglineFour && (
-                <div>
-                  <h1 className="text-4xl tablet:text-6xl laptop:text-7xl laptopl:text-8xl font-bold leading-tight tracking-tight">
-                    {data.headerTaglineFour}
-                  </h1>
-                </div>
-              )}
+              <h1 className="text-4xl tablet:text-6xl laptop:text-7xl laptopl:text-8xl font-bold leading-tight tracking-tight">
+                {[data.headerTaglineOne, data.headerTaglineTwo, data.headerTaglineThree, data.headerTaglineFour].filter(Boolean).map((line, index) => (
+                  <span key={index} data-tagline-line className="block">{line}{" "}</span>
+                ))}
+              </h1>
 
               {/*
                * ── BINARY OVERLAY (Layer 2) ───────────────────────────────
@@ -598,7 +577,7 @@ export default function Home() {
           </div>
 
           {/* Scroll affordance */}
-          <a href="#work-section" aria-label="Explore selected work" className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-slate-400 select-none rounded-lg p-2">
+          <a href="#work-section" onClick={(event) => { if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return; event.preventDefault(); scrollToSection("work-section"); }} aria-label="Explore selected work" className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-slate-400 select-none rounded-lg p-2">
             <span className="text-xs font-mono tracking-[0.25em] uppercase">Scroll</span>
             <svg width="16" height="20" viewBox="0 0 16 20" fill="none" className="animate-bounce" aria-hidden="true">
               <path d="M8 0v16M1 9l7 7 7-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -652,7 +631,7 @@ export default function Home() {
                * so the motion.span below slides up from y:110% invisibly.
                * The h1 element keeps its ref for GSAP scroll-out parallax.
                */}
-              <h1
+              <h2
                 ref={workHeaderRef}
                 className="text-2xl font-bold"
                 style={{ display: "flex", lineHeight: 1 }}
@@ -673,7 +652,7 @@ export default function Home() {
                     </motion.span>
                   </span>
                 ))}
-              </h1>
+              </h2>
             </div>
 
             {/*
@@ -683,7 +662,7 @@ export default function Home() {
              */}
             <div
               ref={projectsGridRef}
-              className="mt-5 laptop:mt-10 grid grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-3 gap-4"
+              className="mt-5 laptop:mt-10 grid grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-2 gap-4"
               style={{ perspective: "1200px" }}
             >
               {data.projects.map((project: Project, index: number) => (
@@ -724,7 +703,7 @@ export default function Home() {
              * Heading: single inner motion.span slides up so GSAP's scroll-out
              * parallax (on the h1) doesn't conflict with FM entrance opacity.
              */}
-            <h1 ref={engineeringHeaderRef} className="text-2xl font-bold" style={{ overflow: "hidden" }}>
+            <h2 ref={engineeringHeaderRef} className="text-2xl font-bold" style={{ overflow: "hidden" }}>
               <motion.span
                 style={{ display: "inline-block" }}
                 initial={{ y: "110%", opacity: 0 }}
@@ -733,7 +712,7 @@ export default function Home() {
               >
                 Technical Engineering.
               </motion.span>
-            </h1>
+            </h2>
 
             {/* Keep the introduction readable at every screen width. */}
             <motion.p
@@ -748,7 +727,7 @@ export default function Home() {
             <GlassWrapper className="mt-6">
               <div
                 ref={engineeringGridRef}
-                className="p-4 laptop:p-6 grid grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-3 gap-4"
+                className="p-4 laptop:p-6 grid grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-2 gap-4"
                 style={{ perspective: "1200px" }}
               >
                 {data.engineeringProjects.map((project: Project, index: number) => (
@@ -784,7 +763,7 @@ export default function Home() {
           >
             {/* "About." — char-by-char slide-up; h1 keeps ref for GSAP scroll-out */}
             <div className="tablet:m-10" style={{ display: "inline-block" }}>
-              <h1
+              <h2
                 ref={aboutHeaderRef}
                 className="text-2xl font-bold"
                 style={{ display: "flex", lineHeight: 1 }}
@@ -801,7 +780,7 @@ export default function Home() {
                     </motion.span>
                   </span>
                 ))}
-              </h1>
+              </h2>
             </div>
 
             <motion.p

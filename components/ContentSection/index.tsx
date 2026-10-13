@@ -4,6 +4,9 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { dracula } from "react-syntax-highlighter/dist/cjs/styles/prism";
 
 const markdownComponents: Components = {
+  h1: ({ children }) => <h2>{children}</h2>,
+  h2: ({ children }) => <h3>{children}</h3>,
+  h3: ({ children }) => <h4>{children}</h4>,
   code({ inline, className, children, ...props }) {
     const match = /language-(\w+)/.exec(className ?? "");
 

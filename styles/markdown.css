@@ -3,7 +3,8 @@
 /* Markdown Container */
 
 .markdown-class {
-  @apply mt-5 p-5;
+  @apply mt-8 pb-8;
+  overflow-wrap: anywhere;
 }
 
 /* Headings */
@@ -32,7 +33,7 @@
 }
 
 .markdown-class p {
-  @apply mt-2 opacity-80 leading-7 font-normal text-base;
+  @apply mt-5 text-slate-300 leading-8 font-normal text-base tablet:text-lg;
 }
 
 .markdown-class strong {
@@ -60,7 +61,7 @@
 }
 
 .markdown-class ol li {
-  @apply text-base opacity-80 list-decimal;
+  @apply text-base leading-8 text-slate-300 list-decimal;
 }
 
 .markdown-class ul {
@@ -68,7 +69,7 @@
 }
 
 .markdown-class ul li {
-  @apply text-base opacity-80 list-disc;
+  @apply text-base leading-8 text-slate-300 list-disc;
 }
 
 
@@ -80,3 +81,5 @@
 .markdown-class img {
   @apply max-h-96 w-full my-5 object-cover rounded-lg shadow-lg;
 }
+
+.markdown-class pre { overflow-x: auto; max-width: 100%; margin: 1.5rem 0; }

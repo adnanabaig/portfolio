@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { Popover } from "@headlessui/react";
+import { scrollToSection } from "../../utils/scroll";
 import data from "../../data/portfolio.json";
 
 export interface HeaderProps {
@@ -42,7 +43,12 @@ const Header = ({ isBlog = false }: HeaderProps) => {
   );
   const links = (close?: () => void) => items.map((item) => (
     <Link href={item.href} key={item.title}>
-      <a className={linkClass} onClick={() => close?.()}
+      <a className={linkClass} onClick={(event) => {
+        close?.();
+        if (!item.href.startsWith("#") || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        scrollToSection(item.href.slice(1));
+      }}
         aria-current={item.href === `#${activeSection}` ? "location" : isBlog && item.href === "/blog" ? "page" : undefined}>
         {item.title}
       </a>
