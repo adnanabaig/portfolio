@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import Head from "next/head";
 import Image from "next/image";
-import Router from "next/router";
+import Link from "next/link";
 import type { GetStaticProps } from "next";
 
 import Header from "../../components/Header";
@@ -39,11 +39,8 @@ const Blog = ({ posts }: BlogPageProps) => {
           </h1>
           <div className="mt-10 grid grid-cols-1 mob:grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-3 justify-between gap-10">
             {posts?.map((post) => (
-              <div
-                className="cursor-pointer relative"
-                key={post.slug}
-                onClick={() => Router.push(`/blog/${post.slug}`)}
-              >
+              <Link href={`/blog/${post.slug}`} key={post.slug}>
+              <a className="block relative rounded-lg">
                 <div className="relative w-full h-60 rounded-lg shadow-lg overflow-hidden">
                   <Image
                     src={post.image}
@@ -57,7 +54,8 @@ const Blog = ({ posts }: BlogPageProps) => {
                 <span className="text-sm mt-5 opacity-25">
                   {ISOToDate(post.date)}
                 </span>
-              </div>
+              </a>
+              </Link>
             ))}
           </div>
         </div>

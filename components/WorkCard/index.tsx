@@ -8,7 +8,7 @@ export interface WorkCardProps {
   description?: string;
   category?: string;
   organization?: string;
-  onClick?: React.MouseEventHandler<HTMLDivElement>;
+  href: string;
 }
 
 const MAGNETIC_RADIUS = 100; // px beyond the card's edge
@@ -19,15 +19,15 @@ const WorkCard = ({
   description,
   category,
   organization,
-  onClick,
+  href,
 }: WorkCardProps) => {
-  const cardRef = useRef<HTMLDivElement | null>(null);
+  const cardRef = useRef<HTMLAnchorElement | null>(null);
   const xTo = useRef<ReturnType<typeof gsap.quickTo> | null>(null);
   const yTo = useRef<ReturnType<typeof gsap.quickTo> | null>(null);
 
   useEffect(() => {
     const el = cardRef.current;
-    if (!el) return;
+    if (!el || window.matchMedia("(prefers-reduced-motion: reduce), (pointer: coarse)").matches) return;
 
     // Spring-like quickTo setters — power3.out gives a subtle elastic feel
     xTo.current = gsap.quickTo(el, "x", { duration: 0.7, ease: "power3.out" });
@@ -60,26 +60,28 @@ const WorkCard = ({
 
     return () => {
       window.removeEventListener("mousemove", onMouseMove);
-      xTo.current?.(0);
-      yTo.current?.(0);
+      gsap.killTweensOf(el);
     };
   }, []);
 
   return (
-    <div
+    <a
       ref={cardRef}
-      className="overflow-hidden cursor-pointer rounded-2xl p-3 laptop:p-4 first:ml-0 border border-white/10 bg-white/5 backdrop-blur-md shadow-[0_12px_50px_rgba(0,0,0,0.35)] will-change-transform hover:border-white/20 transition-[border-color] duration-300"
-      onClick={onClick}
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="block h-full overflow-hidden cursor-pointer rounded-2xl p-3 laptop:p-4 first:ml-0 border border-white/10 bg-white/5 backdrop-blur-md shadow-[0_12px_50px_rgba(0,0,0,0.35)] will-change-transform hover:border-white/20 transition-[border-color] duration-300"
     >
       <div
         className="relative overflow-hidden rounded-lg transition-transform ease-out duration-300 hover:scale-95"
-        style={{ height: "600px" }}
+        style={{ height: "clamp(220px, 32vw, 420px)" }}
       >
         <Image
           alt={name ?? "Project image"}
           src={img}
           layout="fill"
           objectFit="cover"
+          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
         />
       </div>
 
@@ -98,9 +100,10 @@ const WorkCard = ({
         </div>
       )}
 
-      <h1 className="mt-5 text-3xl font-medium">{name ?? "Project Name"}</h1>
-      <h2 className="text-xl opacity-50">{description ?? "Description"}</h2>
-    </div>
+      <h3 className="mt-5 text-2xl laptop:text-3xl font-medium">{name ?? "Project Name"}</h3>
+      <p className="mt-3 text-base leading-relaxed text-slate-300">{description ?? "Description"}</p>
+      <span className="inline-block mt-5 text-sm text-[#7db6ff]">{href.includes("github.com") ? "View source" : href.includes("linkedin.com") ? "View experience" : "Visit website"} <span aria-hidden="true">↗</span></span>
+    </a>
   );
 };
 

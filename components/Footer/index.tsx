@@ -7,7 +7,7 @@ const Footer = () => {
   const visible = useInView(ref, { once: true, amount: 0.2 });
 
   return (
-    <div ref={ref} className="mt-5 laptop:mt-40 p-2 laptop:p-0">
+    <footer id="contact-section" ref={ref} className="mt-5 laptop:mt-40 p-2 laptop:p-0">
       {/* "Contact." — char-by-char slide-up */}
       <h1
         className="text-2xl text-bold"
@@ -27,6 +27,7 @@ const Footer = () => {
         ))}
       </h1>
 
+      <p className="mt-5 text-lg text-slate-300 max-w-xl">Have a robotics, AI, or software project in mind? Let’s talk.</p>
       {/* Socials fade + slide up after heading settles */}
       <motion.div
         className="mt-5"
@@ -54,7 +55,7 @@ const Footer = () => {
           Vizualty LLC
         </a>
       </motion.p>
-    </div>
+    </footer>
   );
 };
 
