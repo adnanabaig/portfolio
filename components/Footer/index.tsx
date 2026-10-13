@@ -9,7 +9,7 @@ const Footer = () => {
   return (
     <footer id="contact-section" ref={ref} className="mt-5 laptop:mt-40 p-2 laptop:p-0">
       {/* "Contact." — char-by-char slide-up */}
-      <h1
+      <h2
         className="text-2xl text-bold"
         style={{ display: "flex", lineHeight: 1 }}
       >
@@ -25,7 +25,7 @@ const Footer = () => {
             </motion.span>
           </span>
         ))}
-      </h1>
+      </h2>
 
       <p className="mt-5 text-lg text-slate-300 max-w-xl">Have a robotics, AI, or software project in mind? Let’s talk.</p>
       {/* Socials fade + slide up after heading settles */}
@@ -40,9 +40,9 @@ const Footer = () => {
 
       {/* Copyright — subtle fade */}
       <motion.p
-        className="text-sm mt-2 laptop:mt-10"
+        className="text-sm mt-2 laptop:mt-10 text-slate-400"
         style={{ opacity: 0 }}
-        animate={visible ? { opacity: 0.4 } : undefined}
+        animate={visible ? { opacity: 1 } : undefined}
         transition={{ duration: 0.6, delay: 0.72 }}
       >
         Adnan Baig &mdash; Contract work &amp; billing via{" "}
