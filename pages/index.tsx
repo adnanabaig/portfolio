@@ -9,6 +9,7 @@ import Socials from "../components/Socials";
 import WorkCard from "../components/WorkCard";
 import Footer from "../components/Footer";
 import { useIsomorphicLayoutEffect } from "../utils";
+import { scrollToSection } from "../utils/scroll";
 
 import portfolioJson from "../data/portfolio.json";
 import type { PortfolioData, Project } from "../types/portfolio";
@@ -522,7 +523,7 @@ export default function Home() {
           {/* Inner hero content — animated out by ScrollTrigger curtain on scroll */}
           <div
             ref={heroContentRef}
-            className="flex-1 flex flex-col items-center justify-center text-center px-6 pb-20 will-change-transform"
+            className="flex-1 flex flex-col items-center justify-center text-center px-6 pt-12 pb-32 will-change-transform"
           >
             {/*
              * ── TAGLINE CONTAINER ─────────────────────────────────────────
@@ -588,7 +589,12 @@ export default function Home() {
             </div>
 
             <p className="mt-6 max-w-2xl text-base tablet:text-lg leading-relaxed text-slate-300">Robotics teleoperation at Meta Reality Labs via Sigma Design. Previously at Figure AI. Building across robotics, machine learning, and software.</p>
-            <Socials className="mt-8 laptop:mt-10" />
+            <a href="#work-section" onClick={(event) => {
+              if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+              event.preventDefault();
+              scrollToSection("work-section");
+            }} className="mt-8 inline-flex min-h-[48px] items-center gap-3 rounded-lg bg-[#0070F3] px-6 py-3 font-medium text-white shadow-[0_0_30px_rgba(0,112,243,0.2)] transition-colors hover:bg-[#0060d0]">View selected work <span aria-hidden="true">↓</span></a>
+            <Socials className="mt-4 justify-center" />
           </div>
 
           {/* Scroll affordance */}
@@ -677,7 +683,7 @@ export default function Home() {
              */}
             <div
               ref={projectsGridRef}
-              className="mt-5 laptop:mt-10 grid grid-cols-1 tablet:grid-cols-2 gap-4"
+              className="mt-5 laptop:mt-10 grid grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-3 gap-4"
               style={{ perspective: "1200px" }}
             >
               {data.projects.map((project: Project, index: number) => (
@@ -729,11 +735,11 @@ export default function Home() {
               </motion.span>
             </h1>
 
-            {/* Description — forced single line; remove max-w so it doesn't wrap */}
+            {/* Keep the introduction readable at every screen width. */}
             <motion.p
-              className="mt-2 text-base laptop:text-lg max-w-3xl leading-relaxed"
+              className="mt-2 text-base laptop:text-lg max-w-3xl leading-relaxed text-slate-300"
               initial={{ opacity: 0, y: 14 }}
-              animate={engineeringVisible ? { opacity: 0.5, y: 0 } : undefined}
+              animate={engineeringVisible ? { opacity: 1, y: 0 } : undefined}
               transition={{ duration: 0.5, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
             >
               Research and independent builds — satellite ML, on-chain systems, and real-time AI.
@@ -799,7 +805,7 @@ export default function Home() {
             </div>
 
             <motion.p
-              className="tablet:m-10 mt-2 text-xl laptop:text-3xl w-full laptop:w-3/5"
+              className="tablet:mx-10 mt-5 max-w-3xl text-lg tablet:text-xl laptop:text-2xl leading-relaxed text-slate-300"
               initial={{ opacity: 0, y: 28 }}
               animate={aboutVisible ? { opacity: 1, y: 0 } : undefined}
               transition={{ duration: 0.72, delay: 0.44, ease: [0.22, 1, 0.36, 1] }}
