@@ -57,7 +57,7 @@ const Header = ({ isBlog = false }: HeaderProps) => {
               {logo}
               <Popover.Button aria-label={open ? "Close navigation" : "Open navigation"} className="p-3 rounded-lg hover:bg-white/10">
                 <span className="block h-5 w-5 relative">
-                  <Image src={`/images/${open ? "cancel" : "menu"}.svg`} alt="" layout="fill" objectFit="contain" />
+                  <Image src={`/images/${open ? "cancel" : "menu"}.svg`} alt="" layout="fill" objectFit="contain" className="invert" />
                 </span>
               </Popover.Button>
             </div>
