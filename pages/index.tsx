@@ -567,7 +567,7 @@ export default function Home() {
               </div>
             </div>
 
-            <p className="mt-6 max-w-2xl text-base tablet:text-lg leading-relaxed text-slate-300">Robotics teleoperation at Meta Reality Labs via Sigma Design. Previously at Figure AI. Building across robotics, machine learning, and software.</p>
+            <p className="mt-6 max-w-2xl text-base tablet:text-lg leading-relaxed text-slate-300">Robotics software engineer at Meta Reality Labs via Sigma Design.</p>
             <a href="#work-section" onClick={(event) => {
               if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
               event.preventDefault();

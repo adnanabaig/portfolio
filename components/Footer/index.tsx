@@ -45,15 +45,7 @@ const Footer = () => {
         animate={visible ? { opacity: 1 } : undefined}
         transition={{ duration: 0.6, delay: 0.72 }}
       >
-        Adnan Baig &mdash; Contract work &amp; billing via{" "}
-        <a
-          href="https://vizualty.net"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline underline-offset-2 hover:opacity-70 transition-opacity duration-200"
-        >
-          Vizualty LLC
-        </a>
+        Adnan Baig
       </motion.p>
     </footer>
   );

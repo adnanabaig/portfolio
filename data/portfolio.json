@@ -26,7 +26,7 @@
     {
       "id": "teleop-meta",
       "title": "Robot Operator HMI",
-      "description": "React and TypeScript companion app for a wearable robotics data-collection kit: readiness checks, episode tracking, storage and upload visibility, and accessible audio workflows. Validated on physical kits with 348 regression tests.",
+      "description": "React and TypeScript app that drives all operation and control of a wearable humanoid suit, including readiness checks, operator workflows, system status, and accessible audio controls.",
       "category": "Operator Interfaces",
       "organization": "Sigma Design @ Meta",
       "imageSrc": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=1400&q=60",
@@ -35,7 +35,7 @@
     {
       "id": "fleet-operations",
       "title": "Fleet Operations Dashboard",
-      "description": "Production dashboard connecting robot inventory, heartbeats, build telemetry, collection episodes, Jira repairs, and technician workloads. OIDC SSO, responsive layouts down to 320 px, and 296 automated tests.",
+      "description": "Production dashboard connecting robot inventory, heartbeats, build telemetry, collection episodes, Jira repairs, and technician workloads.",
       "category": "Robotics Operations",
       "organization": "Next.js · React · TypeScript",
       "imageSrc": "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1400&q=60",
@@ -49,15 +49,6 @@
       "organization": "Figure",
       "imageSrc": "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1400&q=60",
       "url": "https://www.linkedin.com/in/adnanbaig916"
-    },
-    {
-      "id": "vizualty-reel",
-      "title": "Cinematic Reel Pipeline",
-      "description": "End-to-end production workflow for cinematic delivery — color grading, pacing, and narrative structure at scale.",
-      "category": "Cinematic Videography",
-      "organization": "Vizualty LLC",
-      "imageSrc": "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&w=1400&q=60",
-      "url": "https://vizualty.net"
     }
   ],
   "engineeringProjects": [
@@ -98,5 +89,5 @@
       "url": "https://github.com/adnanabaig/SentrySight"
     }
   ],
-  "aboutpara": "Robotics software engineer at Meta Reality Labs through Sigma Design, building operator interfaces, fleet tooling, and hardware-software integrations. I work across React and TypeScript frontends, Python services, Embedded Linux, NVIDIA Jetson systems, EtherCAT networks, and camera pipelines. Previously, I piloted humanoid robots at Figure AI and worked in cybersecurity at Cyber Proud / CalSTRS. I earned my B.S. in Computer Science from Sacramento State in May 2025. Outside work, I am developing an SO-101 robotics workstation and run Vizualty LLC, an independent production studio."
+  "aboutpara": "Robotics software engineer at Meta Reality Labs through Sigma Design, building operator interfaces, fleet tooling, and hardware-software integrations. I work across React and TypeScript frontends, Python services, Embedded Linux, NVIDIA Jetson systems, EtherCAT networks, and camera pipelines. Previously, I piloted humanoid robots at Figure AI and worked in cybersecurity at Cyber Proud / CalSTRS. I earned my B.S. in Computer Science from Sacramento State in May 2025. Outside work, I am developing an SO-101 robotics workstation."
 }
