@@ -135,7 +135,7 @@ export default function Home() {
       const r  = el.getBoundingClientRect();
       const cs = window.getComputedStyle(el);
       return {
-        text: el.textContent ?? "",
+        text: (el.textContent ?? "").trim(),
         cx: r.left - cr.left + r.width / 2,
         cy: r.top  - cr.top,
         font: `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`,
@@ -537,9 +537,9 @@ export default function Home() {
              * across all viewport sizes including narrow mobile screens.
              */}
             <div ref={taglineContainerRef} className="relative w-full">
-              <h1 className="text-4xl tablet:text-6xl laptop:text-7xl laptopl:text-8xl font-bold leading-tight tracking-tight">
+              <h1 className="text-[clamp(1.35rem,7.6vw,2.5rem)] tablet:text-6xl laptop:text-7xl laptopl:text-8xl font-bold leading-tight tracking-tight">
                 {[data.headerTaglineOne, data.headerTaglineTwo, data.headerTaglineThree, data.headerTaglineFour].filter(Boolean).map((line, index) => (
-                  <span key={index} data-tagline-line className="block">{line}{" "}</span>
+                  <span key={index} data-tagline-line className="block whitespace-nowrap">{line}{" "}</span>
                 ))}
               </h1>
 
