@@ -7,7 +7,7 @@ export interface SeoProps {
   description?: string;
   /** Path from the site root, starting with "/". */
   path: string;
-  /** Absolute URL or a path under /public. */
+  /** Absolute URL or a path under /public. Defaults to the generated /og.png. */
   image?: string;
   type?: "website" | "article";
   publishedTime?: string;
@@ -32,7 +32,7 @@ const Seo = ({
   title,
   description = portfolio.seo.description,
   path,
-  image,
+  image = "/og.png",
   type = "website",
   publishedTime,
   noindex = false,
@@ -40,6 +40,7 @@ const Seo = ({
 }: SeoProps) => {
   const url = absolute(path);
   const imageUrl = image ? absolute(image) : undefined;
+  const isDefaultImage = image === "/og.png";
   const schemas = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 
   return (
@@ -55,6 +56,9 @@ const Seo = ({
       <meta property="og:type" content={type} />
       <meta property="og:locale" content="en_US" />
       {imageUrl && <meta property="og:image" content={imageUrl} />}
+      {imageUrl && isDefaultImage && <meta property="og:image:width" content="1200" />}
+      {imageUrl && isDefaultImage && <meta property="og:image:height" content="630" />}
+      {imageUrl && isDefaultImage && <meta property="og:image:alt" content={`${SITE_NAME}, ${portfolio.title}. Pixel art of the robot AB-01 beside a robot arm.`} />}
       {publishedTime && <meta property="article:published_time" content={publishedTime} />}
 
       <meta name="twitter:card" content={imageUrl ? "summary_large_image" : "summary"} />
