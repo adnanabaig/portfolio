@@ -11,9 +11,13 @@ npm run start    # Start production server
 npm run lint     # Run ESLint
 ```
 
-> **Note:** `next.config.js` intentionally skips ESLint and TypeScript checks during builds (`ignoreDuringBuilds: true`, `ignoreBuildErrors: true`). Type-checking is editor-only.
+> **Note:** Builds fail on TypeScript or ESLint errors (no `ignoreBuildErrors` / `ignoreDuringBuilds`). Run `npx tsc --noEmit`, `npm run lint`, and `npm run check:copy` (em dashes, leaked TODOs, forbidden internal terms) before committing. `prebuild` regenerates `public/sitemap.xml`.
+>
+> **Local builds:** always set `NEXT_DIST_DIR` (e.g. `NEXT_DIST_DIR=.next-dev npx next dev -p 3200`, `NEXT_DIST_DIR=.next-build npm run build`) so a running `next start` on `.next` is never clobbered. Change dependencies with `npm install --package-lock-only`; npm is the only package manager (no yarn.lock).
 
 ## Architecture
+
+> **Out of date (revamp in progress):** GSAP, Lenis, framer-motion, Headless UI, the liquid filter, the typewriter intro, magnetic cards, and `GlassWrapper` have been removed. Content now follows `types/portfolio.ts`; blog markdown is rendered to HTML at build time. This section gets a full rewrite at the end of the revamp.
 
 **Stack:** Next.js 12 + React 18 + TypeScript + Tailwind CSS + GSAP
 
