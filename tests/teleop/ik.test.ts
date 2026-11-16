@@ -48,6 +48,15 @@ describe("solveIK", () => {
     expect(Math.abs(edge!.q2)).toBeLessThan(1e-6);
   });
 
+  it("solves targets exactly on the reach circle at any angle (no float-rounding nulls)", () => {
+    for (let k = 0; k < 360; k++) {
+      const p = at(REACH, (k / 360) * Math.PI * 2);
+      const q = solveIK(LINK, p.x, p.y);
+      expect(q, `angle ${k} deg`).not.toBeNull();
+      expect(wristErr(q!, p.x, p.y)).toBeLessThan(1e-6);
+    }
+  });
+
   it("rejects inner targets when the links differ in length", () => {
     const uneven = { bx: 0, by: 0, l1: 60, l2: 40 };
     expect(solveIK(uneven, 19, 0)).toBeNull();

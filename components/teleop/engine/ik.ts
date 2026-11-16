@@ -23,8 +23,11 @@ export function solveIK(link: Link2, tx: number, ty: number, elbowRight = true):
   const dx = tx - link.bx;
   const dy = ty - link.by;
   const d2 = dx * dx + dy * dy;
-  const c2 = (d2 - link.l1 * link.l1 - link.l2 * link.l2) / (2 * link.l1 * link.l2);
-  if (c2 < -1 || c2 > 1) return null;
+  const raw = (d2 - link.l1 * link.l1 - link.l2 * link.l2) / (2 * link.l1 * link.l2);
+  // A target exactly on a reach circle can land a hair outside [-1, 1] in
+  // floating point; treat that as on the circle, not out of reach.
+  if (raw < -1 - 1e-9 || raw > 1 + 1e-9) return null;
+  const c2 = Math.max(-1, Math.min(1, raw));
   // Screen y points down, so a negative elbow angle puts the elbow on the right.
   const q2 = Math.acos(c2) * (elbowRight ? -1 : 1);
   const q1 = Math.atan2(dy, dx) - Math.atan2(link.l2 * Math.sin(q2), link.l1 + link.l2 * Math.cos(q2));
