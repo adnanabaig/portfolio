@@ -1,0 +1,1041 @@
+{
+ "_about": "Original pixel art for Station AB-01. Rows are palette keys; '.' is transparent. Edit here; lib/pixel/toPaths.ts turns rows into SVG paths.",
+ "palette": {
+  "o": {
+   "var": "--outline",
+   "hex": "#05070A"
+  },
+  "k": {
+   "var": "--ink",
+   "hex": "#0B0E14"
+  },
+  "c": {
+   "var": "--panel",
+   "hex": "#121826"
+  },
+  "h": {
+   "var": "--panel-hi",
+   "hex": "#1A2233"
+  },
+  "i": {
+   "var": "--grid",
+   "hex": "#26314A"
+  },
+  "s": {
+   "var": "--steel",
+   "hex": "#3A4660"
+  },
+  "a": {
+   "var": "--alloy",
+   "hex": "#6B7A96"
+  },
+  "m": {
+   "var": "--mist",
+   "hex": "#9AA7BD"
+  },
+  "w": {
+   "var": "--paper",
+   "hex": "#E8ECF2"
+  },
+  "t": {
+   "var": "--teal",
+   "hex": "#2EE6C5"
+  },
+  "d": {
+   "var": "--teal-deep",
+   "hex": "#157A69"
+  },
+  "y": {
+   "var": "--amber",
+   "hex": "#FFB547"
+  },
+  "r": {
+   "var": "--coral",
+   "hex": "#FF5D6C"
+  },
+  "g": {
+   "var": "--leaf",
+   "hex": "#7BE07B"
+  },
+  "p": {
+   "var": "--violet",
+   "hex": "#A98BFF"
+  },
+  "b": {
+   "var": "--sky",
+   "hex": "#5AB8FF"
+  },
+  "x": {
+   "var": "--rust",
+   "hex": "#C2643A"
+  },
+  "n": {
+   "var": "--sand",
+   "hex": "#E9C58F"
+  },
+  "e": {
+   "var": "--moss",
+   "hex": "#3E7A5A"
+  }
+ },
+ "sprites": {
+  "ab01": {
+   "w": 16,
+   "h": 24,
+   "frames": [
+    [
+     "......g.........",
+     "......a.........",
+     ".....oao........",
+     "...oooooooooo...",
+     "..oammmmmmmmmo..",
+     "..oakkkkkkkkko..",
+     "..oakkkkttktto..",
+     "..oakkkkttktto..",
+     "..oakkkkkkkkko..",
+     "..osaaaaaaaaso..",
+     "....oossssoo....",
+     ".oooosmmmmmmmo..",
+     ".oggosammmmmmoao",
+     ".oggosaammmmsoao",
+     ".oggosamtmmmsoao",
+     ".oggosammmmmsoao",
+     ".oggossssssssoao",
+     ".oooooooooooomom",
+     "....ossooaao.o.o",
+     ".....oss.oaao...",
+     ".....oss.oaao...",
+     "....oss.oaao....",
+     "...omsso.omaao..",
+     "...oooo..oooo..."
+    ],
+    [
+     "................",
+     "......g.........",
+     "......a.........",
+     ".....oao........",
+     "...oooooooooo...",
+     "..oammmmmmmmmo..",
+     "..oakkkkkkkkko..",
+     "..oakkkkttktto..",
+     "..oakkkkttktto..",
+     "..oakkkkkkkkko..",
+     "..osaaaaaaaaso..",
+     "....oossssoo....",
+     ".oooosmmmmmmmo..",
+     ".oggosammmmmmoao",
+     ".oggosaammmmsoao",
+     ".oggosamtmmmsoao",
+     ".oggosammmmmsoao",
+     ".oggossssssssoao",
+     ".oooooooooooomom",
+     "...oss...oaaoo.o",
+     "...oss....oaao..",
+     "..oss....oaao...",
+     ".omsso...omaao..",
+     ".oooo....oooo..."
+    ],
+    [
+     "......g.........",
+     "......a.........",
+     ".....oao........",
+     "...oooooooooo...",
+     "..oammmmmmmmmo..",
+     "..oakkkkkkkkko..",
+     "..oakkkkttktto..",
+     "..oakkkkttktto..",
+     "..oakkkkkkkkko..",
+     "..osaaaaaaaaso..",
+     "....oossssoo....",
+     ".oooosmmmmmmmo..",
+     ".oggosammmmmmoao",
+     ".oggosaammmmsoao",
+     ".oggosamtmmmsoao",
+     ".oggosammmmmsoao",
+     ".oggossssssssoao",
+     ".oooooooooooomom",
+     ".....ossoaao.o.o",
+     "......ossoaao...",
+     "......oss.oaao..",
+     ".....oss.omaao..",
+     "....omsso.oooo..",
+     "....oooo........"
+    ],
+    [
+     "................",
+     "......g.........",
+     "......a.........",
+     ".....oao........",
+     "...oooooooooo...",
+     "..oammmmmmmmmo..",
+     "..oakkkkkkkkko..",
+     "..oakkkkttktto..",
+     "..oakkkkttktto..",
+     "..oakkkkkkkkko..",
+     "..osaaaaaaaaso..",
+     "....oossssoo....",
+     ".oooosmmmmmmmo..",
+     ".oggosammmmmmoao",
+     ".oggosaammmmsoao",
+     ".oggosamtmmmsoao",
+     ".oggosammmmmsoao",
+     ".oggossssssssoao",
+     ".oooooooooooomom",
+     "...oaao..oss.o.o",
+     "..oaao....oss...",
+     "..oaao...oss....",
+     ".omaao..omsso...",
+     ".oooo...oooo...."
+    ],
+    [
+     "......g.........",
+     "......a.........",
+     ".....oao........",
+     "...oooooooooo...",
+     "..oammmmmmmmmo..",
+     "..oakkkkkkkkko..",
+     "..oakkkkttktto..",
+     "..oakkkkttktto..",
+     "..oakkkkkkkkko..",
+     "..osaaaaaaaaso..",
+     "....oossssoo....",
+     ".oooosmmmmmmmo..",
+     ".oggosammmmmmoao",
+     ".oggosaammmmsoao",
+     ".oggosamtmmmsoao",
+     ".oggosammmmmsoao",
+     ".oggossssssssoao",
+     ".oooooooooooomom",
+     ".....oaaoss..o.o",
+     "......oaaoss....",
+     "......oaao.oss..",
+     ".....oaao.omsso.",
+     "....omaao.oooo..",
+     "....oooo........"
+    ]
+   ]
+  },
+  "ab01-lost": {
+   "w": 16,
+   "h": 24,
+   "frames": [
+    [
+     "........r.......",
+     "................",
+     ".....oa.........",
+     "...oooooooooo...",
+     "..oammmmmmmmmo..",
+     "..oakkkkkkkkko..",
+     "..oakkkkkkkkko..",
+     "..oakkkkddkddo..",
+     "..oakkkkkkkkko..",
+     "..osaaaaaaaaso..",
+     "....oossssoo....",
+     ".oooosmmmmmmmo..",
+     ".oggosammmmmmoao",
+     ".oggosaammmmsoao",
+     ".oggosamtmmmsoao",
+     ".oggosammmmmsoao",
+     ".oggossssssssoao",
+     ".oooooooooooomom",
+     "....ossooaao.o.o",
+     ".....oss.oaao...",
+     ".....oss.oaao...",
+     "....oss.oaao....",
+     "...omsso.omaao..",
+     "...oooo..oooo..."
+    ]
+   ]
+  },
+  "ab01-head": {
+   "w": 16,
+   "h": 12,
+   "frames": [
+    [
+     "......g.........",
+     "......a.........",
+     ".....oao........",
+     "...oooooooooo...",
+     "..oammmmmmmmmo..",
+     "..oakkkkkkkkko..",
+     "..oakkkkttktto..",
+     "..oakkkkttktto..",
+     "..oakkkkkkkkko..",
+     "..osaaaaaaaaso..",
+     "....oossssoo....",
+     "................"
+    ]
+   ]
+  },
+  "arm-pedestal": {
+   "w": 24,
+   "h": 20,
+   "frames": [
+    [
+     "........oommmmoo........",
+     ".......ommmmmmmmo.......",
+     ".......ommaaaammo.......",
+     "......ommaaaaaammo......",
+     "......ommaattaammo......",
+     "......ommaaaaaammo......",
+     "......ommaaaaaammo......",
+     "......osmmaaaammso......",
+     "......osmmmmmmmmso......",
+     "......osaammmmsiso......",
+     "......osaasssssiso......",
+     "......osaasssssiso......",
+     "......osaasssssiso......",
+     "......osaasssssiso......",
+     "..ooooosaasssssisooooo..",
+     ".oaaaaaaaaaaaaaaaaaaaao.",
+     ".ossyssssssssssssssysso.",
+     ".osssssssssssssssssssso.",
+     ".osssssssssssssssssssso.",
+     "..oooooooooooooooooooo.."
+    ]
+   ]
+  },
+  "arm-link": {
+   "w": 32,
+   "h": 8,
+   "frames": [
+    [
+     "...oooooooooooooooooooooooooo...",
+     "..ommmssssssssssssssssssssmmmo..",
+     ".ommmmmaaaaaaaaaaaaaaaaaammmmmo.",
+     "ommkkmmmssssssssssssssssmmmkkmmo",
+     "ommkkmmmssssssssssssssssmmmkkmmo",
+     ".ommmmmiiiiiiiiiiiiiiiiiimmmmmo.",
+     "..ommmssssssssssssssssssssmmmo..",
+     "...oooooooooooooooooooooooooo..."
+    ]
+   ]
+  },
+  "gripper": {
+   "w": 12,
+   "h": 12,
+   "frames": [
+    [
+     "..osaaaaso..",
+     "..ossttsso..",
+     "..ossttsso..",
+     "..osssssso..",
+     ".oaaaaaaaao.",
+     ".oaaaaaaaao.",
+     ".ommoooommo.",
+     ".ommo..ommo.",
+     ".ommo..ommo.",
+     ".ommo..ommo.",
+     "ommmo..ommmo",
+     ".ooo....ooo."
+    ],
+    [
+     "..osaaaaso..",
+     "..ossttsso..",
+     "..ossttsso..",
+     "..osssssso..",
+     ".oaaaaaaaao.",
+     ".oaaaaaaaao.",
+     "..oommmmoo..",
+     "...ommmmo...",
+     "...ommmmo...",
+     "...ommmmo...",
+     "...omaamo...",
+     "....oooo...."
+    ]
+   ]
+  },
+  "skill-block": {
+   "w": 16,
+   "h": 12,
+   "frames": [
+    [
+     ".oooooooooooooo.",
+     "otttttttttttttto",
+     "otwwwwwwwwwwwwto",
+     "otttttttttttttto",
+     "otttkkkkkkkkttto",
+     "otttkkkkkkkkttto",
+     "otttttttttttttto",
+     "otttttttttttttto",
+     "oddddddddddddddo",
+     "oddddddddddddddo",
+     "oddddddddddddddo",
+     ".oooooooooooooo."
+    ]
+   ]
+  },
+  "bin": {
+   "w": 32,
+   "h": 20,
+   "frames": [
+    [
+     ".oooooooooooooooooooooooooooooo.",
+     "oaaaaaaaaaaaaaaaaaaaaaaaaaaaaaao",
+     "oaaaaaaaaaaaaaaaaaaaaaaaaaaaaaao",
+     "oskkkkkkkkkkkkkkkkkkkkkkkkkkkkso",
+     "oskkkkkkkkkkkkkkkkkkkkkkkkkkkkso",
+     "oskkkkkkkkkkkkkkkkkkkkkkkkkkkkso",
+     "oskkkkkkkkkkkkkkkkkkkkkkkkkkkkso",
+     "oskkkkkkkkkkkkkkkkkkkkkkkkkkkkso",
+     "oskkkkkkkkkkkkkkkkkkkkkkkkkkkkso",
+     "oskkkkkkkkkkkkkkkkkkkkkkkkkkkkso",
+     "ommmmmmmmmmmmmmmmmmmmmmmmmmmmmmo",
+     "ohhhhhhhhhhhhhhhhhhhhhhhhhhhhhho",
+     "ohhhhhhhhhhhhhhhhhhhhhhhhhhhhhho",
+     "ohhhhhiiiiiiiiiiiiiiiiiiiihhhhho",
+     "ohhhhhiiiiiiiiiiiiiiiiiiiihhhhho",
+     "ohhhhhiiiiiiiiiiiiiiiiiiiihhhhho",
+     "ohhhhhhhhhhhhhhhhhhhhhhhhhhhhhho",
+     "ohhhhhhhhhhhhhhhhhhhhhhhhhhhhhho",
+     "ohhhhhhhhhhhhhhhhhhhhhhhhhhhhhho",
+     ".oooooooooooooooooooooooooooooo."
+    ]
+   ]
+  },
+  "conveyor": {
+   "w": 16,
+   "h": 16,
+   "frames": [
+    [
+     "oooooooooooooooo",
+     "aaaaaaaaaaaaaaaa",
+     "ikkkikkkikkkikkk",
+     "ikkkikkkikkkikkk",
+     "ikkkikkkikkkikkk",
+     "ikkkikkkikkkikkk",
+     "ikkkikkkikkkikkk",
+     "ikkkikkkikkkikkk",
+     "ikkkikkkikkkikkk",
+     "ikkkikkkikkkikkk",
+     "ikkkikkkikkkikkk",
+     "ikkkikkkikkkikkk",
+     "aaaaaaaaaaaaaaaa",
+     "ssssssssssssssss",
+     "sssysssssssyssss",
+     "oooooooooooooooo"
+    ],
+    [
+     "oooooooooooooooo",
+     "aaaaaaaaaaaaaaaa",
+     "kkikkkikkkikkkik",
+     "kkikkkikkkikkkik",
+     "kkikkkikkkikkkik",
+     "kkikkkikkkikkkik",
+     "kkikkkikkkikkkik",
+     "kkikkkikkkikkkik",
+     "kkikkkikkkikkkik",
+     "kkikkkikkkikkkik",
+     "kkikkkikkkikkkik",
+     "kkikkkikkkikkkik",
+     "aaaaaaaaaaaaaaaa",
+     "ssssssssssssssss",
+     "sssysssssssyssss",
+     "oooooooooooooooo"
+    ]
+   ]
+  },
+  "icon-hmi": {
+   "w": 32,
+   "h": 32,
+   "frames": [
+    [
+     "................................",
+     "................................",
+     "................................",
+     "..oooooooooooooooooooooooooooo..",
+     ".osssssssssssssssssssssssssssso.",
+     ".osaaaaaaaaaaaaaaaaaaaaaaaaaaso.",
+     ".osssssssssssssssssssssssssssso.",
+     ".ossskkkkkkkkkkkkkkkkkkkkkkssso.",
+     ".ossskttiiiiiiiiiiiiiiiirrkssso.",
+     ".ossskkkkkkkkkkkkkkkkkkkkkkssso.",
+     ".ossskkkkkkkkkkkkkkkkkkkkkkssso.",
+     ".ossskkggkggkyykkkmmmmmmmkkssso.",
+     ".ossskkggkggkyykkkkkkkkkkkkssso.",
+     ".ossskkkkkkkkkkkkkaaaaakkkkssso.",
+     ".ossskkkkkkkkkktkkkkkkkkkkkssso.",
+     ".ossskkkkkkkkkkttkktkkkkkkkssso.",
+     ".ossskkkkktttktktktktkkkkkkssso.",
+     ".ossskkkkktkkttkktkkkttttkkssso.",
+     ".ossskkkktkkktkkkkkkkkkkkkkssso.",
+     ".ossskktttkkkkkkkkkkkkkkkkkssso.",
+     ".ossskkkkkkkkkkkkkkkkkkkkkkssso.",
+     ".ossskkkkkkkkkkkkkkkkkkkkkkssso.",
+     ".osssssssssssssssssssssssssssso.",
+     ".ossssssssaaassaaassaaassssssso.",
+     ".ossssssssaaassaaassaaassssssso.",
+     ".osssssssssssssssssssssssssssso.",
+     "..ooooooooooossssssooooooooooo..",
+     "..........ooossssssooo..........",
+     ".........oaaaaaaaaaaaao.........",
+     ".........oaaaaaaaaaaaao.........",
+     "..........oooooooooooo..........",
+     "................................"
+    ]
+   ]
+  },
+  "icon-fleet": {
+   "w": 32,
+   "h": 32,
+   "frames": [
+    [
+     "................................",
+     "................................",
+     ".....o.........o.........o......",
+     "....ogo.......ogo.......oyo.....",
+     "..oooaooo...oooaooo...oooaooo...",
+     ".ossssssso.ossssssso.ossssssso..",
+     ".oskkkkkso.oskkkkkso.oskkkkkso..",
+     ".oskktktso.oskktktso.oskktktso..",
+     ".oskkkkkso.oskkkkkso.oskkkkkso..",
+     ".osaaaaaso.osaaaaaso.osaaaaaso..",
+     ".ossssssso.ossssssso.ossssssso..",
+     "..ooooooo...ooooooo...ooooooo...",
+     ".....o.........o.........o......",
+     "....ogo.......ogo.......ogo.....",
+     "..oooaooo...oooaooo...oooaooo...",
+     ".ossssssso.ossssssso.ossssssso..",
+     ".oskkkkkso.oskkkkkso.oskkkkkso..",
+     ".oskktktso.oskktktso.oskktktso..",
+     ".oskkkkkso.oskkkkkso.oskkkkkso..",
+     ".osaaaaaso.osaaaaaso.osaaaaaso..",
+     ".ossssssso.ossssssso.ossssssso..",
+     "..ooooooo...ooooooo...ooooooo...",
+     "..............t.................",
+     "..............t.................",
+     "..........t...tt................",
+     ".........tt..t.t........t.......",
+     ".........t.t.t..t......t.t......",
+     ".tttttttt..t.t..ttttttt...ttttt.",
+     "...........t.t..................",
+     "............t...................",
+     "............t...................",
+     "................................"
+    ]
+   ]
+  },
+  "icon-humanoid": {
+   "w": 32,
+   "h": 32,
+   "frames": [
+    [
+     "................................",
+     "................................",
+     "................................",
+     "................................",
+     ".....oooooooo...........ooo.....",
+     "....osaaaaaaso.........ossso....",
+     "....osssssssso.......ooosssooo..",
+     "....oskkkkkkso......oyyyyyyyyyo.",
+     "....oskkktktso......oykkkykkkyo.",
+     "....oskkkkkkso.m....oykkkykkkyo.",
+     "....osssssssso......oyyyyyyyyyo.",
+     "....osssssssso......oxxxxxxxxxo.",
+     "..ooooooaaoooooom...mooooooooo..",
+     ".oaassssssssssaaom.m............",
+     ".oaasaaaaaaaasaao...............",
+     ".oaassssssssssaao...............",
+     ".oaassssttssssaao...............",
+     ".oaassssssssssaao...............",
+     ".oaassssssssssaao...............",
+     ".oaassssssssssaao...............",
+     ".omossssssssssomo...............",
+     "..o.oaaaooaaao.o................",
+     "....oaaaooaaao..................",
+     "....oaaaooaaao..................",
+     "....oaaaooaaao..................",
+     "....oaaaooaaao..................",
+     "....oaaaooaaao..................",
+     "....oaaaooaaao..................",
+     "...ommmmoommmmo.................",
+     "...ommmmoommmmo.................",
+     "....oooo..oooo..................",
+     "................................"
+    ]
+   ]
+  },
+  "icon-arm": {
+   "w": 32,
+   "h": 32,
+   "frames": [
+    [
+     "................................",
+     "................................",
+     "................................",
+     "................................",
+     "................................",
+     "................................",
+     "...................oo...........",
+     "..................ommo..........",
+     ".................ommmmo.........",
+     "................ommmmmmo........",
+     "................ommmssmo........",
+     "................oammssso........",
+     "...............oaaammssso.......",
+     "..............oaaaaaoossso......",
+     ".............oaaaaao..ossso.....",
+     "............oaaaaao....ossso....",
+     "...........oaaaaao......osssoo..",
+     ".......ooooaaaaao......oaaaaaao.",
+     "......ommmaaaaao.......oaaaaaao.",
+     ".....ommmaaaaao........ommoommo.",
+     ".....ommaaaaao.........ommoommo.",
+     "....oommaaaaoo.........ommoommo.",
+     "...osammaaamaso........ommoommo.",
+     "...osssmmmmssso.........oooooo..",
+     "...osssssssssso.........owwwwo..",
+     "...osssssssssso.........oggggo..",
+     "oooossssssssssoooooooooooggggooo",
+     "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+     "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+     "oooooooooooooooooooooooooooooooo"
+    ]
+   ]
+  },
+  "icon-satellite": {
+   "w": 32,
+   "h": 32,
+   "frames": [
+    [
+     "................................",
+     "................................",
+     "..........oooooo................",
+     "..oooooooommmmmmoooooooo........",
+     ".obbibibbomwwwwmobbibibbo.......",
+     ".obbibibbommmmmmobbibibbo.......",
+     ".obbibibbammmmmmabbibibbo.......",
+     ".obbibibbommmmmmobbibibbo.......",
+     ".obbibibbommmmmmobbibibbo.......",
+     "..oooooooommmmmmoooooooo........",
+     "..........oossoo................",
+     "...........osso.................",
+     "...........too.t................",
+     ".........t.......t..............",
+     ".......t...........t............",
+     "....ooo.ooo.ooo.ooo.ooo.ooo.....",
+     "...oeeeoeeeoeeeoxxxoyyyoxxxo....",
+     "...oeeeoeeeoeeeoxxxoyyyoxxxo....",
+     "...oeeeoeeeoeeeoxxxoyyyoxxxo....",
+     "....ooo.ooo.ooo.ooo.ooo.ooo.....",
+     "...oeeeonnnoxxxoyyyorrrorrro....",
+     "...oeeeonnnoxxxoyyyorrrorrro....",
+     "...oeeeonnnoxxxoyyyorrrorrro....",
+     "....ooo.ooo.ooo.ooo.ooo.ooo.....",
+     "...oeeeoeeeonnnoxxxoyyyoyyyo....",
+     "...oeeeoeeeonnnoxxxoyyyoyyyo....",
+     "...oeeeoeeeonnnoxxxoyyyoyyyo....",
+     "....ooo.ooo.ooo.ooo.ooo.ooo.....",
+     "...oeeeoeeeoeeeonnnoxxxoxxxo....",
+     "...oeeeoeeeoeeeonnnoxxxoxxxo....",
+     "...oeeeoeeeoeeeonnnoxxxoxxxo....",
+     "....ooo.ooo.ooo.ooo.ooo.ooo....."
+    ]
+   ]
+  },
+  "icon-eye": {
+   "w": 32,
+   "h": 32,
+   "frames": [
+    [
+     "...ooooooooo....................",
+     "..oyyyyyyyyyo...................",
+     "..oyyyyyyyyyo...................",
+     "..oyyyyyyyyyo...........oooooo..",
+     ".oyyyyyyoooo...........oyyyyyyo.",
+     ".oyyoooo................ooooyyo.",
+     ".oyo...............oooo.....oyo.",
+     ".oyo..............osssso....oyo.",
+     ".oyo....ooooooooooosssso....oyo.",
+     ".oyo...osssssssssssssssso...oyo.",
+     "..o....osaaaaammmmaaaaaso....o..",
+     ".......ossssmmmmmmmmsssso.......",
+     ".......ossrmmaaaaaammssso.......",
+     ".......osssmaakkkkaamssso.......",
+     ".......ossmmakwkkkkammsso.......",
+     ".......ossmmakkttkkammsso.......",
+     ".......ossmmakkttkkammsso.......",
+     ".......ossmmakkkkkkammsso.......",
+     ".......osssmaakkkkaamssso.......",
+     ".......osssmmaaaaaammssso.......",
+     ".......ossssmmmmmmmmsssso.......",
+     "..o....ossssssmmmmsssssso....o..",
+     ".oyo...osssssssssssssssso...oyo.",
+     ".oyo....oooooooooooooooo....oyo.",
+     ".oyo........................oyo.",
+     ".oyo........................oyo.",
+     ".oyyoooo................ooooyyo.",
+     ".oyyyyyyo..............oyyyyyyo.",
+     "..oooooo................oooooo..",
+     "................................",
+     "................................",
+     "................................"
+    ]
+   ]
+  },
+  "icon-chain": {
+   "w": 32,
+   "h": 32,
+   "frames": [
+    [
+     "................................",
+     ".oooooooooo.....................",
+     "owwwwwwwwwwo....................",
+     "onnnnnnnnnno....................",
+     "onnnnnnnnnno....................",
+     "onnxxxxxxnno....................",
+     "onnnnnnnnnno....................",
+     "onnxxxxnnnno....................",
+     "onnnnnnrrrno....................",
+     "onnnnnnrraaao...................",
+     "onnnnnnrranaooooooooo...........",
+     "onnnnnnrraammmwwwwwwwo..........",
+     ".oooooooooomnmnnnnnnno..........",
+     "..........ommmnnnnnnno..........",
+     "..........onnxxxxxxnno..........",
+     "..........onnnnnnnnnno..........",
+     "..........onnxxxxnnnno..........",
+     "..........onnnnnnnnnno..........",
+     "..........onnnnnnnnaaao.........",
+     "..........onnnnnnnnanaooooooooo.",
+     "..........onnnnnnnnaammmwwwwwwwo",
+     "...........oooooooooomnmnnnnnnno",
+     "....................ommmnnnnnnno",
+     "....................onnxxxxxxnno",
+     "....................onnnnnnnnnno",
+     "....................onnxxxxnnnno",
+     "....................onnnnnnrrrno",
+     "....................onnnnnnrrrno",
+     "....................onnnnnnrrrno",
+     "....................onnnnnnrrrno",
+     ".....................oooooooooo.",
+     "................................"
+    ]
+   ]
+  },
+  "trophy-shield": {
+   "w": 24,
+   "h": 24,
+   "frames": [
+    [
+     "........................",
+     "...oooooooooooooooooo...",
+     "..obbbbbbbbbbbbbbbbbbo..",
+     "..obwwwwwwwwwwwwwwwwbo..",
+     "..obbbbbbbbbbbbbbbbbbo..",
+     "..obbbbbbbbbbbbbbbbbbo..",
+     "..obbbbbbbkkkkbbbbbbbo..",
+     "..obbbbbbbkkkkbbbbbbbo..",
+     "..obbbbbbkkktkkbbbbbbo..",
+     "..obbbbbbbkkkkbbbbbbbo..",
+     "..obbbbbbbkkkkbbbbbbbo..",
+     "...obbbbbbbkkbbbbbbbo...",
+     "....obbbbbbkkbbbbbbo....",
+     ".....obbbbbkkbbbbbo.....",
+     "......obbbbbbbbbbo......",
+     ".......obbbbbbbbo.......",
+     "........obbbbbbo........",
+     ".........obbbbo.........",
+     "..........oooo..........",
+     ".......oooooooooo.......",
+     "......osssssssssso......",
+     ".....oossssssssssoo.....",
+     "....oaaaaaaaaaaaaaao....",
+     "....oaaaaaaaaaaaaaao...."
+    ]
+   ]
+  },
+  "trophy-medal": {
+   "w": 24,
+   "h": 24,
+   "frames": [
+    [
+     ".....orrrro..obbbbo.....",
+     ".....orrrro..obbbbo.....",
+     ".....orrrro..obbbbo.....",
+     ".....orrrro..obbbbo.....",
+     ".....orrrro..obbbbo.....",
+     ".....orrrro..obbbbo.....",
+     ".....orrrro..obbbbo.....",
+     ".....orrrro..obbbbo.....",
+     ".....orrrro..obbbbo.....",
+     "......oooorooboooo......",
+     ".......ooaaaaaaoo.......",
+     "......oaaammmmaaao......",
+     "......oammmmmmmmao......",
+     ".....oaammwwwwmmaao.....",
+     ".....oammwwmmwwmmao.....",
+     ".....oammwmmmmwmmao.....",
+     ".....oammwmmmmwmmao.....",
+     ".....oammwwmmwwmmao.....",
+     ".....oaammwwwwmmaao.....",
+     "......oammmmmmmmao......",
+     "......oaaammmmaaao......",
+     ".......ooaaaaaaoo.......",
+     ".........oooooo.........",
+     "........................"
+    ]
+   ]
+  },
+  "diploma": {
+   "w": 24,
+   "h": 24,
+   "frames": [
+    [
+     "........................",
+     "........................",
+     "........................",
+     "........................",
+     ".oo..................oo.",
+     "onwoooooooooooooooooowno",
+     "onwwwwwwwwwwwwwwwwwwwwno",
+     "onwnnnnnnnnnnnnnnnnnnwno",
+     "onwnnnnnnnnnnnnnnnnnnwno",
+     "onwnnxxxxxxxxxxnnnnnnwno",
+     "onwnnnnnnnnnnnnnnnnnnwno",
+     "onwnnxxxxxxxxxxxxnnnnwno",
+     "onwnnnnnnnnnnnnnrrnnnwno",
+     "onwnnxxxxxxxxnnrrrrnnwno",
+     "onwnnnnnnnnnnnrrrrrrnwno",
+     "onwnnnnnnnnnnnrrrrrrnwno",
+     "onwnnnnnnnnnnnnrrrrnnwno",
+     "onwnnnnnnnnnnnnnrrrnnwno",
+     "onwooooooooooooororoowno",
+     ".oo............ororo.oo.",
+     "...............oroo.....",
+     "................o.......",
+     "........................",
+     "........................"
+    ]
+   ]
+  },
+  "radar": {
+   "w": 32,
+   "h": 32,
+   "frames": [
+    [
+     ".....................obbo.......",
+     "......................oobo......",
+     ".....................oo.obo.....",
+     "....................obbo.obo....",
+     ".....................oobo.obo...",
+     ".................oo....oboobo...",
+     "...............ooamoo..obo.o....",
+     ".............ooaammtto..o.......",
+     "............oaaammmtto..........",
+     "...........oaaammmsmmo..........",
+     "..........oaaammmsmmo...........",
+     ".........oaaammmsmmmo...........",
+     "........oaaammmsmmmo............",
+     ".......oaaammmsmmmmo............",
+     "......oaaammmsmmmmo.............",
+     "......oaammmmmmmmo..............",
+     ".....oaammmmmmmmo...............",
+     ".....oammmmmmmmoo...............",
+     "....oammmmmmmmoaao..............",
+     "....ommmmmmmmooaao..............",
+     ".....ommmmmoo.oaao..............",
+     "......ommoo...oaao..............",
+     ".......oo.....oaao..............",
+     ".............osaaso.............",
+     "............osoaaoso............",
+     "............osoaaoso............",
+     "...........osooaaooso...........",
+     "..........oso.oaao.oso..........",
+     ".........oso..oaao..oso.........",
+     ".........oso..oaao..oso.........",
+     "........oso....oo....oso........",
+     ".........o............o........."
+    ]
+   ]
+  },
+  "glyph-branch": {
+   "w": 16,
+   "h": 16,
+   "frames": [
+    [
+     "................",
+     "...wwww.........",
+     "...wwww..wwww...",
+     "...wwkw..wwww...",
+     "...wwww..wwkw...",
+     "....ww...wwww...",
+     "....ww....ww....",
+     "....ww....ww....",
+     "....ww...ww.....",
+     "....ww.www......",
+     "....wwww........",
+     "...wwww.........",
+     "...wwww.........",
+     "...wwkw.........",
+     "...wwww.........",
+     "................"
+    ]
+   ]
+  },
+  "glyph-idcard": {
+   "w": 16,
+   "h": 16,
+   "frames": [
+    [
+     "................",
+     "................",
+     "......wwww......",
+     ".wwwwwwwwwwwwww.",
+     ".wwwwwwwwwwwwww.",
+     ".ww..w.......ww.",
+     ".ww.www..wwwwww.",
+     ".ww.www......ww.",
+     ".ww..w...wwwwww.",
+     ".ww..........ww.",
+     ".wwwwwww.www.ww.",
+     ".wwwwwww.....ww.",
+     ".wwwwwwwwwwwwww.",
+     ".wwwwwwwwwwwwww.",
+     "................",
+     "................"
+    ]
+   ]
+  },
+  "glyph-mail": {
+   "w": 16,
+   "h": 16,
+   "frames": [
+    [
+     "................",
+     "................",
+     "................",
+     ".wwwwwwwwwwwwww.",
+     ".ww..........ww.",
+     ".w.w........w.w.",
+     ".w..w......w..w.",
+     ".w...w....w...w.",
+     ".w....w..w....w.",
+     ".w.....ww.....w.",
+     ".w............w.",
+     ".w............w.",
+     ".wwwwwwwwwwwwww.",
+     "................",
+     "................",
+     "................"
+    ]
+   ]
+  },
+  "glyph-led": {
+   "w": 16,
+   "h": 16,
+   "frames": [
+    [
+     "................",
+     "......oooo......",
+     "....oossssoo....",
+     "...osssggssso...",
+     "..ossggggggsso..",
+     "..osggwwggggso..",
+     ".ossggwwggggsso.",
+     ".osggggggggggso.",
+     ".osggggggggggso.",
+     ".ossggggggggsso.",
+     "..osggggggggso..",
+     "..ossggggggsso..",
+     "...osssggssso...",
+     "....oossssoo....",
+     "......oooo......",
+     "................"
+    ]
+   ]
+  },
+  "glyph-arrow": {
+   "w": 16,
+   "h": 16,
+   "frames": [
+    [
+     "................",
+     "................",
+     "................",
+     "................",
+     "......w.........",
+     ".....ww.........",
+     "....wwwwwwwwww..",
+     "..wwwwwwwwwwww..",
+     "..wwwwwwwwwwww..",
+     "....wwwwwwwwww..",
+     ".....ww.........",
+     "......w.........",
+     "................",
+     "................",
+     "................",
+     "................"
+    ]
+   ]
+  },
+  "glyph-speaker": {
+   "w": 16,
+   "h": 16,
+   "frames": [
+    [
+     "................",
+     "................",
+     ".......w........",
+     "......ww....w...",
+     ".....www.....w..",
+     "....wwww...w.w..",
+     ".wwwwwww..w..w..",
+     ".wwwwwww..w..w..",
+     ".wwwwwww..w..w..",
+     ".wwwwwww..w..w..",
+     "....wwww...w.w..",
+     ".....www.....w..",
+     "......ww....w...",
+     ".......w........",
+     "................",
+     "................"
+    ],
+    [
+     "................",
+     "................",
+     ".......w........",
+     "......ww........",
+     ".....www........",
+     "....wwww..w...w.",
+     ".wwwwwww...w.w..",
+     ".wwwwwww....w...",
+     ".wwwwwww...w.w..",
+     ".wwwwwww..w...w.",
+     "....wwww........",
+     ".....www........",
+     "......ww........",
+     ".......w........",
+     "................",
+     "................"
+    ]
+   ]
+  },
+  "glyph-estop": {
+   "w": 16,
+   "h": 16,
+   "frames": [
+    [
+     "................",
+     ".....oooooo.....",
+     "....orrrrrro....",
+     "..oorwwwwrrroo..",
+     ".orrrrrrrrrrrro.",
+     ".orrrrrrrrrrrro.",
+     "orrrrrrrrrrrrrro",
+     "orrrrrrrrrrrrrro",
+     ".oooooooooooooo.",
+     "....osssssso....",
+     ".oooossssssoooo.",
+     "onnnnnnnnnnnnnno",
+     "oyyyyyyyyyyyyyyo",
+     "oyyyyyyyyyyyyyyo",
+     "oyyyyyyyyyyyyyyo",
+     ".oooooooooooooo."
+    ]
+   ]
+  }
+ }
+}
