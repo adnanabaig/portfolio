@@ -209,7 +209,7 @@ const Header = ({ current = "home", checkpoints = CHECKPOINTS }: HeaderProps) =>
         </div>
       </div>
 
-      <nav ref={panelRef} id="mobile-nav" aria-label="Main" hidden={!open} className="nav-mobile">
+      <nav ref={panelRef} id="mobile-nav" aria-label="Menu" hidden={!open} className="nav-mobile">
         <div className="container mx-auto nav-mobile__inner">
           {renderLinks(() => close(false))}
           <div className="nav-mobile__controls">
