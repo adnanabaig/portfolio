@@ -1526,6 +1526,34 @@ html[data-theme="mono"] .crt-screen::after {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+@media screen and (min-width: 1024px) {
+  /* An odd card count: the first card (the flagship) takes the whole row and
+     lays out wide, story on the left and checklist on the right, so the last
+     card never sits alone beside an empty half. Even counts stay 2-up. */
+  html:not([data-plain]) .card-grid > .card:first-child:nth-last-child(odd) {
+    grid-column: 1 / -1;
+  }
+  html:not([data-plain]) .card-grid > .card:first-child:nth-last-child(odd) .card__body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto auto auto 1fr;
+    column-gap: 40px;
+  }
+  html:not([data-plain]) .card-grid > .card:first-child:nth-last-child(odd) .card__body > * {
+    grid-column: 1;
+  }
+  html:not([data-plain]) .card-grid > .card:first-child:nth-last-child(odd) .card__body > .checklist {
+    grid-column: 2;
+    grid-row: 1 / -1;
+    align-self: start;
+    margin-top: 0;
+    padding-left: 32px;
+    border-left: 2px dashed var(--grid);
+  }
+  html:not([data-plain]) .card-grid > .card:first-child:nth-last-child(odd) .card__links {
+    align-self: end;
+  }
+}
 .card {
   display: flex;
   flex-direction: column;
