@@ -1,93 +1,228 @@
 {
   "name": "Adnan Baig",
-  "headerTaglineOne": "Solving the hardest",
-  "headerTaglineTwo": "problems in robotics,",
-  "headerTaglineThree": "AI, and the web.",
-  "headerTaglineFour": "",
+  "title": "Robotics Software Engineer",
+  "location": "San Jose, CA",
+  "email": "adnanabaig@gmail.com",
+  "siteUrl": "https://adnanbaig.com",
+  "resumeUrl": "/Adnan_Baig_Resume.pdf",
+  "seo": {
+    "description": "Adnan Baig is a robotics software engineer in San Jose. He builds control apps, fleet dashboards, and data tools for humanoid robots."
+  },
+  "hero": {
+    "eyebrow": "Robotics Software Engineer · San Jose, CA",
+    "lede": "I build control apps, fleet dashboards, and data tools for humanoid robots. Now at Sigma Design @ Meta Reality Labs.",
+    "proof": [
+      "Previously Humanoid Robot Pilot, Figure AI",
+      "500+ engineering issues resolved across six robot programs",
+      "B.S. Computer Science, Sacramento State"
+    ]
+  },
   "showBlog": true,
   "socials": [
-    {
-      "id": "github",
-      "title": "GitHub",
-      "link": "https://github.com/adnanabaig"
-    },
-    {
-      "id": "linkedin",
-      "title": "LinkedIn",
-      "link": "https://www.linkedin.com/in/adnanbaig916"
-    },
-    {
-      "id": "email",
-      "title": "Email",
-      "link": "mailto:adnanabaig@gmail.com"
-    }
+    { "id": "github", "title": "GitHub", "href": "https://github.com/adnanabaig" },
+    { "id": "linkedin", "title": "LinkedIn", "href": "https://www.linkedin.com/in/adnanbaig916" },
+    { "id": "email", "title": "Email", "href": "mailto:adnanabaig@gmail.com" }
   ],
   "projects": [
     {
-      "id": "teleop-meta",
+      "id": "operator-hmi",
       "title": "Robot Operator HMI",
-      "description": "React and TypeScript app that drives all operation and control of a wearable humanoid suit, including readiness checks, operator workflows, system status, and accessible audio controls.",
+      "org": "Sigma Design @ Meta Reality Labs",
       "category": "Operator Interfaces",
-      "organization": "Sigma Design @ Meta",
-      "imageSrc": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=1400&q=60",
-      "url": "https://www.linkedin.com/in/adnanbaig916"
+      "summary": "The production control app for a wearable UMI humanoid teleoperation suit. I led it from implementation through deployment. It runs operator workflows and shows system status.",
+      "highlights": [
+        "Suit operation, readiness checks, OTA updates, and accessible audio controls.",
+        "MCAP demonstration recording, episode tracking, and storage and upload status for humanoid fine-manipulation training data.",
+        "Tactile-sensor and encoder diagnostics that block recording when pre-session hardware checks fail.",
+        "Teleop console features: a live network-latency view, log annotation, VR and keyboard shortcuts, and safer exit and reset."
+      ],
+      "stack": ["React", "TypeScript", "MCAP"]
     },
     {
       "id": "fleet-operations",
       "title": "Fleet Operations Dashboard",
-      "description": "Production dashboard connecting robot inventory, heartbeats, build telemetry, collection episodes, Jira repairs, and technician workloads.",
+      "org": "Sigma Design @ Meta Reality Labs",
       "category": "Robotics Operations",
-      "organization": "Next.js · React · TypeScript",
-      "imageSrc": "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1400&q=60",
-      "url": "https://www.linkedin.com/in/adnanbaig916"
+      "summary": "A production dashboard that puts a robot fleet in one view. Built with Next.js and React.",
+      "highlights": [
+        "Combines robot inventory, heartbeat and build telemetry, collection episodes, Jira repairs, and technician workloads.",
+        "OIDC single sign-on and certificate-authenticated egress.",
+        "Covered by 296 automated tests.",
+        "A daily fleet-health report in Python and systemd. It pulls live Jira issues, dedupes tickets, and tracks active and blocked repairs."
+      ],
+      "stack": ["Next.js", "React", "TypeScript", "Python", "systemd", "OIDC"]
     },
     {
       "id": "figure-humanoid",
-      "title": "Humanoid Robot Development",
-      "description": "Piloted humanoid robots with teleoperation, Foxglove, and Manus to collect AI training data, monitor actuator health and runtime faults, and label datasets with engineering teams.",
+      "title": "Humanoid Teleoperation",
+      "org": "Figure AI",
+      "role": "Humanoid Robot Pilot",
+      "period": "Sep 2025 to Nov 2025",
       "category": "Robotics Teleoperation",
-      "organization": "Figure",
-      "imageSrc": "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1400&q=60",
-      "url": "https://www.linkedin.com/in/adnanbaig916"
+      "summary": "Piloted humanoid robots to collect the demonstrations their models train on.",
+      "highlights": [
+        "Teleoperated humanoids with Foxglove and Manus to collect training demonstrations.",
+        "Monitored actuator health, runtime faults, and system logs.",
+        "Annotated and quality-checked demonstration data with engineering teams to support model and policy updates."
+      ],
+      "stack": ["Teleoperation", "Foxglove", "Manus"]
     }
   ],
   "engineeringProjects": [
     {
-      "id": "so101-workstation",
-      "title": "SO-101 Robotics Workstation",
-      "description": "In progress: leader-follower teleoperation, RealSense capture, LeRobot dataset and training pipelines, and MuJoCo simulation. A fail-closed control plane includes exclusive motor-bus ownership, watchdog supervision, and a latched emergency stop.",
-      "category": "Robotics · In Progress",
-      "organization": "Python · FastAPI · React",
-      "imageSrc": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=1400&q=60",
-      "url": "https://github.com/adnanabaig"
-    },
-    {
-      "id": "blockchain-dapp",
-      "title": "Blockchain Certificate System DApp",
-      "description": "Decentralized application for verifiable academic credentials — Solidity smart contracts handle on-chain issuance and revocation, IPFS stores document hashes, and a React frontend provides trustless verification without a central authority.",
-      "category": "Blockchain & Web3",
-      "organization": "Solidity · IPFS · React",
-      "imageSrc": "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&w=1400&q=60",
-      "url": "https://github.com/adnanabaig/DAAPer---CSC196D"
+      "id": "so101-research",
+      "title": "SO-101 Teleoperation Research",
+      "org": "Independent research",
+      "period": "2026 to Present",
+      "category": "Robotics Research",
+      "status": "in-progress",
+      "summary": "Comparing VR teleoperation (Meta Quest with BEAVR) against leader-arm teleoperation on SO-101 arms. The question is how each one affects demonstration quality and downstream ACT policy performance.",
+      "highlights": [
+        "Leader-follower teleoperation and RealSense capture for recording demonstrations.",
+        "LeRobot datasets, policy training and evaluation, and MuJoCo simulation.",
+        "Trained ACT and MLP behavior-cloning policies.",
+        "Fail-closed motor control: exclusive bus leases, deadman and watchdog supervision, latched stops that need manual clearance, and HIL safety gates."
+      ],
+      "stack": ["Python", "FastAPI", "React", "LeRobot", "MuJoCo", "RealSense"]
     },
     {
       "id": "wram",
-      "title": "Wildfire Risk Assessment Model",
-      "description": "U-Net CNN trained on 12-band Sentinel-2 satellite imagery to identify wildfire-risk zones, with augmentation, dropout, and validation against Cal Fire ground truth. Second place at the ACM AI Hackathon.",
+      "title": "WRAM: Wildfire Risk Assessment Model",
+      "org": "ACM AI Hackathon, 2nd place",
       "category": "Computer Vision & ML",
-      "organization": "Python · TensorFlow · U-Net",
-      "imageSrc": "https://images.unsplash.com/photo-1569154941061-e231b4725ef1?auto=format&fit=crop&w=1400&q=60",
-      "url": "https://github.com/adnanabaig/Wildfire-Risk-Assessment-Model"
+      "summary": "A TensorFlow U-Net trained on 12-band Sentinel-2 satellite imagery to find wildfire-risk zones.",
+      "highlights": [
+        "Validated against Cal Fire ground-truth data.",
+        "Trained with data augmentation and dropout.",
+        "Took 2nd place at the ACM AI Hackathon."
+      ],
+      "stack": ["Python", "TensorFlow", "U-Net"],
+      "links": [
+        { "label": "Source", "href": "https://github.com/adnanabaig/Wildfire-Risk-Assessment-Model" }
+      ]
     },
     {
       "id": "sentrysight",
       "title": "SentrySight",
-      "description": "AI firearm-detection project combining computer vision with an interactive web interface for exploring detections and alerts.",
-      "category": "AI Safety & Detection",
-      "organization": "TensorFlow · OpenCV · React",
-      "imageSrc": "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1400&q=60",
-      "url": "https://github.com/adnanabaig/SentrySight"
+      "category": "Computer Vision",
+      "summary": "AI firearm detection with computer vision, plus an interactive web interface for exploring detections and alerts.",
+      "highlights": [],
+      "stack": ["TensorFlow", "OpenCV", "React"],
+      "links": [
+        { "label": "Source", "href": "https://github.com/adnanabaig/SentrySight" }
+      ]
+    },
+    {
+      "id": "blockchain-dapp",
+      "title": "Blockchain Certificate System DApp",
+      "category": "Blockchain & Web3",
+      "summary": "Issues and revokes academic certificates on-chain with Solidity. Stores document hashes on IPFS. Anyone can verify a certificate in the React app.",
+      "highlights": [
+        "Verification works without a central authority."
+      ],
+      "stack": ["Solidity", "IPFS", "React"],
+      "links": [
+        { "label": "Source", "href": "https://github.com/adnanabaig/DAAPer---CSC196D" }
+      ]
     }
   ],
-  "aboutpara": "Robotics software engineer at Meta Reality Labs through Sigma Design, building operator interfaces, fleet tooling, and hardware-software integrations. I work across React and TypeScript frontends, Python services, Embedded Linux, NVIDIA Jetson systems, EtherCAT networks, and camera pipelines. Previously, I piloted humanoid robots at Figure AI and worked in cybersecurity at Cyber Proud / CalSTRS. I earned my B.S. in Computer Science from Sacramento State in May 2025. Outside work, I am developing an SO-101 robotics workstation."
+  "experience": [
+    {
+      "id": "sigma",
+      "org": "Sigma Design @ Meta Reality Labs",
+      "role": "Robotics Software Engineer (Aug 2026 to Present)",
+      "location": "Burlingame, CA",
+      "period": "Dec 2025 to Present",
+      "current": true,
+      "highlights": [
+        "Diagnosed and resolved 500+ Jira-tracked engineering issues across six humanoid and robotic manipulation programs, from hardware and firmware to embedded systems and teleoperation software.",
+        "Led the production control app for a wearable UMI humanoid teleoperation suit, from implementation through deployment.",
+        "Built a Next.js and React fleet dashboard with OIDC SSO, certificate-authenticated egress, and 296 automated tests.",
+        "Automated daily fleet-health reporting with Python and systemd."
+      ]
+    },
+    {
+      "id": "figure",
+      "org": "Figure AI",
+      "role": "Humanoid Robot Pilot",
+      "location": "San Jose, CA",
+      "period": "Sep 2025 to Nov 2025",
+      "highlights": [
+        "Operated humanoid robots with teleoperation, Foxglove, and Manus to collect training demonstrations.",
+        "Monitored actuator health, runtime faults, and system logs.",
+        "Annotated and quality-checked demonstration data with engineering teams to support model and policy updates."
+      ]
+    },
+    {
+      "id": "cyberproud",
+      "org": "Cyber Proud Inc. / CalSTRS",
+      "role": "Cybersecurity Intern",
+      "location": "Sacramento, CA",
+      "period": "2023 to 2024",
+      "highlights": [
+        "Performed vulnerability scans, network-traffic analysis, compliance documentation, and workflow digitization."
+      ]
+    },
+    {
+      "id": "vizualty",
+      "org": "Vizualty LLC",
+      "role": "Founder",
+      "location": "Sacramento, CA",
+      "period": "May 2019 to Present",
+      "hidden": true,
+      "highlights": [
+        "Scoped, developed, and delivered web and media projects for client businesses."
+      ]
+    }
+  ],
+  "education": [
+    {
+      "school": "California State University, Sacramento",
+      "shortName": "Sacramento State",
+      "degree": "B.S. Computer Science",
+      "period": "May 2025"
+    }
+  ],
+  "awards": [
+    { "title": "National Cyber League", "detail": "Global Top 5% (2024)" },
+    { "title": "ACM AI Hackathon", "detail": "2nd place for WRAM" }
+  ],
+  "skills": [
+    {
+      "group": "Programming",
+      "items": ["Python", "TypeScript", "JavaScript", "SQL"]
+    },
+    {
+      "group": "Robotics & ML",
+      "items": ["Teleoperation", "imitation learning", "LeRobot", "ACT", "PyTorch", "TensorFlow", "MuJoCo", "MCAP", "HIL testing"]
+    },
+    {
+      "group": "Embedded & Hardware",
+      "items": ["Embedded Linux", "NVIDIA Jetson AGX Thor/Orin", "EtherCAT", "CAN-FD", "GMSL/Argus", "RealSense", "actuator diagnostics and calibration"]
+    },
+    {
+      "group": "Software & Infrastructure",
+      "items": ["React", "Next.js", "FastAPI", "Node.js", "REST APIs", "protobuf/ConnectRPC", "WebRTC", "systemd", "Git", "OIDC", "certificate authentication"]
+    }
+  ],
+  "about": [
+    "I'm a robotics software engineer at Sigma Design @ Meta Reality Labs. I build operator interfaces, fleet tooling, and hardware-software integrations for humanoid and manipulation robots.",
+    "My work runs from React and TypeScript frontends to Python services, Embedded Linux, NVIDIA Jetson systems, EtherCAT networks, and camera pipelines. Before this I piloted humanoid robots at Figure AI and worked in cybersecurity at Cyber Proud / CalSTRS. I earned my B.S. in Computer Science from Sacramento State in May 2025.",
+    "On my own time I research teleoperation on SO-101 arms: how VR and leader-arm control affect demonstration quality, and the ACT policies trained on those demonstrations."
+  ],
+  "contact": {
+    "lede": "Working on robotics, AI, or software? Email is the fastest way to reach me."
+  },
+  "_todo": [
+    "TODO(adnan): SO-101 research repo URL, if it is public. The project card has no link until then.",
+    "TODO(adnan): SentrySight context. What model, what training data, and was it a class, hackathon, or personal project? What year?",
+    "TODO(adnan): Year and context for WRAM (hackathon date) and the Blockchain Certificate DApp (CSC 196D course project?).",
+    "TODO(adnan): Your title at Sigma Design from Dec 2025 to Aug 2026, so the experience entry can show both roles.",
+    "TODO(adnan): Are you open to new roles? If so, which types (full-time, contract, location)? The contact section makes no availability claim until you say.",
+    "TODO(adnan): Show Vizualty LLC (Founder, May 2019 to Present)? You removed studio references on 2026-10-17, so it is in the data with hidden: true and not rendered.",
+    "TODO(adnan): Review blog post 'What It's Like to Build Teleop UIs' (firstblog.md). These paragraphs go past the resume: each widget owning its own state slice, GSAP tracking robot arm poses, and rendering at 60fps against a live telemetry stream. Confirm they are accurate and public, or soften them.",
+    "TODO(adnan): Blog post 'AI Agents, Actually' (secondblog.md) says 'the most reliable agents I've shipped'. Back it up with a public example or soften the wording.",
+    "TODO(adnan): Any public screenshots or demo videos for the selected work? Cards use generated system sketches until then.",
+    "TODO(adnan): The selected-work cards used to link to your LinkedIn profile. Those links were dropped because a profile is not a project link. Add real project links (write-up, demo, repo) if any are public."
+  ]
 }
