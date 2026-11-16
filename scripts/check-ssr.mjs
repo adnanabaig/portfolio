@@ -130,6 +130,17 @@ const allow = new Set([
 const strays = [...new Set((text.match(/\d+/g) || []).filter((run) => !allow.has(run) && !factText.includes(run) && !postText.includes(run)))];
 check(strays.length === 0, `no invented numbers${strays.length ? `; unexplained: ${strays.join(", ")}` : ""}`);
 
+// 7. Teleop cell and station switches: the poster is SSR, the game is not.
+check(!/<canvas[\s>]/i.test(raw), "no <canvas> in SSR HTML (the game is client-only)");
+check(/data-cell-poster[^>]*>[\s\S]*?<path /.test(raw), "cell poster SVG is server-rendered with paths");
+const skipAt = body.indexOf('href="#cell-after"');
+const takeAt = body.search(/<button[^>]*>\s*<span>Take control<\/span>/i);
+check(skipAt > 0 && /Skip teleop/.test(body.slice(skipAt, skipAt + 200)), '"Skip teleop" link present');
+check(takeAt > skipAt && skipAt > 0, "TAKE CONTROL button present, after the skip link");
+check(/id="cell-after"/.test(body), "skip target #cell-after exists");
+check(/<button[^>]*class="[^"]*estop[^"]*"[^>]*aria-pressed="false"/.test(header), "header has the E-STOP toggle (aria-pressed)");
+check(/class="track"[^>]*aria-hidden="true"/.test(header), "AB-01 track is in the header and aria-hidden");
+
 for (const p of passes) console.log(`  ok   ${p}`);
 for (const f of failures) console.error(`  FAIL ${f}`);
 if (failures.length) {

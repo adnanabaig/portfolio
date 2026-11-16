@@ -2,7 +2,7 @@
 // plain HTML at t=0; the cell view sits beside (or below) and never gates it.
 import portfolio from "../../data/portfolio.json";
 import type { PortfolioData } from "../../types/portfolio";
-import CellPoster from "../teleop/CellPoster";
+import TeleopCell from "../teleop/TeleopCell";
 import Led from "../pixel/Led";
 import PixelButton from "../pixel/PixelButton";
 import Socials from "../Socials";
@@ -52,19 +52,7 @@ const Hero = () => (
         </div>
 
         <div className="hero__cell">
-          <div className="px-frame px-frame--crt cell" data-marker="cell">
-            <div className="px-titlebar">
-              <span className="px-titlebar__label">CELL VIEW / AB-01</span>
-              <span className="px-titlebar__right">
-                <Led color="amber" />
-                <span>SIM</span>
-              </span>
-            </div>
-            <div className="crt-screen" id="cell-screen">
-              <CellPoster />
-            </div>
-            <div className="cell__controls" data-slot="cell-controls" />
-          </div>
+          <TeleopCell />
           <BootLog />
         </div>
       </div>

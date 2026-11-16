@@ -1073,6 +1073,23 @@ html[data-theme="mono"] .crt-screen::after {
 }
 
 /* Cell view */
+.skip-teleop {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-bottom: 8px;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--mist);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.skip-teleop:hover {
+  color: var(--teal);
+}
+.cell__after:focus {
+  outline: none;
+}
 .cell .crt-screen {
   aspect-ratio: 16 / 9;
 }
@@ -1085,6 +1102,232 @@ html[data-theme="mono"] .crt-screen::after {
 }
 .cell__controls:empty {
   display: none;
+}
+.cell__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  align-content: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(11, 14, 20, 0.55);
+  transition: opacity 160ms var(--snap);
+}
+/* Once the canvas is live the button tucks into the bottom edge so the cell stays visible. */
+.cell__screen[data-live] .cell__overlay {
+  inset: auto 0 0 0;
+  padding: 10px;
+  background: linear-gradient(transparent, rgba(11, 14, 20, 0.85));
+}
+.cell__overlay[data-hide] {
+  opacity: 0;
+  pointer-events: none;
+}
+.cell__overlay:focus-within {
+  opacity: 1;
+}
+
+/* The live cell: role=application wrapper with a visible teal ring. */
+.teleop {
+  position: absolute;
+  inset: 0;
+  cursor: crosshair;
+}
+/* The ring is drawn on a layer above the canvas (an outline would be clipped by the CRT). */
+.teleop:focus {
+  outline: none;
+}
+.teleop:focus::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 3px var(--teal);
+}
+/* Drag-to-target on touch only while the cell is in control; otherwise the page scrolls. */
+.teleop:focus canvas {
+  touch-action: none;
+}
+.teleop__banner {
+  position: absolute;
+  top: 18%;
+  left: 50%;
+  z-index: 1;
+  transform: translateX(-50%);
+  padding: 6px 12px;
+  border: 2px solid var(--coral);
+  background: var(--ink);
+  color: var(--coral);
+  font-family: var(--font-label);
+  font-size: 16px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  -webkit-font-smoothing: none;
+}
+
+/* Control panel under the canvas (client-only). */
+.tpanel {
+  display: grid;
+  gap: 14px;
+  padding: 4px 12px 14px;
+  font-size: 15px;
+}
+.tpanel__status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+.tpanel__status div {
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+}
+.tpanel__status dt {
+  color: var(--mist);
+}
+.tpanel__status dd {
+  color: var(--paper);
+  overflow-wrap: anywhere;
+}
+.tpanel__status dd[data-mode="TELEOP"] {
+  color: var(--teal);
+}
+.tpanel__status dd[data-mode="STOPPED"] {
+  color: var(--coral);
+}
+.tpanel__status dd[data-mode="PARKED"],
+.tpanel__limit {
+  color: var(--amber);
+}
+.tpanel__status dd[data-mode="AUTO"] {
+  color: var(--sky);
+}
+.tpanel__status dd[data-mode="REPLAY"] {
+  color: var(--violet);
+}
+.tpanel__tag {
+  color: var(--mist);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+.tpanel__latency {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 14px;
+}
+.tpanel__latency label {
+  color: var(--paper);
+}
+.tpanel__latency input {
+  width: 100%;
+  min-height: 44px;
+  accent-color: var(--teal);
+}
+.tpanel__latency output {
+  color: var(--teal);
+  white-space: nowrap;
+}
+.tpanel__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.tpanel__buttons .px-btn {
+  padding: 10px 12px;
+}
+.tpanel__episode,
+.tpanel__hint,
+.tpanel__log {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--mist);
+}
+.tpanel__done {
+  color: var(--leaf);
+}
+.tpanel__log {
+  display: grid;
+  gap: 2px;
+  padding: 8px 10px;
+  border: 2px dashed var(--grid);
+}
+.tpanel__log li::before {
+  content: "> ";
+  color: var(--teal);
+}
+
+/* Touch pads: only on devices with a coarse pointer. */
+.tpad {
+  display: none;
+  grid-template-columns: auto 1fr 1fr;
+  align-items: center;
+  gap: 12px;
+}
+@media (any-pointer: coarse) {
+  .tpad {
+    display: grid;
+  }
+}
+.tpad__dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 56px);
+  grid-template-rows: repeat(3, 56px);
+  gap: 4px;
+}
+.tpad__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 56px;
+  min-height: 56px;
+  border: 2px solid var(--grid);
+  background: var(--panel-hi);
+  color: var(--paper);
+  box-shadow: 4px 4px 0 var(--outline);
+  font-family: var(--font-label);
+  font-size: 16px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  -webkit-font-smoothing: none;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+.tpad__btn:active,
+.tpad__btn[aria-pressed="true"] {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--outline);
+  border-color: var(--teal);
+  color: var(--teal);
+}
+.tpad__btn--up {
+  grid-area: 1 / 2;
+}
+.tpad__btn--left {
+  grid-area: 2 / 1;
+}
+.tpad__btn--right {
+  grid-area: 2 / 3;
+}
+.tpad__btn--down {
+  grid-area: 3 / 2;
+}
+.tpad__btn--grip,
+.tpad__btn--hold {
+  min-height: 72px;
 }
 
 /* Boot POST log: final state by default; types in once per session with motion. */
