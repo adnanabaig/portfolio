@@ -1,3 +1,4 @@
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import type { GetStaticProps } from "next";
 
@@ -20,6 +21,9 @@ import portfolioJson from "../data/portfolio.json";
 import type { BlogPostPreview, PortfolioData } from "../types/portfolio";
 
 const data = portfolioJson as PortfolioData;
+
+// Visitor badges are client-only and live apart from the real awards.
+const VisitorBadges = dynamic(() => import("../components/Badges"), { ssr: false });
 
 interface HomeProps {
   posts: BlogPostPreview[];
@@ -247,6 +251,10 @@ export default function Home({ posts }: HomeProps) {
                   ))}
                 </ul>
               </div>
+            </div>
+
+            <div className="about__badges">
+              <VisitorBadges />
             </div>
           </div>
         </section>

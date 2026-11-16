@@ -90,6 +90,7 @@ const TeleopCell = () => {
           <div className="cell__overlay" data-hide={focused ? "" : undefined}>
             <button
               ref={takeRef}
+              id="take-control"
               type="button"
               className="px-btn px-btn--primary"
               onClick={takeControl}

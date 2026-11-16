@@ -3,6 +3,10 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import portfolio from "../../data/portfolio.json";
 import type { PortfolioData } from "../../types/portfolio";
 import { isPlain, setPlain as savePlain } from "../../lib/station";
+import { emit, on as onBus } from "../../lib/bus";
+import { KeysButton, OpsButton } from "../ops/OpsButton";
+import SoundToggle from "../ops/SoundToggle";
+import StationLayer from "../ops/StationLayer";
 import { useSections } from "../../hooks/useSections";
 import EStop from "../EStop";
 import PixelButton from "../pixel/PixelButton";
@@ -88,6 +92,19 @@ const Header = ({ current = "home", checkpoints = CHECKPOINTS }: HeaderProps) =>
     if (restoreFocus) buttonRef.current?.focus();
   }, []);
 
+  // Opening a station dialog from the menu closes the menu (focus returns to the menu button later).
+  useEffect(() => onBus("ab:open", () => setOpen(false)), []);
+
+  // Triple-click the AB-01 head: it waves on the track (an easter egg; the logo is not the h1).
+  const onBrandClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (e.detail < 2) return;
+    e.preventDefault();
+    if (e.detail === 3) {
+      emit("ab:bot", { act: "wave" });
+      import("../../lib/badges").then((m) => m.discover("wave")).catch(() => undefined);
+    }
+  };
+
   // Escape closes the menu and returns focus; so does a click outside it.
   useEffect(() => {
     if (!open) return;
@@ -146,7 +163,14 @@ const Header = ({ current = "home", checkpoints = CHECKPOINTS }: HeaderProps) =>
     <header className="statusbar">
       <div className="container mx-auto statusbar__row">
         <Link href="/">
-          <a className="brand" aria-label={`${data.name}, home`}>
+          <a
+            className="brand"
+            aria-label={`${data.name}, home`}
+            onClick={onBrandClick}
+            onMouseDown={(e) => {
+              if (e.detail > 1) e.preventDefault();
+            }}
+          >
             <Sprite name="ab01-head" scale={2} className="brand__head" />
             <span className="brand__name">{data.name}</span>
           </a>
@@ -162,7 +186,9 @@ const Header = ({ current = "home", checkpoints = CHECKPOINTS }: HeaderProps) =>
           </PixelButton>
           <TextModeToggle plain={plain} onToggle={togglePlain} className="statusbar__textmode" />
           <EStop />
-          <div className="hud-slot" data-slot="hud" />
+          <div className="hud-slot" data-slot="hud">
+            <OpsButton />
+          </div>
           <button
             ref={buttonRef}
             type="button"
@@ -186,11 +212,17 @@ const Header = ({ current = "home", checkpoints = CHECKPOINTS }: HeaderProps) =>
       <nav ref={panelRef} id="mobile-nav" aria-label="Main" hidden={!open} className="nav-mobile">
         <div className="container mx-auto nav-mobile__inner">
           {renderLinks(() => close(false))}
-          <TextModeToggle plain={plain} onToggle={togglePlain} className="nav-mobile__textmode" />
+          <div className="nav-mobile__controls">
+            <OpsButton className="nav-mobile__ops" />
+            <SoundToggle />
+            <KeysButton />
+            <TextModeToggle plain={plain} onToggle={togglePlain} className="nav-mobile__textmode" />
+          </div>
         </div>
       </nav>
 
       {isHome && <ScrollTrack checkpoints={trackPoints} sections={sections} />}
+      <StationLayer />
     </header>
   );
 };

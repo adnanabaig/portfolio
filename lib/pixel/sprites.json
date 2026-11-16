@@ -1036,6 +1036,180 @@
      ".oooooooooooooo."
     ]
    ]
+  },
+  "ab01-wave": {
+   "w": 16,
+   "h": 24,
+   "frames": [
+    [
+     "......g.........",
+     "......a.........",
+     ".....oao.....m.m",
+     "...ooooooooooomo",
+     "..oammmmmmmmmoao",
+     "..oakkkkkkkkkoao",
+     "..oakkkkttkttoao",
+     "..oakkkkttkttoao",
+     "..oakkkkkkkkkoao",
+     "..osaaaaaaaasoao",
+     "....oossssoo.oao",
+     ".oooosmmmmmmmoao",
+     ".oggosammmmmmo..",
+     ".oggosaammmmso..",
+     ".oggosamtmmmso..",
+     ".oggosammmmmso..",
+     ".oggosssssssso..",
+     ".ooooooooooooo..",
+     "....ossooaao....",
+     ".....oss.oaao...",
+     ".....oss.oaao...",
+     "....oss.oaao....",
+     "...omsso.omaao..",
+     "...oooo..oooo..."
+    ],
+    [
+     "......g.........",
+     "......a.........",
+     ".....oao........",
+     "...oooooooooo.m.",
+     "..oammmmmmmmmomo",
+     "..oakkkkkkkkkoao",
+     "..oakkkkttkttoao",
+     "..oakkkkttkttoao",
+     "..oakkkkkkkkkoao",
+     "..osaaaaaaaasoao",
+     "....oossssoo.oao",
+     ".oooosmmmmmmmoao",
+     ".oggosammmmmmo..",
+     ".oggosaammmmso..",
+     ".oggosamtmmmso..",
+     ".oggosammmmmso..",
+     ".oggosssssssso..",
+     ".ooooooooooooo..",
+     "....ossooaao....",
+     ".....oss.oaao...",
+     ".....oss.oaao...",
+     "....oss.oaao....",
+     "...omsso.omaao..",
+     "...oooo..oooo..."
+    ]
+   ]
+  },
+  "ab01-sit": {
+   "w": 16,
+   "h": 24,
+   "frames": [
+    [
+     "................",
+     "................",
+     "................",
+     "................",
+     "......g.........",
+     "......a.........",
+     ".....oao........",
+     "...oooooooooo...",
+     "..oammmmmmmmmo..",
+     "..oakkkkkkkkko..",
+     "..oakkkkddkddo..",
+     "..oakkkkddkddo..",
+     "..oakkkkkkkkko..",
+     "..osaaaaaaaaso..",
+     "....oossssoo....",
+     ".oooosmmmmmmmo..",
+     ".oggosammmmmmoao",
+     ".oggosaammmmsoao",
+     ".oggosamdmmmsoao",
+     ".oggosammmmmsoao",
+     ".oggossssssssoao",
+     ".oooooooooooomom",
+     "...omsso.omaao..",
+     "...oooo..oooo..."
+    ]
+   ]
+  },
+  "glyph-badge": {
+   "w": 16,
+   "h": 16,
+   "frames": [
+    [
+     "................",
+     "....oooooooo....",
+     "...onnnnnnnno...",
+     "..onyyyyyyyyno..",
+     ".onyyyyyyyyyyno.",
+     ".onyyyyyyyywyno.",
+     ".onyyyyyyywoyno.",
+     ".onywyyyywoyyno.",
+     ".onyowyywoyyyno.",
+     ".onyyowwoyyyyno.",
+     "..onyyooyyyyno..",
+     "...onnnnnnnno...",
+     "....oooooooo....",
+     "....orro..orro..",
+     "....orro..orro..",
+     "....oo.o..o.oo.."
+    ]
+   ]
+  },
+  "case": {
+   "w": 16,
+   "h": 12,
+   "frames": [
+    [
+     "oooooooooooooooo",
+     "oaaaaaaaaaaaaaao",
+     "oammmmmmmmmmmmso",
+     "oammmmmmmmmmmmso",
+     "oyykkyykkyykkyyo",
+     "okyykkyykkyykkyo",
+     "oammmmmmmmmmmmso",
+     "oamkkkkkkkkkkmso",
+     "oammmmmmmmmmmmso",
+     "oammmmmmmmmmmmso",
+     "oassssssssssssso",
+     "oooooooooooooooo"
+    ]
+   ]
+  },
+  "dock": {
+   "w": 24,
+   "h": 32,
+   "frames": [
+    [
+     "...........oo...........",
+     "..........oggo..........",
+     ".oooooooooooooooooooooo.",
+     ".ommmmmmmmmmmmmmmmmmmmo.",
+     ".ommmmmmmmmmmmmmmmmmmmo.",
+     ".oaakkdkkkdkkkdkkkdksso.",
+     ".oaakkdkkkdkkkdkkkdksso.",
+     ".oaakkdkkkdkkkdkkkdksso.",
+     ".oaakkdkkkdkkkdkkkdksso.",
+     ".oaakkdkkkdkkkdkkkdksso.",
+     ".oaakkdkkkdkkkdkkkdksso.",
+     ".oaakkdkkkdkkkdkkkdksso.",
+     ".oaakkdkkkdkkkdkkkdksso.",
+     ".oaakkdkkkdkkkdkkkdksso.",
+     ".oaakkdkkkdkkkdkkkdksso.",
+     ".oaakkdkkkdkkkdkkkdksso.",
+     ".oaakkdkkkdkkkdkkkdksso.",
+     ".oaakkdkkkdkkkdkkkdksso.",
+     ".oaakkdkkkdkkkdkkkdksso.",
+     ".oaakkdkkkdkkkdkkkdksso.",
+     ".oaakkdkkkdkkkdkkkdksso.",
+     ".oaakkdkkkdkkkdkkkdksso.",
+     ".oaakkdkkkdkkkdkkkdksso.",
+     ".oaakkdkkkdkkkdkkkdksso.",
+     ".oaakkdkkkdkkkdkkkdksso.",
+     ".oaakkdkkkdkkkdkkkdksso.",
+     ".oaakkdkkkdkkkdkkkdksso.",
+     ".oaakkdkkkdkkkdkkkdksso.",
+     ".oaakkdkkkdkkkdkkkdksso.",
+     ".oaattttttttttttttttsso.",
+     ".oaasssssssssssssssssso.",
+     ".oooooooooooooooooooooo."
+    ]
+   ]
   }
  }
 }

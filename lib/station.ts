@@ -42,6 +42,17 @@ export function setTheme(theme: Theme) {
   write(KEYS.theme, theme === "default" ? null : theme);
 }
 
+/** CRT scanlines inside bezels: html[data-crt="off"] hides them. */
+export const isCrtOn = () => root()?.getAttribute("data-crt") !== "off";
+
+export function setCrt(on: boolean) {
+  const el = root();
+  if (!el) return;
+  if (on) el.removeAttribute("data-crt");
+  else el.setAttribute("data-crt", "off");
+  write(KEYS.crt, on ? null : "off");
+}
+
 const RM_QUERY = "(prefers-reduced-motion: reduce)";
 
 /** The single reduced-motion flag every animated piece reads. */

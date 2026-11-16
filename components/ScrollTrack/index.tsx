@@ -5,6 +5,8 @@
 // Reduced motion: AB-01 cuts between checkpoints, no walk frames, no beam.
 // E-STOP: the loop stops where it is. The strip is decorative (aria-hidden);
 // its checkpoint links duplicate the nav for pointer users only.
+// The extra frame groups (wave, sit) are driven by lib/puppet.ts, loaded at
+// idle: window.ab01, the head-logo triple-click, and the 20 s idle sit.
 import { useEffect, useRef } from "react";
 import { onReducedMotionChange, prefersReducedMotion, isEstop } from "../../lib/station";
 import { on as onBus } from "../../lib/bus";
@@ -28,14 +30,28 @@ const BEAM_MS = 300;
 // Battery cells on AB-01's back pack, bottom cell first (sprite pixels).
 const CELLS = [16, 15, 14, 13, 12];
 
+const ACT_FRAMES: { cls: string; name: "ab01-wave" | "ab01-sit"; frame: number }[] = [
+  { cls: "w1", name: "ab01-wave", frame: 0 },
+  { cls: "w2", name: "ab01-wave", frame: 1 },
+  { cls: "sit", name: "ab01-sit", frame: 0 },
+];
+
+const paths = (name: "ab01" | "ab01-wave" | "ab01-sit", frame: number) =>
+  spritePaths(name, frame).map((p) => <path key={p.key} d={p.d} style={{ fill: fillFor(p.key) }} />);
+
 function walkerFrames() {
-  return FRAMES.map((f) => (
-    <g key={f} className={`track__f track__f${f}`}>
-      {spritePaths("ab01", f).map((p) => (
-        <path key={p.key} d={p.d} style={{ fill: fillFor(p.key) }} />
-      ))}
-    </g>
-  ));
+  return [
+    ...FRAMES.map((f) => (
+      <g key={f} className={`track__f track__f${f}`}>
+        {paths("ab01", f)}
+      </g>
+    )),
+    ...ACT_FRAMES.map((a) => (
+      <g key={a.cls} className={`track__a track__a-${a.cls}`}>
+        {paths(a.name, a.frame)}
+      </g>
+    )),
+  ];
 }
 
 const ScrollTrack = ({ checkpoints, sections }: ScrollTrackProps) => {

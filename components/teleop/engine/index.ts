@@ -3,6 +3,7 @@
 // imperative object the React layer drives. Loaded only on intent.
 import { BIN_W, BIN_Y, CELL_H, CELL_W, LINK, binX } from "../../../lib/teleop/scene";
 import { read, write, KEYS } from "../../../lib/storage";
+import { emit, on as onBus, type CellEvent } from "../../../lib/bus";
 import { Arm, PARK, driveArm } from "./arm";
 import { AutoPilot, NUDGE, SPEED, WORKSPACE } from "./autopilot";
 import { CARRY_Z, SKILL_COUNT, World, buildCatalog, type CatalogEntry } from "./blocks";
@@ -109,6 +110,9 @@ export function createEngine(wrapper: HTMLElement, canvas: HTMLCanvasElement, cb
 
   for (let i = 0; i < 40; i++) rtt.add(latency, Math.random());
 
+  // Cell moments go out on the bus for sound and visitor badges.
+  const moment = (type: CellEvent) => emit("ab:cell", { type });
+
   // --- safety -------------------------------------------------------------
   function resyncCommand() {
     const w = arm.wrist;
@@ -130,10 +134,12 @@ export function createEngine(wrapper: HTMLElement, canvas: HTMLCanvasElement, cb
       auto = null;
       player = null;
       cb.announce("Stopped. Press C or CLEAR to resume.");
+      moment("stop");
     } else if (prev === "STOPPED") {
       arm.freeze();
       resyncCommand();
       cb.announce("Stop cleared. Teleop ready.");
+      moment("clear");
     } else if (mode === "PARKED") {
       cb.announce("Watchdog: no operator input. Arm parked.");
     } else if (prev === "PARKED" && mode === "TELEOP") {
@@ -159,6 +165,7 @@ export function createEngine(wrapper: HTMLElement, canvas: HTMLCanvasElement, cb
     const seconds = (ep.durationMs / 1000).toFixed(1);
     cb.log(`episode ${ep.n} saved, ${seconds} s`);
     cb.announce(`Saved episode ${ep.n}, ${seconds} seconds. Your run, kept in this tab.`);
+    moment("saved");
   }
 
   // --- simulation step ----------------------------------------------------
@@ -228,19 +235,24 @@ export function createEngine(wrapper: HTMLElement, canvas: HTMLCanvasElement, cb
     } else {
       const cmd = buffer.sample(now, latency) ?? op;
       const gripped = driveArm(arm, world, cmd, dt, { springy: !reduced, reduced, parked: mode === "PARKED" });
-      if (gripped) cb.announce(`Gripped ${gripped.entry.skill}`);
+      if (gripped) {
+        cb.announce(`Gripped ${gripped.entry.skill}`);
+        moment("grip");
+      }
     }
 
     for (const ev of world.step(dt, reduced)) {
       if (ev.type === "sorted") {
         cb.sorted(ev.entry);
         let msg = `Sorted: ${ev.entry.skill} to ${ev.entry.group}`;
-        if (ev.total === SKILL_COUNT && !complete) {
+        const done = ev.total === SKILL_COUNT && !complete;
+        if (done) {
           complete = true;
           msg += `. Calibration complete. ${ev.total} of ${SKILL_COUNT} skills sorted.`;
           cb.log("calibration complete");
         }
         cb.announce(msg);
+        moment(done ? "complete" : "sort");
         if (!reduced) {
           const cx = binX(ev.bin) + BIN_W / 2;
           for (let i = 0; i < 12; i++) {
@@ -252,6 +264,7 @@ export function createEngine(wrapper: HTMLElement, canvas: HTMLCanvasElement, cb
       } else if (ev.type === "misroute") {
         cb.announce(`Wrong bin: ${ev.entry.skill} belongs in ${ev.entry.group}`);
         cb.log(`misroute: ${ev.entry.label} bounced`);
+        moment("misroute");
         if (!reduced) shake = 0.12;
       }
     }
@@ -395,6 +408,10 @@ export function createEngine(wrapper: HTMLElement, canvas: HTMLCanvasElement, cb
     render();
   });
   themeWatch.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  // The OPS console can turn the latency knob: `latency <ms>`.
+  const offCmd = onBus("ab:cmd", (c) => {
+    if (c.type === "latency") api.setLatency(c.ms);
+  });
 
   const requireLive = (what: string) => {
     if (mode !== "STOPPED") return true;
@@ -431,6 +448,7 @@ export function createEngine(wrapper: HTMLElement, canvas: HTMLCanvasElement, cb
         recorder.start(now);
         cb.log(`recording episode ${episodeNo + 1}`);
         cb.announce(`Recording episode ${episodeNo + 1}. Press R again to stop.`);
+        moment("rec");
       }
       activity();
     },
@@ -452,6 +470,7 @@ export function createEngine(wrapper: HTMLElement, canvas: HTMLCanvasElement, cb
       player.start(now);
       fire({ type: "REPLAY_START" });
       cb.announce(`Replaying episode ${ep.n}.`);
+      moment("replay");
       activity();
     },
     toggleAuto() {
@@ -530,6 +549,7 @@ export function createEngine(wrapper: HTMLElement, canvas: HTMLCanvasElement, cb
       io.disconnect();
       ro.disconnect();
       themeWatch.disconnect();
+      offCmd();
       document.removeEventListener("visibilitychange", onVisibility);
     },
   };

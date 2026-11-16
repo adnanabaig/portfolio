@@ -11,7 +11,21 @@ export interface BusEvents {
   "ab:badge": { id: string };
   /** Sound was turned on or off. */
   "ab:sound": { on: boolean };
+  /** Teleop Cell moments (sound, badges). Emitted by the lazy engine. */
+  "ab:cell": { type: CellEvent };
+  /** Requests to the live cell (from the OPS console). */
+  "ab:cmd": { type: "latency"; ms: number };
+  /** OPS console moments (sound, badges). */
+  "ab:ops": { type: "open" | "key" | "run" | "deny" };
+  /** Open a station dialog; the opener is remembered for focus return. */
+  "ab:open": { what: "ops" | "keys"; from?: HTMLElement | null };
+  /** Puppet AB-01 on the track (window.ab01, the head logo). */
+  "ab:bot": { act: "wave" | "dance" | "color"; color?: string };
+  /** The 404 micro-level was finished. */
+  "ab:home": Record<string, never>;
 }
+
+export type CellEvent = "grip" | "drop" | "sort" | "misroute" | "stop" | "clear" | "rec" | "saved" | "replay" | "complete";
 
 export type BusEvent = keyof BusEvents;
 
