@@ -1,4 +1,4 @@
-// SSR guard: `npm run check:ssr [distDir]` (default .next-build).
+// SSR guard: `npm run check:ssr [distDir]` (default: $NEXT_DIST_DIR, else .next-build).
 // Reads the prerendered home page and asserts the recruiter path and the
 // fact contract: content is real HTML, complete, in order, and nothing
 // hidden or invented leaks in.
@@ -8,7 +8,7 @@ import { fileURLToPath } from "url";
 import matter from "gray-matter";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
-const distDir = process.argv[2] || ".next-build";
+const distDir = process.argv[2] || process.env.NEXT_DIST_DIR || ".next-build";
 const htmlFile = path.join(root, distDir, "server/pages/index.html");
 if (!fs.existsSync(htmlFile)) {
   console.error(`check:ssr: ${path.relative(root, htmlFile)} not found. Build first (NEXT_DIST_DIR=${distDir} npm run build).`);

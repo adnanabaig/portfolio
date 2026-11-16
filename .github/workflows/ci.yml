@@ -1,0 +1,51 @@
+# Every push and pull request: install from the lockfile, then the same
+# gates as a local pre-commit pass (CLAUDE.md, "Commands"), in order.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      # Build into the same directory check:ssr reads.
+      NEXT_DIST_DIR: .next-build
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Types (app and tests)
+        run: npm run typecheck
+
+      - name: Copy, teleop, OPS, and sketch guards
+        run: npm run check:copy
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: SSR guard on the built pages
+        run: npm run check:ssr

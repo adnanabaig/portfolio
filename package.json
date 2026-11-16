@@ -2,6 +2,9 @@
   "name": "adnan-baig-portfolio",
   "version": "3.0",
   "private": true,
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "dev": "next dev",
     "prebuild": "node scripts/generate-sitemap.mjs && node scripts/generate-rss.mjs",
