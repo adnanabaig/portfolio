@@ -1,26 +1,16 @@
 // Copy guard: `npm run check:copy`. Fails on em dashes, emoji, leaked TODOs,
 // and terms that must not appear on the public site, in:
 // - data/*.json (except the private `_todo` notes) and _posts/*.md
-// - source: components/, pages/, lib/, hooks/ (.ts, .tsx, .json, .mjs)
+// - source: components/ (including components/ops/**), pages/, lib/ (all of
+//   it: badges, audio, hello, pixel data), hooks/ (.ts, .tsx, .json, .mjs)
+// - scripts/build-og.mjs, whose strings end up in public/og.png
+// The OPS console's actual output is checked by scripts/check-ops.mjs.
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { EM_DASH, EMOJI, FORBIDDEN } from "./copy-rules.mjs";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
-const EM_DASH = "\u2014";
-const FORBIDDEN = [
-  "MUMI",
-  "Beryllium",
-  "Helium",
-  "Hydrogen",
-  "Lithium",
-  "rl_robot",
-  "metabot",
-  "Phabricator",
-  "unsplash",
-];
-// Emoji: any Extended_Pictographic code point, plus the emoji variation selector.
-const EMOJI = /[\p{Extended_Pictographic}\u{FE0F}]/gu;
 // Non-emoji symbols that are explicitly fine in copy (not matched by EMOJI
 // today; listed so the intent is on record if the pattern ever widens).
 const ALLOWED_SYMBOLS = new Set(["\u00B7"]); // middle dot
@@ -86,6 +76,9 @@ for (const dir of SOURCE_DIRS) {
     scanText(file, fs.readFileSync(file, "utf8"), { checkTodo: true });
   }
 }
+
+// The social card is rendered from strings in this script.
+scanText(path.join(root, "scripts/build-og.mjs"), fs.readFileSync(path.join(root, "scripts/build-og.mjs"), "utf8"), { checkTodo: true });
 
 if (problems.length) {
   console.error(`check:copy found ${problems.length} problem(s):`);

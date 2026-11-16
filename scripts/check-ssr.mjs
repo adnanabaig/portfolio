@@ -141,6 +141,31 @@ check(/id="cell-after"/.test(body), "skip target #cell-after exists");
 check(/<button[^>]*class="[^"]*estop[^"]*"[^>]*aria-pressed="false"/.test(header), "header has the E-STOP toggle (aria-pressed)");
 check(/class="track"[^>]*aria-hidden="true"/.test(header), "AB-01 track is in the header and aria-hidden");
 
+// 8. Station extras are client-only; social card and icons are wired.
+check(!/role="log"|class="ops[\s"]|<dialog/.test(raw), "no OPS console markup in SSR HTML");
+check(!/visitor-badges|Visitor badge|class="toast/.test(raw), "no visitor badges or toast in SSR HTML");
+check(raw.includes(`<meta property="og:image" content="${data.siteUrl}/og.png"/>`), "og:image is /og.png");
+check(raw.includes('<meta name="twitter:card" content="summary_large_image"/>'), "twitter:card is summary_large_image");
+check(/rel="apple-touch-icon" href="\/apple-touch-icon.png"/.test(raw) && /href="\/icon-32.png"/.test(raw), "icon links present");
+const hmi = (body.match(/<article[^>]*id="card-operator-hmi"[\s\S]*?<\/article>/) || [""])[0];
+check(/id="project-operator-hmi"/.test(hmi), "OPS 'open operator-hmi' target: #project-operator-hmi sits in its article");
+check(/id="take-control"/.test(body), "TAKE CONTROL has id=take-control (OPS 'teleop')");
+for (const f of ["og.png", "icon-32.png", "apple-touch-icon.png"]) check(fs.existsSync(path.join(root, "public", f)), `public/${f} exists`);
+
+// 9. The 404 page: plain links come before the optional level.
+const lostFile = path.join(root, distDir, "server/pages/404.html");
+if (fs.existsSync(lostFile)) {
+  const lost = fs.readFileSync(lostFile, "utf8").replace(/<script[\s\S]*?<\/script>/gi, "");
+  const driveAt = lost.indexOf("Drive AB-01 home");
+  const at = (label) => lost.search(new RegExp(`<a[^>]*>\\s*<span>${label}</span>`));
+  const links = ["Home", "Work", ...(data.showBlog ? ["Blog"] : [])].map((l) => [l, at(l)]);
+  check(driveAt > 0, '404 has the "Drive AB-01 home" button');
+  for (const [l, i] of links) check(i > 0 && i < driveAt, `404 "${l}" link comes before the level button`);
+  check(!/<canvas[\s>]/i.test(lost), "404 level is not server-rendered");
+} else {
+  check(false, "404.html exists");
+}
+
 for (const p of passes) console.log(`  ok   ${p}`);
 for (const f of failures) console.error(`  FAIL ${f}`);
 if (failures.length) {
