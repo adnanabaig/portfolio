@@ -238,6 +238,37 @@ describe("engine: latency link", () => {
 });
 
 describe("engine: episodes", () => {
+  it("records a run, saves it, and replays it back to the same end pose", () => {
+    const c = boot();
+    c.engine.toggleRec();
+    expect(c.state().recording).toBe(true);
+    c.engine.setPad("left", true);
+    c.run(0.8);
+    c.engine.setPad("left", false);
+    c.engine.setPad("down", true);
+    c.run(0.5);
+    c.engine.setPad("down", false);
+    c.run(1);
+    const end = c.wrist();
+    c.engine.toggleRec();
+    expect(c.logs.some((l) => /^episode 1 saved, \d+\.\d s$/.test(l))).toBe(true);
+    expect(c.state().episodes).toHaveLength(1);
+
+    c.engine.setPad("right", true); // wander off
+    c.run(1);
+    c.engine.setPad("right", false);
+    c.run(0.5);
+    expect(dist(c.wrist(), end)).toBeGreaterThan(20);
+
+    c.engine.toggleReplay();
+    expect(c.state().mode).toBe("REPLAY");
+    for (let i = 0; i < 20 && c.state().mode === "REPLAY"; i++) c.run(0.5);
+    expect(c.state().mode).toBe("TELEOP");
+    expect(c.logs).toContain("replay finished");
+    c.run(2);
+    expect(dist(c.wrist(), end)).toBeLessThan(0.5);
+  });
+
   it("operator input takes over a replay", () => {
     const c = boot();
     c.engine.toggleRec();

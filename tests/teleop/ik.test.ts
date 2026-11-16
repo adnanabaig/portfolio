@@ -85,10 +85,26 @@ describe("desiredJoints (IK + unwrap + soft limits)", () => {
     expect(wristErr(fromWound, p.x, p.y)).toBeLessThan(1e-9);
   });
 
-  it("clamps q1 at the cable-wrap window and reports LIMIT", () => {
-    const d = desiredJoints(LINK, LINK.bx + 98.5, LINK.by - 17.4, { q1: 2 * Math.PI - 0.01, q2: -1 });
+  it("past the cable-wrap window, unwinds to the same heading inside it and reports LIMIT", () => {
+    const tx = LINK.bx + 98.5;
+    const ty = LINK.by - 17.4;
+    const d = desiredJoints(LINK, tx, ty, { q1: 2 * Math.PI - 0.01, q2: -1 });
     expect(d.limited).toBe(true);
     expect(d.q1).toBeLessThanOrEqual(LIMITS.q1[1]);
+    expect(d.q1).toBeGreaterThanOrEqual(LIMITS.q1[0]);
+    expect(wristErr(d, tx, ty)).toBeLessThan(1e-9);
+  });
+
+  it("keeps q1 inside the window while the target circles the base for many turns, and keeps tracking", () => {
+    let q = { q1: 0, q2: -1 };
+    for (let k = 0; k <= 360 * 5; k += 3) {
+      const p = at(90, (k * Math.PI) / 180);
+      const d = desiredJoints(LINK, p.x, p.y, q);
+      expect(d.q1).toBeGreaterThanOrEqual(LIMITS.q1[0]);
+      expect(d.q1).toBeLessThanOrEqual(LIMITS.q1[1]);
+      expect(wristErr(d, p.x, p.y)).toBeLessThan(1e-9);
+      q = d;
+    }
   });
 
   it("never lets the elbow go straight: a full-stretch target clamps q2 and reports LIMIT", () => {

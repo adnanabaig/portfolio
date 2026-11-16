@@ -174,3 +174,24 @@ describe("episode record and replay", () => {
     expect(a.sorted).toBe(1);
   });
 });
+
+describe("cable wrap", () => {
+  it("an arm driven round the base for several turns keeps following, inside the q1 window", () => {
+    const c = cell(4);
+    let worstQ1 = 0;
+    // Circle the base slowly (the servo keeps up), three full turns.
+    for (let k = 0; k <= 360 * 3; k += 2) {
+      const a = -0.9 + (k * Math.PI) / 180;
+      Object.assign(c.op, { x: LINK.bx + Math.cos(a) * 90, y: LINK.by + Math.sin(a) * 90 });
+      for (let i = 0; i < 6; i++) c.tick(0);
+      worstQ1 = Math.max(worstQ1, Math.abs(c.arm.q1));
+    }
+    expect(worstQ1).toBeLessThanOrEqual(2 * Math.PI + 1e-9);
+    // Unwinding swings the long way round once per turn, so the arm may lag, but it must catch up.
+    for (let i = 0; i < 60 * 4; i++) c.tick(0);
+    expect(Math.hypot(c.arm.wrist.x - c.op.x, c.arm.wrist.y - c.op.y)).toBeLessThan(0.5);
+    Object.assign(c.op, { x: PARK.x, y: PARK.y });
+    for (let i = 0; i < 60 * 6; i++) c.tick(0);
+    expect(Math.hypot(c.arm.wrist.x - PARK.x, c.arm.wrist.y - PARK.y)).toBeLessThan(0.5);
+  });
+});

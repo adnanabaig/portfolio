@@ -89,14 +89,28 @@ export const LIMITS: JointLimits = {
 };
 
 /**
+ * The angle equal to `a` (mod 2 pi) inside [lo, hi] that is closest to `a`,
+ * or `a` clamped to the window when no equivalent fits (window under 2 pi).
+ */
+function intoWindow(a: number, lo: number, hi: number) {
+  const TAU = Math.PI * 2;
+  if (a > hi) a -= TAU * Math.ceil((a - hi) / TAU);
+  else if (a < lo) a += TAU * Math.ceil((lo - a) / TAU);
+  return Math.min(hi, Math.max(lo, a));
+}
+
+/**
  * Desired joint angles for a target: IK, unwrapped next to the current
- * pose, then clamped to the soft limits. `limited` is true when a clamp bit.
+ * pose, then fitted to the soft limits. Past the q1 cable-wrap window the
+ * arm unwinds the long way round to the same heading (a real cell cannot
+ * spin through its cable wrap), instead of parking at the limit short of a
+ * reachable target. `limited` is true while a limit is shaping the pose.
  */
 export function desiredJoints(link: Link2, tx: number, ty: number, current: Joints, limits = LIMITS) {
   const ik = solveIK(link, tx, ty, true);
   if (!ik) return { q1: current.q1, q2: current.q2, limited: true };
   const q1u = unwrapNear(ik.q1, current.q1);
-  const q1 = Math.min(limits.q1[1], Math.max(limits.q1[0], q1u));
+  const q1 = intoWindow(q1u, limits.q1[0], limits.q1[1]);
   const q2 = Math.min(limits.q2[1], Math.max(limits.q2[0], ik.q2));
   return { q1, q2, limited: q1 !== q1u || q2 !== ik.q2 };
 }
