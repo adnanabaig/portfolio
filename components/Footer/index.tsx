@@ -1,54 +1,41 @@
-import React, { useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import portfolio from "../../data/portfolio.json";
+import type { PortfolioData } from "../../types/portfolio";
 import Socials from "../Socials";
 
-const Footer = () => {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const visible = useInView(ref, { once: true, amount: 0.2 });
+const data = portfolio as PortfolioData;
 
-  return (
-    <footer id="contact-section" ref={ref} className="mt-5 laptop:mt-40 p-2 laptop:p-0">
-      {/* "Contact." — char-by-char slide-up */}
-      <h2
-        className="text-2xl text-bold"
-        style={{ display: "flex", lineHeight: 1 }}
-      >
-        {"Contact.".split("").map((char, i) => (
-          <span key={i} style={{ overflow: "hidden", display: "inline-block" }}>
-            <motion.span
-              style={{ display: "inline-block" }}
-              initial={{ y: "110%" }}
-              animate={visible ? { y: 0 } : undefined}
-              transition={{ duration: 0.46, delay: 0.1 + i * 0.06, ease: [0.22, 1, 0.36, 1] }}
-            >
-              {char}
-            </motion.span>
-          </span>
-        ))}
+const Footer = () => (
+  <footer id="contact-section" aria-labelledby="contact-heading" className="mt-24 border-t border-white/10">
+    <div className="container mx-auto py-16">
+      <h2 id="contact-heading" className="text-2xl font-semibold">
+        Contact
       </h2>
+      <p className="mt-4 max-w-xl text-lg text-slate-300">{data.contact.lede}</p>
 
-      <p className="mt-5 text-lg text-slate-300 max-w-xl">Have a robotics, AI, or software project in mind? Let’s talk.</p>
-      {/* Socials fade + slide up after heading settles */}
-      <motion.div
-        className="mt-5"
-        initial={{ opacity: 0, y: 18 }}
-        animate={visible ? { opacity: 1, y: 0 } : undefined}
-        transition={{ duration: 0.55, delay: 0.52, ease: [0.22, 1, 0.36, 1] }}
-      >
-        <Socials />
-      </motion.div>
+      <p className="mt-6">
+        <a href={`mailto:${data.email}`} className="font-mono text-lg underline underline-offset-4 break-all">
+          {data.email}
+        </a>
+      </p>
 
-      {/* Copyright — subtle fade */}
-      <motion.p
-        className="text-sm mt-2 laptop:mt-10 text-slate-400"
-        style={{ opacity: 0 }}
-        animate={visible ? { opacity: 1 } : undefined}
-        transition={{ duration: 0.6, delay: 0.72 }}
-      >
-        Adnan Baig
-      </motion.p>
-    </footer>
-  );
-};
+      <div className="mt-6 flex flex-wrap gap-2">
+        <a
+          href={data.resumeUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex min-h-[44px] items-center justify-center rounded border border-white/15 px-4 py-2 text-sm hover:border-white/40 hover:bg-white/5 transition-colors"
+        >
+          Resume (PDF)
+          <span className="sr-only"> (opens in new tab)</span>
+        </a>
+        <Socials hideEmail />
+      </div>
+
+      <p className="mt-12 font-mono text-sm text-slate-400">
+        {data.name} · {data.location}
+      </p>
+    </div>
+  </footer>
+);
 
 export default Footer;
