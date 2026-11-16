@@ -204,7 +204,18 @@ const ScrollTrack = ({ checkpoints, sections }: ScrollTrackProps) => {
     apply();
     scheduleBlink();
 
-    const unsub = sections.subscribe(wake);
+    // First placement, reduced-motion cuts, and moves while the tab is hidden
+    // (nobody is watching a walk) are synchronous, so they never wait on rAF.
+    const onSections = () => {
+      if (!isEstop() && st.ready && (!placed || reduced || document.hidden)) {
+        placed = true;
+        x = fracFor() * width;
+        setFrame(0);
+        apply();
+      }
+      wake();
+    };
+    const unsub = sections.subscribe(onSections);
     const ro = new ResizeObserver(() => {
       const ratio = width > 0 ? x / width : 0;
       width = rail.clientWidth - 16;

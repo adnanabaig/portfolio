@@ -61,6 +61,31 @@
   descent-override: 26.9%;
   line-gap-override: 0%;
 }
+/*
+ * Pixelify Sans draws 5 like an S. "Pixel Digits" maps only 0-9 to
+ * Silkscreen and sits first in --font-pixel, so any digit in an h1, h2, or
+ * post title renders unambiguously while letters stay Pixelify.
+ */
+@font-face {
+  font-family: "Pixel Digits";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/silkscreen-latin-400-normal.woff2") format("woff2");
+  unicode-range: U+0030-0039;
+}
+/*
+ * Silkscreen's ampersand reads as a dollar sign ("ROBOTICS $ ML"). "Label
+ * Amp" maps only & to Pixelify Sans and sits first in --font-label.
+ */
+@font-face {
+  font-family: "Label Amp";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/pixelify-sans-latin-wght-normal.woff2") format("woff2");
+  unicode-range: U+0026;
+}
 @font-face {
   font-family: "Silkscreen";
   font-style: normal;
@@ -102,8 +127,8 @@
   --outline: #05070a; /* sprite outline and hard drop shadows */
 
   --accent: var(--teal);
-  --font-pixel: "Pixelify Sans", "Pixelify Fallback", ui-monospace, monospace;
-  --font-label: "Silkscreen", "Silkscreen Fallback", ui-monospace, monospace;
+  --font-pixel: "Pixel Digits", "Pixelify Sans", "Pixelify Fallback", ui-monospace, monospace;
+  --font-label: "Label Amp", "Silkscreen", "Silkscreen Fallback", ui-monospace, monospace;
   --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
     sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
@@ -1454,12 +1479,17 @@ html[data-theme="mono"] .crt-screen::after {
   letter-spacing: 0.06em;
   color: var(--mist);
 }
+/* Silkscreen, not Pixelify: Pixelify's 5 reads as an S ("S00+", "May 202S"). */
 .telemetry__value {
   order: 2;
-  font-family: var(--font-pixel);
-  font-size: clamp(24px, 1.2rem + 1vw, 32px);
-  font-weight: 600;
-  line-height: 1.1;
+  font-family: var(--font-label);
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.25;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: unset;
   color: var(--accent);
 }
 .telemetry__gauge {
@@ -1636,9 +1666,7 @@ html[data-theme="mono"] .crt-screen::after {
   color: var(--amber);
 }
 .quest__level {
-  font-family: var(--font-pixel);
   font-size: 24px;
-  font-weight: 600;
   line-height: 1.2;
 }
 .quest__entry[data-current] .quest__node {

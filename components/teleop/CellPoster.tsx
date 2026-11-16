@@ -18,7 +18,9 @@ export function posterPaths(): PixelPath[] {
   let target = { x: 200, y: 27 };
   blocks.forEach((b, i) => {
     const w = drawBlock(r, b.label, BLOCK_X[i] ?? 14 + i * 76, CONVEYOR_Y + 3, b.group);
-    if (i === 2) target = { x: (BLOCK_X[i] ?? 0) + Math.round(w / 2), y: CONVEYOR_Y + 7 };
+    // The gripper hovers just under this block (the belt's lower edge is
+    // CONVEYOR_Y + 18), so neither the gripper nor the forearm covers a label.
+    if (i === 2) target = { x: (BLOCK_X[i] ?? 0) + Math.round(w / 2), y: CONVEYOR_Y + 26 };
   });
   // Operator station: AB-01 at its console, watching the arm.
   r.rect(63, 95, 22, 24, "o");
