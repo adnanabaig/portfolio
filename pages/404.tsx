@@ -1,4 +1,6 @@
+import dynamic from "next/dynamic";
 import Link from "next/link";
+import { useState } from "react";
 
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -7,7 +9,11 @@ import Eyebrow from "../components/pixel/Eyebrow";
 import Sprite from "../components/pixel/Sprite";
 import portfolio from "../data/portfolio.json";
 
+// The micro-level loads only when the visitor asks for it.
+const LostSignal = dynamic(() => import("../components/lost/LostSignal"), { ssr: false });
+
 export default function NotFound() {
+  const [drive, setDrive] = useState(false);
   return (
     <>
       <Seo
@@ -62,8 +68,18 @@ export default function NotFound() {
             <Sprite name="ab01-lost" scale={6} />
           </div>
         </div>
-        {/* WS3 mounts the optional "Drive AB-01 home" micro-level here. */}
-        <div className="lost__level" data-slot="level-404" />
+        {/* Optional: the plain links above are the way out; this is for fun. */}
+        <div className="lost__level" data-slot="level-404">
+          <button
+            id="drive-home"
+            type="button"
+            className="px-btn px-btn--secondary lost__drive"
+            onClick={() => (drive ? document.querySelector<HTMLElement>(".level__play")?.focus() : setDrive(true))}
+          >
+            <span>Drive AB-01 home</span>
+          </button>
+          {drive && <LostSignal />}
+        </div>
       </main>
       <Footer />
     </>
