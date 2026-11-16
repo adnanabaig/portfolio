@@ -2,8 +2,11 @@ import Link from "next/link";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import portfolio from "../../data/portfolio.json";
 import type { PortfolioData } from "../../types/portfolio";
-import { KEYS, write } from "../../lib/storage";
+import { isPlain, setPlain as savePlain } from "../../lib/station";
+import { useSections } from "../../hooks/useSections";
+import EStop from "../EStop";
 import PixelButton from "../pixel/PixelButton";
+import ScrollTrack, { type Checkpoint } from "../ScrollTrack";
 import Sprite from "../pixel/Sprite";
 
 const data = portfolio as PortfolioData;
@@ -11,6 +14,8 @@ const data = portfolio as PortfolioData;
 export interface HeaderProps {
   /** Which page renders the header. Section links become "/#id" off the home page. */
   current?: "home" | "blog" | "other";
+  /** Section ids on this page, top to bottom (home only). Defaults to CHECKPOINTS. */
+  checkpoints?: string[];
 }
 
 interface NavItem {
@@ -38,6 +43,16 @@ export const CHECKPOINTS = [
   "contact-section",
 ];
 
+const CHECKPOINT_TITLES: Record<string, string> = {
+  boot: "Top",
+  "work-section": "Work",
+  "experience-section": "Experience",
+  "engineering-section": "Projects",
+  "about-section": "About",
+  "writing-section": "Writing",
+  "contact-section": "Contact",
+};
+
 /** TEXT MODE: everything in Plex, one column, no pixel decoration. */
 function TextModeToggle({ plain, onToggle, className = "" }: { plain: boolean; onToggle: () => void; className?: string }) {
   return (
@@ -47,39 +62,11 @@ function TextModeToggle({ plain, onToggle, className = "" }: { plain: boolean; o
   );
 }
 
-/**
- * The thin rail under the status bar. AB-01 parks at the checkpoint for the
- * section you are reading (it cuts there under reduced motion).
- */
-function Track({ active }: { active: number }) {
-  const [facingLeft, setFacingLeft] = useState(false);
-  const last = useRef(active);
-  useEffect(() => {
-    if (active !== last.current) setFacingLeft(active < last.current);
-    last.current = active;
-  }, [active]);
-  const n = CHECKPOINTS.length - 1;
-  return (
-    <div className="track" aria-hidden="true" data-slot="track">
-      <div className="container mx-auto">
-        <div className="track__rail">
-          <ol className="track__marks">
-            {CHECKPOINTS.map((id, i) => (
-              <li key={id} className="track__mark" data-on={i <= active ? "" : undefined} style={{ left: `${(i / n) * 100}%` }} />
-            ))}
-          </ol>
-          <div className="track__walker" style={{ transform: `translateX(${(active / n) * 100}%)` }}>
-            <Sprite name="ab01" scale={1} flip={facingLeft} className="track__bot" />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-const Header = ({ current = "home" }: HeaderProps) => {
+const Header = ({ current = "home", checkpoints = CHECKPOINTS }: HeaderProps) => {
   const isHome = current === "home";
-  const [activeSection, setActiveSection] = useState("");
+  // One scroll source for aria-current and the AB-01 track.
+  const sections = useSections(checkpoints, isHome);
+  const activeSection = isHome ? sections.activeId : "";
   const [open, setOpen] = useState(false);
   const [plain, setPlain] = useState(false);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
@@ -87,33 +74,14 @@ const Header = ({ current = "home" }: HeaderProps) => {
 
   // The inline _document script already applied ?plain=1 or the saved choice.
   useEffect(() => {
-    setPlain(document.documentElement.hasAttribute("data-plain"));
+    setPlain(isPlain());
   }, []);
 
   const togglePlain = useCallback(() => {
-    const next = !document.documentElement.hasAttribute("data-plain");
-    document.documentElement.toggleAttribute("data-plain", next);
-    write(KEYS.plain, next ? "1" : "0");
+    const next = !isPlain();
+    savePlain(next);
     setPlain(next);
   }, []);
-
-  // Track which section is in view so the matching link gets aria-current.
-  useEffect(() => {
-    if (!isHome || typeof IntersectionObserver === "undefined") return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) setActiveSection(entry.target.id);
-        });
-      },
-      { rootMargin: "-10% 0px -50% 0px", threshold: 0 }
-    );
-    CHECKPOINTS.forEach((id) => {
-      const element = document.getElementById(id);
-      if (element) observer.observe(element);
-    });
-    return () => observer.disconnect();
-  }, [isHome]);
 
   const close = useCallback((restoreFocus: boolean) => {
     setOpen(false);
@@ -172,7 +140,7 @@ const Header = ({ current = "home" }: HeaderProps) => {
       );
     });
 
-  const activeIndex = Math.max(0, CHECKPOINTS.indexOf(activeSection));
+  const trackPoints: Checkpoint[] = checkpoints.map((id) => ({ id, title: CHECKPOINT_TITLES[id] ?? id }));
 
   return (
     <header className="statusbar">
@@ -193,6 +161,7 @@ const Header = ({ current = "home" }: HeaderProps) => {
             RESUME.PDF
           </PixelButton>
           <TextModeToggle plain={plain} onToggle={togglePlain} className="statusbar__textmode" />
+          <EStop />
           <div className="hud-slot" data-slot="hud" />
           <button
             ref={buttonRef}
@@ -221,7 +190,7 @@ const Header = ({ current = "home" }: HeaderProps) => {
         </div>
       </nav>
 
-      {isHome && <Track active={activeIndex} />}
+      {isHome && <ScrollTrack checkpoints={trackPoints} sections={sections} />}
     </header>
   );
 };

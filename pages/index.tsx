@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { GetStaticProps } from "next";
 
-import Header from "../components/Header";
+import Header, { CHECKPOINTS } from "../components/Header";
 import Footer from "../components/Footer";
 import Seo from "../components/Seo";
 import WorkCard from "../components/WorkCard";
@@ -72,7 +72,10 @@ export default function Home({ posts }: HomeProps) {
       <a href="#main-content" className="skip-link">
         Skip to content
       </a>
-      <Header current="home" />
+      <Header
+        current="home"
+        checkpoints={showWriting ? CHECKPOINTS : CHECKPOINTS.filter((id) => id !== "writing-section")}
+      />
 
       <main id="main-content" tabIndex={-1} className="focus:outline-none">
         <Hero />

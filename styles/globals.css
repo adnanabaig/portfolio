@@ -852,6 +852,17 @@ html[data-theme="mono"] .crt-screen::after {
   height: 2px;
   background: repeating-linear-gradient(90deg, var(--grid) 0 6px, transparent 6px 8px);
 }
+/* Teal progress trail behind AB-01 (scaled by the rAF loop; transform only). */
+.track__trail {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 3px;
+  height: 2px;
+  background: var(--teal);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
 .track__marks {
   position: absolute;
   left: 8px;
@@ -870,15 +881,105 @@ html[data-theme="mono"] .crt-screen::after {
 .track__mark[data-on] {
   background: var(--teal);
 }
+/* Pointer-only hit area (the strip is aria-hidden and these are tabindex=-1). */
+.track__hit {
+  position: absolute;
+  left: -10px;
+  right: -10px;
+  bottom: -3px;
+  height: 26px;
+}
 .track__walker {
   position: absolute;
   left: 0;
-  right: 16px;
   bottom: 1px;
+  width: 16px;
+  height: 24px;
   pointer-events: none;
+  will-change: transform;
 }
-.motion-ok .track__walker {
-  transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+.track__bot {
+  display: block;
+  width: 16px;
+  height: 24px;
+}
+.track__walker--left .track__bot {
+  transform: scaleX(-1);
+}
+.track__f {
+  display: none;
+}
+.track__walker[data-frame="0"] .track__f0,
+.track__walker[data-frame="1"] .track__f1,
+.track__walker[data-frame="2"] .track__f2,
+.track__walker[data-frame="3"] .track__f3,
+.track__walker[data-frame="4"] .track__f4 {
+  display: inline;
+}
+/* Walk frames 1 and 3 bob down a pixel; the overlays (battery, LED, lids) follow. */
+.track__walker[data-frame="1"] .track__over,
+.track__walker[data-frame="3"] .track__over {
+  transform: translateY(1px);
+}
+.track__cell {
+  fill: var(--steel);
+}
+.track__cell[data-on="1"] {
+  fill: var(--leaf);
+}
+.track__led {
+  fill: var(--leaf);
+}
+.motion-ok .track__led {
+  animation: led-blink 2s steps(1, end) infinite;
+}
+.track__lid {
+  fill: var(--ink);
+  display: none;
+}
+.track__walker[data-blink] .track__lid {
+  display: inline;
+}
+/* Beam: AB-01 clips out and back in, in hard steps (opacity + clip only). */
+.track__walker[data-beam] .track__bot {
+  opacity: var(--beam, 1);
+  clip-path: inset(calc((1 - var(--beam, 1)) * 100%) 0 0 0);
+}
+.track__beam {
+  position: absolute;
+  left: 7px;
+  bottom: 0;
+  width: 2px;
+  height: 24px;
+  background: var(--teal);
+  opacity: 0;
+}
+.track__walker[data-beam] .track__beam {
+  opacity: calc((1 - var(--beam, 1)) * 0.8);
+}
+
+/* Global E-STOP button: label hides on small screens (the glyph stays). */
+.estop[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--coral);
+  box-shadow: inset 0 0 0 2px var(--coral);
+}
+@media (max-width: 767px) {
+  .estop {
+    width: 48px;
+    padding: 0;
+  }
+  .estop .px-btn__icon {
+    margin: 0;
+  }
+  .estop__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
 }
 
 /* ==========================================================================
