@@ -762,7 +762,9 @@ html[data-theme="mono"] .crt-screen::after {
 .brand {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
+  min-width: 44px;
   min-height: 44px;
   color: var(--paper);
   text-decoration: none;
@@ -828,6 +830,24 @@ html[data-theme="mono"] .crt-screen::after {
 .menu-button {
   width: 48px;
   padding: 0;
+}
+/* 320 to 374px phones (and Display Zoom): tighter gaps and 44px squares so the menu button stays on screen. */
+@media (max-width: 374px) {
+  .statusbar__row {
+    gap: 6px;
+    padding-inline: 16px;
+  }
+  .statusbar__actions {
+    gap: 6px;
+  }
+  .statusbar__actions .px-btn--compact {
+    padding-inline: 8px;
+  }
+  .statusbar__actions .estop,
+  .statusbar__actions .menu-button {
+    width: 44px;
+    min-height: 44px;
+  }
 }
 /* z-index: the panel drops over the AB-01 track (later in the DOM) instead of under it. */
 .nav-mobile {
@@ -964,6 +984,13 @@ html[data-theme="mono"] .crt-screen::after {
   right: -10px;
   bottom: -3px;
   height: 26px;
+}
+/* Touch: 44px wide (checkpoints sit at least 46px apart even at 320px). */
+@media (any-pointer: coarse) {
+  .track__hit {
+    left: -20px;
+    right: -20px;
+  }
 }
 .track__walker {
   position: absolute;
@@ -1961,6 +1988,17 @@ html[data-theme="mono"] .crt-screen::after {
 .terminal__title a:hover {
   color: var(--violet);
 }
+/* Touch: the whole entry (date, title, tagline) is the title link's target. */
+@media (any-pointer: coarse) {
+  .terminal__entry {
+    position: relative;
+  }
+  .terminal__title a::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+}
 .terminal__tagline {
   margin-top: 4px;
   color: var(--mist);
@@ -1989,6 +2027,9 @@ html[data-theme="mono"] .crt-screen::after {
   margin-top: 20px;
 }
 .uplink__mail a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   font-family: var(--font-mono);
   font-weight: 500;
   font-size: clamp(20px, 1rem + 2vw, 34px);
