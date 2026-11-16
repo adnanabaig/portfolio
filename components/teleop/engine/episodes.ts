@@ -83,14 +83,29 @@ export class Player {
   }
 }
 
-/** Parses stored episodes defensively; bad data yields an empty list. */
+const isFrame = (f: unknown): f is Frame => Array.isArray(f) && f.length === 4 && f.every((v) => typeof v === "number" && Number.isFinite(v));
+
+/**
+ * Parses stored episodes defensively: an episode survives only if every
+ * frame is four finite numbers (the shape Recorder writes), so a replay can
+ * never feed NaN into the arm. Bad data yields an empty list.
+ */
 export function parseEpisodes(raw: string | null): Episode[] {
   if (!raw) return [];
   try {
     const list = JSON.parse(raw);
     if (!Array.isArray(list)) return [];
     return list
-      .filter((e) => e && Number.isFinite(e.n) && Number.isFinite(e.durationMs) && Array.isArray(e.frames))
+      .filter(
+        (e) =>
+          e &&
+          Number.isFinite(e.n) &&
+          Number.isFinite(e.durationMs) &&
+          e.durationMs >= 0 &&
+          Array.isArray(e.frames) &&
+          e.frames.length >= 2 &&
+          e.frames.every(isFrame)
+      )
       .slice(-KEEP);
   } catch {
     return [];

@@ -93,3 +93,31 @@ describe("storage", () => {
     expect(parseEpisodes(raw)).toEqual([]);
   });
 });
+
+describe("stored episodes are validated frame by frame", () => {
+  const good: Episode = { n: 1, durationMs: 1000, frames: [[0, 1, 2, 0], [33, 1, 2, 1]] };
+
+  it.each([
+    ["no frames", { ...good, frames: [] }],
+    ["one frame", { ...good, frames: [[0, 1, 2, 0]] }],
+    ["a frame that is not an array", { ...good, frames: [[0, 1, 2, 0], "x"] }],
+    ["a frame with a missing field", { ...good, frames: [[0, 1, 2, 0], [33, 1, 2]] }],
+    ["a non-numeric coordinate", { ...good, frames: [[0, 1, 2, 0], [33, "1", 2, 1]] }],
+    ["a NaN coordinate (null in JSON)", { ...good, frames: [[0, 1, 2, 0], [33, null, 2, 1]] }],
+    ["a negative duration", { ...good, durationMs: -5 }],
+  ])("drops an episode with %s", (_label, bad) => {
+    expect(parseEpisodes(JSON.stringify([good, bad]))).toEqual([good]);
+  });
+
+  it("a replay of a parsed episode never yields a non-finite command", () => {
+    const list = parseEpisodes(JSON.stringify([good, { ...good, n: 2, frames: [[0, 1, 2, 0], [33, null, 2, 1]] }]));
+    for (const ep of list) {
+      const p = new Player(ep);
+      p.start(0);
+      for (let t = 0; t <= ep.durationMs; t += 10) {
+        const cmd = p.next(t);
+        if (cmd) expect(Number.isFinite(cmd.x) && Number.isFinite(cmd.y)).toBe(true);
+      }
+    }
+  });
+});
