@@ -2635,6 +2635,8 @@ html[data-crt="off"] .crt-screen::after {
 }
 .ops__screen {
   display: grid;
+  /* minmax(0, 1fr): the input's intrinsic width must not widen the column past the bezel on phones. */
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr) auto;
   height: min(56vh, 460px);
   height: min(56svh, 460px);
@@ -2651,6 +2653,25 @@ html[data-crt="off"] .crt-screen::after {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   color: var(--paper);
+}
+/* Table rows (help, projects): name column then description; stacked on phones. */
+.ops__row-cells {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  white-space: normal;
+}
+.ops__val {
+  padding-left: 2ch;
+  color: var(--mist);
+}
+@media (min-width: 640px) {
+  .ops__row-cells {
+    grid-template-columns: var(--ops-col, 22ch) minmax(0, 1fr);
+  }
+  .ops__val {
+    padding-left: 0;
+    color: inherit;
+  }
 }
 .ops__line--in {
   margin-top: 8px;
@@ -2738,6 +2759,7 @@ html[data-crt="off"] .crt-screen::after {
   margin: auto;
   width: min(880px, calc(100% - 24px));
   max-height: calc(100vh - 24px);
+  max-height: calc(100svh - 24px);
   overflow-y: auto;
 }
 .placard {

@@ -35,6 +35,24 @@ function loadHistory(): string[] {
   }
 }
 
+/**
+ * A table row from commands.ts ("help", "projects"): a name padded with spaces,
+ * then its description. Rendered as two cells so a phone can stack them
+ * instead of wrapping the description under the name column.
+ */
+const ROW = /^(\S(?:.*?\S)?) {2,}(\S.*)$/;
+
+function renderText(l: Line) {
+  const m = l.kind === "out" ? ROW.exec(l.text) : null;
+  if (!m) return l.text;
+  const col = l.text.length - m[2].length;
+  return (
+    <span className="ops__row-cells" style={{ ["--ops-col" as string]: `${col}ch` }}>
+      <span className="ops__key">{m[1]}</span> <span className="ops__val">{m[2]}</span>
+    </span>
+  );
+}
+
 const behavior = (): ScrollBehavior => (prefersReducedMotion() ? "auto" : "smooth");
 
 export default function Terminal({ onClose, onKeys }: TerminalProps) {
@@ -209,7 +227,7 @@ export default function Terminal({ onClose, onKeys }: TerminalProps) {
                     {l.external && <span className="sr-only"> (opens in new tab)</span>}
                   </a>
                 ) : (
-                  l.text
+                  renderText(l)
                 )}
               </p>
             ))}
