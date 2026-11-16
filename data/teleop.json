@@ -1,0 +1,42 @@
+{
+  "_about": "Teleop Cell catalog. Each block label (2-6 chars, drawn with lib/pixel/font.json) maps to one EXACT skill string from data/portfolio.json skills. bins maps each skill group to the short label painted on its bin. scripts/check-teleop.mjs enforces: every label maps to a real skill, every skill has exactly one block, and every label passes the copy rules.",
+  "bins": {
+    "Programming": "PROGRAMMING",
+    "Robotics & ML": "ROBOTICS",
+    "Embedded & Hardware": "EMBEDDED",
+    "Software & Infrastructure": "SOFTWARE"
+  },
+  "blocks": {
+    "PY": "Python",
+    "TS": "TypeScript",
+    "JS": "JavaScript",
+    "SQL": "SQL",
+    "TELEOP": "Teleoperation",
+    "IMIT": "imitation learning",
+    "LEROBO": "LeRobot",
+    "ACT": "ACT",
+    "TORCH": "PyTorch",
+    "TF": "TensorFlow",
+    "MUJOCO": "MuJoCo",
+    "MCAP": "MCAP",
+    "HIL": "HIL testing",
+    "LINUX": "Embedded Linux",
+    "JETSON": "NVIDIA Jetson AGX Thor/Orin",
+    "ECAT": "EtherCAT",
+    "CAN-FD": "CAN-FD",
+    "GMSL": "GMSL/Argus",
+    "RSENSE": "RealSense",
+    "ACTCAL": "actuator diagnostics and calibration",
+    "REACT": "React",
+    "NEXT": "Next.js",
+    "FAPI": "FastAPI",
+    "NODE": "Node.js",
+    "REST": "REST APIs",
+    "PROTO": "protobuf/ConnectRPC",
+    "RTC": "WebRTC",
+    "SYSD": "systemd",
+    "GIT": "Git",
+    "OIDC": "OIDC",
+    "CERT": "certificate authentication"
+  }
+}

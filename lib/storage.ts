@@ -44,4 +44,6 @@ export const KEYS = {
   booted: "ab:booted",
   sound: "ab:sound",
   badges: "ab:badges",
+  estop: "ab:estop",
+  episodes: "ab:episodes",
 } as const;

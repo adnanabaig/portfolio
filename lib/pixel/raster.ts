@@ -1,32 +1,55 @@
 // A tiny palette-indexed bitmap. The SSR cell poster is composed here and
 // then converted to SVG paths with rowsToPaths, so it is pixel-exact and
-// needs no image request. The canvas game can draw the same scene.
+// needs no image request. The canvas game draws the same scene into the
+// same structure every frame and blits it, so poster and game match.
+//
+// Pixels are palette indexes in a Uint8Array (0 = transparent), which keeps
+// per-frame redraws cheap.
 import fontData from "./font.json";
-import { sprites, type SpriteName } from "./toPaths";
+import { palette, sprites, type SpriteName } from "./toPaths";
 
 const glyphs = fontData.glyphs as Record<string, string[]>;
 export const FONT_ADVANCE = fontData.advance;
 export const FONT_HEIGHT = fontData.h;
 
+/** Palette keys by index; index 0 is transparent ("."). */
+export const PALETTE_KEYS: string[] = [".", ...Object.keys(palette)];
+const INDEX: Record<string, number> = Object.fromEntries(PALETTE_KEYS.map((k, i) => [k, i]));
+export const keyIndex = (key: string) => INDEX[key] ?? 0;
+
 export class Raster {
   readonly w: number;
   readonly h: number;
-  private px: string[][];
+  readonly px: Uint8Array;
 
   constructor(w: number, h: number) {
     this.w = w;
     this.h = h;
-    this.px = Array.from({ length: h }, () => new Array<string>(w).fill("."));
+    this.px = new Uint8Array(w * h);
+  }
+
+  clear() {
+    this.px.fill(0);
+  }
+
+  /** Copies another raster of the same size (used to restore a cached static layer). */
+  copyFrom(other: Raster) {
+    this.px.set(other.px);
   }
 
   set(x: number, y: number, key: string) {
     x = Math.round(x);
     y = Math.round(y);
-    if (x >= 0 && y >= 0 && x < this.w && y < this.h) this.px[y][x] = key;
+    if (x >= 0 && y >= 0 && x < this.w && y < this.h) this.px[y * this.w + x] = INDEX[key] ?? 0;
   }
 
   rect(x: number, y: number, w: number, h: number, key: string) {
-    for (let j = y; j < y + h; j++) for (let i = x; i < x + w; i++) this.set(i, j, key);
+    const v = INDEX[key] ?? 0;
+    const x0 = Math.max(0, Math.round(x));
+    const y0 = Math.max(0, Math.round(y));
+    const x1 = Math.min(this.w, Math.round(x) + w);
+    const y1 = Math.min(this.h, Math.round(y) + h);
+    for (let j = y0; j < y1; j++) this.px.fill(v, j * this.w + x0, j * this.w + Math.max(x0, x1));
   }
 
   /** Paints a sprite frame; "." stays transparent. `flip` mirrors it, `scale` repeats pixels. */
@@ -93,6 +116,12 @@ export class Raster {
   }
 
   rows(): string[] {
-    return this.px.map((row) => row.join(""));
+    const out: string[] = [];
+    for (let j = 0; j < this.h; j++) {
+      let row = "";
+      for (let i = 0; i < this.w; i++) row += PALETTE_KEYS[this.px[j * this.w + i]];
+      out.push(row);
+    }
+    return out;
   }
 }

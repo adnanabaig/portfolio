@@ -1,7 +1,9 @@
 // Geometry of the Teleop Cell, shared by the SSR poster and the canvas game.
 // Units are logical pixels in a 320x180 frame.
 import portfolio from "../../data/portfolio.json";
+import teleop from "../../data/teleop.json";
 import type { PortfolioData } from "../../types/portfolio";
+import { forwardK, solveIK as solve2, type Link2 } from "../../components/teleop/engine/ik";
 import { Raster } from "../pixel/raster";
 
 const data = portfolio as PortfolioData;
@@ -17,6 +19,7 @@ export const BIN_Y = 140;
 export const BIN_W = 72;
 export const BIN_H = 36;
 export const binX = (i: number) => 8 + i * 78;
+export const LINK: Link2 = { bx: BASE.x, by: BASE.y, l1: LINK1, l2: LINK2 };
 
 /** Palette keys per skill group: [top face / rim / label, front face]. */
 export const GROUP_KEYS: [string, string][] = [
@@ -26,8 +29,9 @@ export const GROUP_KEYS: [string, string][] = [
   ["p", "s"],
 ];
 
-/** Bin label: the group's first word ("Robotics & ML" becomes "ROBOTICS"). */
-export const binLabel = (group: string) => group.split(/\s+/)[0].toUpperCase();
+/** Bin label from data/teleop.json ("Robotics & ML" is "ROBOTICS"); falls back to the first word. */
+export const binLabel = (group: string) =>
+  (teleop.bins as Record<string, string>)[group] ?? group.split(/\s+/)[0].toUpperCase();
 
 /** One short skill per group for the poster's conveyor (real skills only). */
 export function posterBlocks() {
@@ -38,23 +42,9 @@ export function posterBlocks() {
 }
 
 /** Two-link inverse kinematics. Returns joint angles (radians) or null if unreachable. */
-export function solveIK(tx: number, ty: number, elbowRight = true) {
-  const dx = tx - BASE.x;
-  const dy = ty - BASE.y;
-  const d2 = dx * dx + dy * dy;
-  const c2 = (d2 - LINK1 * LINK1 - LINK2 * LINK2) / (2 * LINK1 * LINK2);
-  if (c2 < -1 || c2 > 1) return null;
-  // Screen y points down, so a negative elbow angle puts the elbow on the right.
-  const q2 = Math.acos(c2) * (elbowRight ? -1 : 1);
-  const q1 = Math.atan2(dy, dx) - Math.atan2(LINK2 * Math.sin(q2), LINK1 + LINK2 * Math.cos(q2));
-  return { q1, q2 };
-}
+export const solveIK = (tx: number, ty: number, elbowRight = true) => solve2(LINK, tx, ty, elbowRight);
 
-export function forward(q1: number, q2: number) {
-  const ex = BASE.x + LINK1 * Math.cos(q1);
-  const ey = BASE.y + LINK1 * Math.sin(q1);
-  return { ex, ey, wx: ex + LINK2 * Math.cos(q1 + q2), wy: ey + LINK2 * Math.sin(q1 + q2) };
-}
+export const forward = (q1: number, q2: number) => forwardK(LINK, q1, q2);
 
 export function drawBlock(r: Raster, label: string, x: number, y: number, group: number) {
   const [top, front] = GROUP_KEYS[group % GROUP_KEYS.length];
@@ -113,8 +103,8 @@ export function drawStatic(r: Raster, hudRight = "SIM  STANDBY") {
   r.disc(BASE.x, BASE.y, 8, "a");
 }
 
-/** The arm at the given joint angles, with the gripper open or closed. */
-export function drawArm(r: Raster, q1: number, q2: number, closed = false) {
+/** The arm at the given joint angles, with the gripper open or closed (or left off, to draw a payload under it). */
+export function drawArm(r: Raster, q1: number, q2: number, closed = false, withGripper = true) {
   const { ex, ey, wx, wy } = forward(q1, q2);
   r.capsule(BASE.x, BASE.y, ex, ey, 4.5, { outline: "o", body: "s", hi: "a" });
   r.capsule(ex, ey, wx, wy, 3.5, { outline: "o", body: "a", hi: "m" });
@@ -124,5 +114,9 @@ export function drawArm(r: Raster, q1: number, q2: number, closed = false) {
   r.disc(ex, ey, 5, "o");
   r.disc(ex, ey, 4, "m");
   r.disc(ex, ey, 1.6, "k");
+  if (withGripper) drawGripper(r, wx, wy, closed);
+}
+
+export function drawGripper(r: Raster, wx: number, wy: number, closed: boolean) {
   r.sprite("gripper", Math.round(wx) - 6, Math.round(wy) - 6, closed ? 1 : 0);
 }
