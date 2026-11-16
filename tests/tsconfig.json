@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "incremental": false,
+    "noEmit": true
+  },
+  "include": ["../types/**/*.d.ts", "./**/*.ts"],
+  "exclude": []
+}

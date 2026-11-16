@@ -8,10 +8,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tests/tsconfig.json",
     "check:copy": "node scripts/check-copy.mjs && node scripts/check-teleop.mjs && node scripts/check-ops.mjs && node scripts/check-work.mjs",
     "og": "node scripts/build-og.mjs",
     "check:ssr": "node scripts/check-ssr.mjs",
-    "test:teleop": "node components/teleop/engine/selftest.mjs"
+    "test:teleop": "vitest run tests/teleop",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "autoprefixer": "^10.4.7",
@@ -30,6 +33,8 @@
     "@types/react-dom": "^18.0.0",
     "eslint": "8.15.0",
     "eslint-config-next": "12.1.6",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "vite": "^6.4.6",
+    "vitest": "^3.2.7"
   }
 }
