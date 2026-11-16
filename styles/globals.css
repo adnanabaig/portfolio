@@ -1065,6 +1065,7 @@ html[data-theme="mono"] .crt-screen::after {
 }
 .hero__grid {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 40px;
 }
 @media (min-width: 1024px) {
@@ -1168,9 +1169,14 @@ html[data-theme="mono"] .crt-screen::after {
 .cell__controls:empty {
   display: none;
 }
+/* The stage holds the CRT screen and the TAKE CONTROL overlay. The overlay
+   covers the screen exactly (its 10px margin plus the 2px border). */
+.cell__stage {
+  position: relative;
+}
 .cell__overlay {
   position: absolute;
-  inset: 0;
+  inset: 12px;
   z-index: 2;
   display: flex;
   flex-wrap: wrap;
@@ -1183,27 +1189,53 @@ html[data-theme="mono"] .crt-screen::after {
   transition: opacity 160ms var(--snap);
 }
 /* Once the canvas is live the button tucks into the bottom edge so the cell stays visible. */
-.cell__screen[data-live] .cell__overlay {
-  inset: auto 0 0 0;
+.cell__stage[data-live] .cell__overlay {
+  inset: auto 12px 12px 12px;
   padding: 10px;
   background: linear-gradient(transparent, rgba(11, 14, 20, 0.85));
-}
-.cell__screen[data-live] .cell__overlay {
   pointer-events: none;
 }
-.cell__screen[data-live] .cell__overlay > * {
+.cell__stage[data-live] .cell__overlay > * {
   pointer-events: auto;
 }
 .cell__overlay[data-hide] {
   opacity: 0;
 }
 /* Hidden while the cell has focus: clicks go to the canvas underneath. */
-.cell__screen .cell__overlay[data-hide],
-.cell__screen .cell__overlay[data-hide] > * {
+.cell__stage .cell__overlay[data-hide],
+.cell__stage .cell__overlay[data-hide] > * {
   pointer-events: none;
 }
 .cell__overlay:focus-within {
   opacity: 1;
+}
+/* Phones: the buttons would cover most of the poster, so they move into a bar
+   under the screen (the overlay stays first in the DOM for tab order). */
+@media (max-width: 639px) {
+  .cell__stage {
+    display: flex;
+    flex-direction: column;
+  }
+  .cell__stage .cell__overlay,
+  .cell__stage[data-live] .cell__overlay {
+    position: static;
+    order: 1;
+    gap: 8px;
+    padding: 0 10px 10px;
+    background: none;
+    pointer-events: auto;
+  }
+  .cell__overlay > .px-btn {
+    flex: 1 1 auto;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  /* Nothing to uncover here, so the bar stays put while the cell has focus. */
+  .cell__stage .cell__overlay[data-hide],
+  .cell__stage .cell__overlay[data-hide] > * {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 
 /* The live cell: role=application wrapper with a visible teal ring. */

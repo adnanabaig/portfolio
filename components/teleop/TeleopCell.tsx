@@ -86,7 +86,11 @@ const TeleopCell = () => {
             <span>SIM</span>
           </span>
         </div>
-        <div className="crt-screen cell__screen" id="cell-screen" data-live={start ? "" : undefined}>
+        {/* The stage holds the screen and the TAKE CONTROL overlay. From 640px up
+            the overlay sits on the poster; on phones CSS moves it into a bar
+            under the screen, so the workcell art stays visible. It stays first
+            in the DOM so TAKE CONTROL comes before the live canvas in tab order. */}
+        <div className="cell__stage" data-live={start ? "" : undefined}>
           <div className="cell__overlay" data-hide={focused ? "" : undefined}>
             <button
               ref={takeRef}
@@ -105,11 +109,13 @@ const TeleopCell = () => {
               </button>
             )}
           </div>
-          {start ? (
-            <TeleopLive handleRef={liveRef} start={start} panelHost={panelHost} onFocusChange={setFocused} onRelease={release} />
-          ) : (
-            <CellPoster />
-          )}
+          <div className="crt-screen cell__screen" id="cell-screen">
+            {start ? (
+              <TeleopLive handleRef={liveRef} start={start} panelHost={panelHost} onFocusChange={setFocused} onRelease={release} />
+            ) : (
+              <CellPoster />
+            )}
+          </div>
         </div>
         <div className="cell__controls" ref={setPanelHost} />
       </div>
