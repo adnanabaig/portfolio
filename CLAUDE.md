@@ -10,7 +10,7 @@ The site is **Station AB-01**: a pixel-art robotics workcell console. Under the 
 
 - Next.js 12 (pages router) + React 18 + TypeScript (strict) + Tailwind CSS 3. Do not upgrade the Next or React majors.
 - No animation, UI, or audio libraries. Motion is CSS (transform/opacity) and canvas; sound is hand-rolled WebAudio; pixel art is SSR SVG built from JSON.
-- Blog: `_posts/*.md` parsed with `gray-matter` and rendered to HTML at build time (`utils/api.ts`, `utils/markdownToHtml.ts`).
+- Blog: `_posts/*.md` parsed with `gray-matter` and rendered to HTML at build time (`utils/api.ts`, `utils/markdownToHtml.ts`). `scripts/generate-rss.mjs` writes `public/rss.xml` at prebuild; `_drafts/` is never read.
 - Fonts are self-hosted latin woff2 in `public/fonts` with their OFL texts: IBM Plex Sans and Mono (body, meta), Pixelify Sans (h1, h2, big numbers; the only preloaded font), Silkscreen (labels, buttons, nav; 16px or 24px only). Each pixel face has a metric-matched fallback `@font-face` so the swap does not shift layout.
 - Adding an npm dependency needs a real reason. Use `npm install --package-lock-only`; npm is the only package manager.
 
@@ -22,10 +22,10 @@ Node is not on the default PATH on Adnan's Mac. Prefix every command:
 export PATH=$HOME/.local/node/bin:$PATH
 
 NEXT_DIST_DIR=.next-dev npx next dev -p 3200    # dev server
-NEXT_DIST_DIR=.next-build npm run build         # production build (runs tsc + lint; prebuild writes public/sitemap.xml)
+NEXT_DIST_DIR=.next-build npm run build         # production build (runs tsc + lint; prebuild writes public/sitemap.xml and public/rss.xml)
 npx tsc --noEmit                                # types
 npm run lint                                    # ESLint (next lint)
-npm run check:copy                              # copy guard + teleop catalog guard + OPS console guard
+npm run check:copy                              # copy guard + teleop catalog guard + OPS console guard + dossier sketch guard
 npm run check:ssr                               # reads .next-build/server/pages/*.html, so build first
 npm run test:teleop                             # teleop engine self-test (IK, safety, latency, sorting)
 npm run og                                      # regenerate public/og.png and the icons, then commit them
@@ -41,8 +41,9 @@ Before every commit: `tsc`, `lint`, `check:copy`, then one build and `check:ssr`
 | --- | --- | --- |
 | `check:copy` | `scripts/check-copy.mjs` | No em dashes, no emoji, no forbidden internal terms, no `TODO`/`_todo` in `data/*.json` (except `_todo`), `_posts/*.md`, and all source under `components/` (including `components/ops/**`), `pages/`, `lib/`, `hooks/`, plus `scripts/build-og.mjs`. Rules live in `scripts/copy-rules.mjs`. |
 | `check-teleop` | `scripts/check-teleop.mjs` | `data/teleop.json` maps every skill in `portfolio.json` to exactly one block, every group has a bin, labels are drawable by the bitmap font. |
-| `check-ops` | `scripts/check-ops.mjs` | Compiles `components/ops/commands.ts` and runs every command against a stub. Every `help` entry has a handler; all output passes the copy rules; every printed number is a fact from `portfolio.json` / `lib/facts.ts`, a level number, or labeled as the visitor's own (`your run`, `your link`, `your clock`, `SIM`, `this browser`); no availability wording; the eggs reply exactly; `open operator-hmi` targets that card. |
-| `check:ssr` | `scripts/check-ssr.mjs` | On the built home page: one h1 with the name; eyebrow, lede, proof lines, and the resume link come before the cell; every visible fact string renders; hidden entries and `_todo` never leak; no invented numbers; no canvas, console, badges, or toast in SSR; skip link before TAKE CONTROL; E-STOP and track wiring; `og:image` and `twitter:card`; icons exist. On the built 404: Home, Work, and Blog links come before the "Drive AB-01 home" button. |
+| `check-ops` | `scripts/check-ops.mjs` | Compiles `components/ops/commands.ts` and runs every command against a stub. Every `help` entry has a handler; all output passes the copy rules; every printed number is a fact from `portfolio.json` / `lib/facts.ts`, a level number, or labeled as the visitor's own (`your run`, `your link`, `your clock`, `SIM`, `this browser`); no availability wording; the eggs reply exactly; `open operator-hmi` targets that card and offers the dossier; `dossier <id>` goes to `/work/<id>` for every project. |
+| `check-work` | `scripts/check-work.mjs` | Every project has a sketch in `data/schematics.json` (and no sketch is orphaned). Every node label and edge note appears in that project's own copy (case and punctuation folded). Labels are 1 or 2 lines of at most 13 bitmap-font characters. 4 x 2 grid, one node per cell, no backward flow, no wire through another node. |
+| `check:ssr` | `scripts/check-ssr.mjs` | On the built home page: one h1 with the name; eyebrow, lede, proof lines, and the resume link come before the cell; every visible fact string renders; hidden entries and `_todo` never leak; no invented numbers; no canvas, console, badges, or toast in SSR; skip link before TAKE CONTROL; E-STOP and track wiring; `og:image` and `twitter:card`; icons exist. Every card has an "Open dossier" link. Each built `/work/<id>`: one h1 with the title, every project field, canonical and `og:url`, CreativeWork JSON-LD, breadcrumb back to the card, the "FIG. n / system sketch (illustrative)" caption with server-rendered SVG, prev/next, source links, nothing private, listed in the sitemap. `public/rss.xml` lists every post with pubDate and description; the head links it and `/blog` shows an RSS link. On the built 404: Home, Work, and Blog links come before the "Drive AB-01 home" button. |
 
 When you add a guard-relevant feature, extend the guard in the same commit.
 
@@ -67,14 +68,16 @@ pages/
   index.tsx         home: Hero (BAY 00), Selected work (01), Experience (02), Independent builds (03),
                     About + Inventory + Diploma + Trophies + Visitor badges (04), Writing (05); Footer is Contact (06)
   404.tsx           "Signal lost": plain links first, optional "Drive AB-01 home" level below
-  blog/             index + [slug], reading-first layout
+  work/[id].tsx     project dossiers (SSG over every project): breadcrumb, MOD/RIG plate, brief + checklist,
+                    spec sheet, FIG. n system sketch (illustrative) + netlist, prev/next, CreativeWork JSON-LD
+  blog/             index (with the RSS link) + [slug], reading-first layout
   lab.tsx           noindex review bench: every sprite, the palette with contrast, frames, the OG card
 components/
   Header/           status bar, nav, RESUME.PDF, Text mode, E-STOP, OPS>, menu; mounts ScrollTrack + StationLayer
   ScrollTrack/      AB-01 walking the 28px track (frames incl. wave and sit groups)
   EStop/            global E-STOP toggle
   sections/         Hero, BootLog (CSS-only POST), Telemetry (derived facts), Inventory (skill cross-reference)
-  WorkCard/         MOD/RIG cards (id="card-<id>", heading id="project-<id>", data-skills)
+  WorkCard/         MOD/RIG cards (id="card-<id>", heading id="project-<id>", data-skills, OPEN DOSSIER link)
   Footer/           Uplink (contact) with COPY ADDRESS
   pixel/            Sprite, PixelButton, Panel, Led, Eyebrow, DitherBand
   teleop/           TeleopCell (main-bundle shell + SSR poster), TeleopLive + engine/ (lazy)
@@ -85,6 +88,8 @@ components/
   lost/             LostSignal, the 404 micro-level (lazy)
 lib/
   facts.ts          derived numbers (see Fact rules)
+  projects.ts       every project in order with its MOD/RIG unit, FIG. number, icon (PROJECT_ICONS), dossier href
+  schematic.ts      build-time renderer for the dossier sketches (bitmap-font labels, wide 4x2 and phone 2x4 layouts)
   skillIndex.ts     skill -> cards/roles/About paragraphs it appears in (aliases must be honest)
   bus.ts            typed window CustomEvents
   station.ts        html flag getters/setters (estop, plain, theme, crt) + reduced-motion helpers
@@ -101,7 +106,9 @@ lib/
 data/
   portfolio.json    all content (typed by types/portfolio.ts)
   teleop.json       skill block labels and bin labels for the cell
-scripts/            guards, sitemap, OG renderer, private-data loader
+  schematics.json   per-project sketch spec (nodes on a 4x2 grid, edges); labels must come from that project's copy
+_drafts/            unpublished posts (never read by the build; move to _posts/ only after Adnan approves)
+scripts/            guards, sitemap, RSS feed, OG renderer, private-data loader
 ```
 
 ## Design tokens and pixel primitives
@@ -125,7 +132,7 @@ scripts/            guards, sitemap, OG renderer, private-data loader
 
 ## Adding or editing content
 
-- **A project:** add it to `projects` (Selected work) or `engineeringProjects` (Independent builds) in `data/portfolio.json`, following `types/portfolio.ts` (at most four highlights). That one entry feeds the card (MOD/RIG number from position), the Inventory cross-reference (via its stack and highlights), the OPS console (`projects`, `open <id>`, Tab completion), and `check:ssr` (every field must render). Add a 32x32 icon to `sprites.json` and map it in `components/WorkCard/index.tsx` (`ICONS`), or it falls back to a skill block.
+- **A project:** add it to `projects` (Selected work) or `engineeringProjects` (Independent builds) in `data/portfolio.json`, following `types/portfolio.ts` (at most four highlights). That one entry feeds the card (MOD/RIG number from position), its `/work/<id>` dossier and sitemap entry, the Inventory cross-reference (via its stack and highlights), the OPS console (`projects`, `open <id>`, `dossier <id>`, Tab completion), and `check:ssr` (every field must render on the home page and on the dossier). Add a sketch to `data/schematics.json` using only parts the project's copy names (`check-work` fails until you do). Add a 32x32 icon to `sprites.json` and map it in `lib/projects.ts` (`PROJECT_ICONS`), or it falls back to a skill block.
 - **A skill:** add it to `skills` and give it exactly one block in `data/teleop.json` (2 to 6 uppercase chars the bitmap font can draw). `check-teleop` fails until you do.
 - **A job:** add to `experience` newest first; LV numbers update automatically. `current: true` gets the CURRENT badge. `hidden: true` keeps it out of every page and bundle.
 - **A number you want to show:** derive it in `lib/facts.ts` with an extractor that throws on drift. Then use the export.
@@ -166,6 +173,7 @@ The first viewport is plain SSR HTML. Heavy or optional pieces load on intent:
 | Piece | Loads when | Budget (gzip) |
 | --- | --- | --- |
 | `/` First Load JS | always | 110 kB target, 130 kB hard ceiling (99 kB after the sprite split) |
+| `/work/<id>` First Load JS | always on a dossier | about 94 kB; the sketch SVG is built in `getStaticProps`, so `lib/schematic.ts` and `font.json` never ship |
 | Sprite sheet (`lib/pixel/spriteData`) | a client-side navigation, a live sprite frame change, or a lazy chunk that draws sprites | about 4 kB |
 | Teleop engine + live cell (`TeleopLive`) | TAKE CONTROL / AUTO DEMO, or idle prefetch once the cell is half visible | 25 kB |
 | OPS console UI (`Terminal`) | first open (`/`, `` ` ``, OPS>) | 8 kB per chunk (about 4 kB today) |
@@ -193,7 +201,7 @@ After a build, check the table Next prints, and confirm lazy chunks are not in `
 
 Opened with `/`, `` ` ``, or the OPS> button. Commands (all output generated from `portfolio.json` and `lib/facts.ts`):
 
-`help`, `whoami`, `status`, `resume`, `projects` / `ls`, `open <id>`, `experience`, `skills`, `education`, `awards`, `contact`, `email` (copy), `github`, `linkedin`, `blog`, `teleop`, `latency <ms>` (0 to 300, SIM), `estop`, `keys`, `badges`, `clear`, `theme cyan|amber|mono`, `sound on|off`, `crt on|off`, `ping` (your link), `history`, `date` (your clock), `exit`.
+`help`, `whoami`, `status`, `resume`, `projects` / `ls`, `open <id>`, `dossier <id>`, `experience`, `skills`, `education`, `awards`, `contact`, `email` (copy), `github`, `linkedin`, `blog`, `teleop`, `latency <ms>` (0 to 300, SIM), `estop`, `keys`, `badges`, `clear`, `theme cyan|amber|mono`, `sound on|off`, `crt on|off`, `ping` (your link), `history`, `date` (your clock), `exit`.
 
 Eggs (not listed in `help`): `sudo hire adnan` ("Access granted. Opening a channel.", then focuses Contact's COPY ADDRESS), `rm -rf /` ("Fail-closed. Request denied and latched. Type clear to resume."; the console stays latched until `clear`). Every command has an ordinary on-page equivalent.
 
