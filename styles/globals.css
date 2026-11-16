@@ -1077,6 +1077,10 @@ html[data-theme="mono"] .crt-screen::after {
 }
 
 /* Global E-STOP button: label hides on small screens (the glyph stays). */
+/* 6px block padding keeps it 48px tall like its neighbors (the 32px glyph made it 56, flush with the top edge). */
+.estop {
+  padding-block: 6px;
+}
 .estop[aria-pressed="true"] {
   background: var(--ink);
   color: var(--coral);
