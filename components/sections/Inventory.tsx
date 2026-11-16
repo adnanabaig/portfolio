@@ -87,6 +87,7 @@ const Inventory = ({ skills, index }: InventoryProps) => {
                     onClick={() => toggle(skill)}
                   >
                     {skill}
+                    {found.has(skill) && <span className="sr-only"> (sorted in the cell)</span>}
                   </button>
                 </li>
               ))}

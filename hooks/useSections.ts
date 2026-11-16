@@ -88,8 +88,14 @@ export function useSections(ids: string[], enabled = true): Sections {
     window.addEventListener("resize", measure);
     const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => measure()) : null;
     ro?.observe(document.body);
-    document.fonts?.ready.then(measure).catch(() => undefined);
+    let live = true;
+    document.fonts?.ready
+      .then(() => {
+        if (live) measure();
+      })
+      .catch(() => undefined);
     return () => {
+      live = false;
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", measure);
       ro?.disconnect();

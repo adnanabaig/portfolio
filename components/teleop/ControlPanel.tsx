@@ -81,7 +81,7 @@ const ControlPanel = ({ snap, log, ...on }: ControlPanelProps) => {
           <span>Deadman</span>
         </button>
         <button type="button" className="px-btn px-btn--ghost" aria-pressed={snap.recording} onClick={on.onRec}>
-          <span>{snap.recording ? "Stop rec" : "Rec"}</span>
+          <span>Rec</span>
         </button>
         <button
           type="button"

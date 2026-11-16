@@ -23,7 +23,11 @@ const EStop = ({ className = "" }: { className?: string }) => {
       onClick={() => setEstop(!isEstop())}
     >
       <Sprite name="glyph-estop" scale={2} className="px-btn__icon" />
-      <span className="estop__label">{pressed ? "Resume motion" : "E-stop"}</span>
+      {/* The name stays "E-stop" (aria-pressed carries the state); the suffix is visual only. */}
+      <span className="estop__label">
+        E-stop
+        {pressed && <span aria-hidden="true"> on</span>}
+      </span>
     </button>
   );
 };

@@ -81,6 +81,7 @@ const ScrollTrack = ({ checkpoints, sections }: ScrollTrackProps) => {
     let battery = -1;
     let beam: { t: number; to: number; jumped: boolean } | null = null;
     let blinkTimer: ReturnType<typeof setTimeout> | undefined;
+    let lidTimer: ReturnType<typeof setTimeout> | undefined;
     let placed = st.ready;
 
     const fracFor = () => {
@@ -191,7 +192,7 @@ const ScrollTrack = ({ checkpoints, sections }: ScrollTrackProps) => {
       blinkTimer = setTimeout(() => {
         if (!reduced && !isEstop() && !document.hidden && frame === 0) {
           walker.dataset.blink = "";
-          setTimeout(() => delete walker.dataset.blink, 160);
+          lidTimer = setTimeout(() => delete walker.dataset.blink, 160);
         }
         scheduleBlink();
       }, 3000 + Math.random() * 2000);
@@ -230,6 +231,7 @@ const ScrollTrack = ({ checkpoints, sections }: ScrollTrackProps) => {
     return () => {
       if (raf) cancelAnimationFrame(raf);
       clearTimeout(blinkTimer);
+      clearTimeout(lidTimer);
       unsub();
       ro.disconnect();
       offMotion();

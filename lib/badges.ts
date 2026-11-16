@@ -49,11 +49,6 @@ export function earn(id: BadgeId): boolean {
   return true;
 }
 
-/** Forgets every badge (the OPS console's `badges reset`). */
-export function resetBadges() {
-  write(KEYS.badges, null);
-}
-
 const isNight = (d: Date) => d.getHours() >= 22 || d.getHours() < 5;
 
 let listening = false;

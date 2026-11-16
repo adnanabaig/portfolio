@@ -1163,8 +1163,18 @@ html[data-theme="mono"] .crt-screen::after {
   padding: 10px;
   background: linear-gradient(transparent, rgba(11, 14, 20, 0.85));
 }
+.cell__screen[data-live] .cell__overlay {
+  pointer-events: none;
+}
+.cell__screen[data-live] .cell__overlay > * {
+  pointer-events: auto;
+}
 .cell__overlay[data-hide] {
   opacity: 0;
+}
+/* Hidden while the cell has focus: clicks go to the canvas underneath. */
+.cell__screen .cell__overlay[data-hide],
+.cell__screen .cell__overlay[data-hide] > * {
   pointer-events: none;
 }
 .cell__overlay:focus-within {
@@ -1305,6 +1315,7 @@ html[data-theme="mono"] .crt-screen::after {
 }
 .tpanel__log li::before {
   content: "> ";
+  content: "> " / "";
   color: var(--teal);
 }
 
@@ -2382,6 +2393,7 @@ html[data-crt="off"] .crt-screen::after {
 }
 .placard__secrets li::before {
   content: "[OK] ";
+  content: "[OK] " / "";
   font-family: var(--font-mono);
   color: var(--leaf);
 }
@@ -2517,7 +2529,14 @@ html.js .about__badges:empty {
 }
 
 /* 404 micro-level */
-html:not(.js) .lost__drive {
+/* Without JS these controls cannot do anything, so they do not render. */
+html:not(.js) .lost__drive,
+html:not(.js) .cell__overlay,
+html:not(.js) .estop,
+html:not(.js) .ops-btn,
+html:not(.js) .menu-button,
+html:not(.js) .statusbar__textmode,
+html:not(.js) .inventory__readout {
   display: none;
 }
 .lost__level {
@@ -2658,11 +2677,16 @@ html[data-plain] .post-title {
 /* ==========================================================================
    Motion safety
    ========================================================================== */
-/* Global E-STOP (WS2 sets html[data-estop]): freeze every CSS animation. */
+/*
+ * Global E-STOP (html[data-estop]): stop every CSS animation and transition.
+ * `animation: none` rather than a paused play state, so one-shot entrances
+ * (OPS drawer, toast, boot log, gauges) land on their visible final state
+ * instead of freezing at keyframe 0 (opacity 0) while the stop is latched.
+ */
 html[data-estop] *,
 html[data-estop] *::before,
 html[data-estop] *::after {
-  animation-play-state: paused !important;
+  animation: none !important;
   transition: none !important;
 }
 

@@ -149,7 +149,7 @@ Flags on `<html>`, all applied by the inline pre-paint script in `pages/_documen
 - `motion-ok`: the visitor has not asked for reduced motion. **Every CSS animation must be gated on `.motion-ok`.**
 - `data-plain`: Text Mode (`?plain=1`, or the saved choice). Everything in Plex, one column, no pixel decoration.
 - `data-theme="amber" | "mono"`: saved theme (`theme` command).
-- `data-estop`: the global E-STOP is latched (persists). Pauses every CSS animation and transition, freezes the track, the cell, and the 404 level, and mutes sound.
+- `data-estop`: the global E-STOP is latched (persists across visits). Stops every CSS animation and transition (`animation: none`, so one-shot entrances such as the OPS drawer and toast land on their visible final state instead of freezing invisible at keyframe 0), freezes the track, the cell, and the 404 level, and mutes sound.
 - `data-booted`: the boot POST already played this session.
 - `data-crt="off"`: scanlines hidden (`crt off`).
 
@@ -163,8 +163,8 @@ The first viewport is plain SSR HTML. Heavy or optional pieces load on intent:
 | --- | --- | --- |
 | `/` First Load JS | always | 110 kB target, 130 kB hard ceiling |
 | Teleop engine + live cell (`TeleopLive`) | TAKE CONTROL / AUTO DEMO, or idle prefetch once the cell is half visible | 25 kB |
-| OPS console UI (`Terminal`) | first open (`/`, `` ` ``, OPS>) | part of the 8 kB console budget |
-| OPS parser + command table (`commands.ts`) | `import()` as the console mounts | 8 kB |
+| OPS console UI (`Terminal`) | first open (`/`, `` ` ``, OPS>) | 8 kB per chunk (about 4 kB today) |
+| OPS parser + command table (`commands.ts`) | `import()` as the console mounts | 8 kB per chunk (about 6.5 kB today; the two together are about 10 kB) |
 | Keymap placard | first `?` / Keys | small |
 | Synth (`lib/audio.ts`) | SND opt-in (warmed on hover/focus of the toggle) | 2 kB |
 | Toast + badge rules, console greeting, puppetry | idle (or first input) | small |
