@@ -1,6 +1,7 @@
 // "Visitor badges (earned in this browser)": client-only (next/dynamic with
 // ssr: false), so the server HTML never contains it and it can never be
-// confused with the real awards above it. Locked badges show a text hint.
+// confused with the real awards above it. Locked badges show a dim outline
+// of the medal with a padlock (frame 1) and a text hint.
 import { useEffect, useState } from "react";
 import { on } from "../../lib/bus";
 import { BADGES, earned, type BadgeId } from "../../lib/badges";
@@ -30,7 +31,7 @@ export default function VisitorBadges() {
           const got = have.has(b.id);
           return (
             <li key={b.id} className="vbadge px-frame px-frame--inset" data-earned={got ? "" : undefined}>
-              <Sprite name="glyph-badge" scale={3} mono={!got} className="vbadge__icon" />
+              <Sprite name="glyph-badge" frame={got ? 0 : 1} scale={3} className="vbadge__icon" />
               <div>
                 <p className="vbadge__title">{b.title}</p>
                 <p className="vbadge__state">{got ? "Earned" : `Locked. ${b.hint}`}</p>

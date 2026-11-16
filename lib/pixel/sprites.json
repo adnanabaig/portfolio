@@ -1018,22 +1018,22 @@
    "h": 16,
    "frames": [
     [
-     "................",
      ".....oooooo.....",
-     "....orrrrrro....",
-     "..oorwwwwrrroo..",
-     ".orrrrrrrrrrrro.",
-     ".orrrrrrrrrrrro.",
-     "orrrrrrrrrrrrrro",
-     "orrrrrrrrrrrrrro",
-     ".oooooooooooooo.",
-     "....osssssso....",
-     ".oooossssssoooo.",
-     "onnnnnnnnnnnnnno",
-     "oyyyyyyyyyyyyyyo",
-     "oyyyyyyyyyyyyyyo",
-     "oyyyyyyyyyyyyyyo",
-     ".oooooooooooooo."
+     "...ooyyyyyyoo...",
+     "..oyyyooooyyyo..",
+     ".oyyoowwrrooyyo.",
+     ".oyyowrrrrroyyo.",
+     "oyyorwrrrrrroyyo",
+     "oyyorrrrrrrroyyo",
+     "oyyorrrrrrrroyyo",
+     "oyyorrrrrrrroyyo",
+     "oyyoorrrrrrooyyo",
+     "oyyyoorrrrooyyyo",
+     ".oyyooooooooyyo.",
+     ".oyyyyooooyyyyo.",
+     "..oyyyyyyyyyyo..",
+     "...ooyyyyyyoo...",
+     ".....oooooo....."
     ]
    ]
   },
@@ -1148,6 +1148,24 @@
      "....orro..orro..",
      "....orro..orro..",
      "....oo.o..o.oo.."
+    ],
+    [
+     "................",
+     "....aaaaaaaa....",
+     "...a........a...",
+     "..a...mmmm...a..",
+     ".a....m..m....a.",
+     ".a....m..m....a.",
+     ".a...mmmmmm...a.",
+     ".a...mmkkmm...a.",
+     ".a...mmkkmm...a.",
+     ".a...mmmmmm...a.",
+     "..a..........a..",
+     "...a........a...",
+     "....aaaaaaaa....",
+     "....assa..assa..",
+     "....assa..assa..",
+     "....assa..assa.."
     ]
    ]
   },
