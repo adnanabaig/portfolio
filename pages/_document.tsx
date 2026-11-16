@@ -37,6 +37,7 @@ export default function Document() {
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" href="/icon-32.png" type="image/png" sizes="32x32" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        {portfolio.showBlog && <link rel="alternate" type="application/rss+xml" title={`${portfolio.name} | Blog`} href="/rss.xml" />}
         <link
           rel="preload"
           href="/fonts/pixelify-sans-latin-wght-normal.woff2"

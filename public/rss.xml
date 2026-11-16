@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Adnan Baig | Blog</title>
+    <link>https://adnanbaig.com/blog</link>
+    <description>Notes on robotics, software, and building things that work in the real world.</description>
+    <language>en-us</language>
+    <atom:link href="https://adnanbaig.com/rss.xml" rel="self" type="application/rss+xml"/>
+    <lastBuildDate>Mon, 15 Dec 2025 08:00:00 GMT</lastBuildDate>
+    <item>
+      <title>What It&apos;s Like to Build Teleop UIs for Real-Time Robotics</title>
+      <link>https://adnanbaig.com/blog/firstblog</link>
+      <guid isPermaLink="true">https://adnanbaig.com/blog/firstblog</guid>
+      <pubDate>Mon, 15 Dec 2025 08:00:00 GMT</pubDate>
+      <description>Building operator interfaces for remote robotics is a different discipline entirely. The feedback loops are tight, the stakes are real, and the UI has to be as reliable as the hardware it drives.</description>
+    </item>
+    <item>
+      <title>AI Agents, Actually: Building Systems That Do Real Work</title>
+      <link>https://adnanbaig.com/blog/secondblog</link>
+      <guid isPermaLink="true">https://adnanbaig.com/blog/secondblog</guid>
+      <pubDate>Mon, 15 Sep 2025 08:00:00 GMT</pubDate>
+      <description>Everyone is building AI agents. Few of them work reliably in production. Here&apos;s what I&apos;ve learned about building agents that actually do the job.</description>
+    </item>
+  </channel>
+</rss>

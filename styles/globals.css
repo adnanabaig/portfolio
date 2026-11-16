@@ -2442,6 +2442,9 @@ html[data-plain] .dossier__links {
   text-decoration: underline;
   text-underline-offset: 4px;
 }
+.blog-feed {
+  margin-top: 16px;
+}
 
 .lost {
   display: grid;

@@ -31,6 +31,11 @@ const Blog = ({ posts }: BlogPageProps) => (
         <Eyebrow bay={5} label="Transmissions" />
         <h1 className="page-title">Blog</h1>
         <p className="page-lede">{DESCRIPTION}</p>
+        <p className="blog-feed">
+          <a href="/rss.xml" className="text-link" type="application/rss+xml">
+            RSS feed
+          </a>
+        </p>
       </header>
       <ul className="post-grid layout-grid">
         {posts.map((post) => (

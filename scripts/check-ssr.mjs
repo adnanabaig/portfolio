@@ -191,6 +191,19 @@ allProjects.forEach((p, i) => {
   check(bad.length === 0, `dossier /work/${p.id}: ${bad.length ? `FAILED ${bad.join("; ")}` : ok.map(([, l]) => l.replace(/ \(.*$/, "")).length + " checks"}`);
 });
 
+// 9b. RSS: generated from _posts, linked from every page head and from /blog.
+const rssFile = path.join(root, "public/rss.xml");
+if (data.showBlog) {
+  const rss = fs.existsSync(rssFile) ? fs.readFileSync(rssFile, "utf8") : "";
+  const slugs = fs.readdirSync(path.join(root, "_posts")).filter((f) => f.endsWith(".md")).map((f) => f.replace(/\.md$/, ""));
+  check(rss.startsWith("<?xml") && slugs.every((s) => rss.includes(`<link>${data.siteUrl}/blog/${s}</link>`)), `public/rss.xml lists all ${slugs.length} posts`);
+  check(/<pubDate>[^<]+<\/pubDate>/.test(rss) && /<description>[^<]+<\/description>/.test(rss), "rss items carry pubDate and description");
+  check(/<link rel="alternate" type="application\/rss\+xml"[^>]*href="\/rss.xml"/.test(raw), "home head links the RSS feed");
+  const blogFile = path.join(root, distDir, "server/pages/blog.html");
+  const blog = fs.existsSync(blogFile) ? fs.readFileSync(blogFile, "utf8") : "";
+  check(/<a href="\/rss.xml"[^>]*>\s*RSS feed/.test(blog), "/blog has a visible RSS feed link");
+}
+
 // 9. The 404 page: plain links come before the optional level.
 const lostFile = path.join(root, distDir, "server/pages/404.html");
 if (fs.existsSync(lostFile)) {
