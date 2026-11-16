@@ -1,5 +1,7 @@
-// Copy guard: `npm run check:copy`. Fails on em dashes, leaked TODOs in
-// user-visible content, and terms that must not appear on the public site.
+// Copy guard: `npm run check:copy`. Fails on em dashes, emoji, leaked TODOs,
+// and terms that must not appear on the public site, in:
+// - data/*.json (except the private `_todo` notes) and _posts/*.md
+// - source: components/, pages/, lib/, hooks/ (.ts, .tsx, .json, .mjs)
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -17,6 +19,13 @@ const FORBIDDEN = [
   "Phabricator",
   "unsplash",
 ];
+// Emoji: any Extended_Pictographic code point, plus the emoji variation selector.
+const EMOJI = /[\p{Extended_Pictographic}\u{FE0F}]/gu;
+// Non-emoji symbols that are explicitly fine in copy (not matched by EMOJI
+// today; listed so the intent is on record if the pattern ever widens).
+const ALLOWED_SYMBOLS = new Set(["\u00B7"]); // middle dot
+const SOURCE_DIRS = ["components", "pages", "lib", "hooks"];
+const SOURCE_EXT = [".ts", ".tsx", ".json", ".mjs"];
 
 const problems = [];
 const lineOf = (text, index) => text.slice(0, index).split("\n").length;
@@ -34,25 +43,29 @@ function scanText(file, text, { checkTodo }) {
       problems.push(`${rel}:${lineOf(text, match.index)}: forbidden term "${term}"`);
     }
   }
+  for (const match of text.matchAll(EMOJI)) {
+    if (ALLOWED_SYMBOLS.has(match[0])) continue;
+    const cp = match[0].codePointAt(0).toString(16).toUpperCase().padStart(4, "0");
+    problems.push(`${rel}:${lineOf(text, match.index)}: emoji or pictograph U+${cp}`);
+  }
   if (checkTodo) {
     for (const match of text.matchAll(/TODO|_todo/g)) {
-      problems.push(`${rel}:${lineOf(text, match.index)}: "${match[0]}" in user-visible copy`);
+      problems.push(`${rel}:${lineOf(text, match.index)}: "${match[0]}" in user-visible copy or source`);
     }
   }
 }
 
-function walk(dir, ext) {
-  return fs
-    .readdirSync(dir, { withFileTypes: true })
-    .flatMap((entry) => {
-      const full = path.join(dir, entry.name);
-      if (entry.isDirectory()) return walk(full, ext);
-      return entry.name.endsWith(ext) ? [full] : [];
-    });
+function walk(dir, exts) {
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) return entry.name === "node_modules" ? [] : walk(full, exts);
+    return exts.some((ext) => entry.name.endsWith(ext)) ? [full] : [];
+  });
 }
 
 // data/*.json: everything except the `_todo` key is user-visible.
-for (const file of walk(path.join(root, "data"), ".json")) {
+for (const file of walk(path.join(root, "data"), [".json"])) {
   const raw = fs.readFileSync(file, "utf8");
   const json = JSON.parse(raw);
   const todo = json._todo;
@@ -62,8 +75,16 @@ for (const file of walk(path.join(root, "data"), ".json")) {
 }
 
 // _posts/*.md: front matter and bodies are all published.
-for (const file of walk(path.join(root, "_posts"), ".md")) {
+for (const file of walk(path.join(root, "_posts"), [".md"])) {
   scanText(file, fs.readFileSync(file, "utf8"), { checkTodo: true });
+}
+
+// Source: strings in components and pages ship to the browser, so the same
+// rules apply. lib/facts.ts and friends must not reference the private notes.
+for (const dir of SOURCE_DIRS) {
+  for (const file of walk(path.join(root, dir), SOURCE_EXT)) {
+    scanText(file, fs.readFileSync(file, "utf8"), { checkTodo: true });
+  }
 }
 
 if (problems.length) {

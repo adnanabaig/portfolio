@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "check:copy": "node scripts/check-copy.mjs"
+    "check:copy": "node scripts/check-copy.mjs",
+    "check:ssr": "node scripts/check-ssr.mjs"
   },
   "dependencies": {
     "autoprefixer": "^10.4.7",
