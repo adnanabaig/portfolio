@@ -19,6 +19,8 @@ interface LinkProps extends Common {
   /** Extra screen-reader-only context appended to the label. */
   srContext?: string;
   download?: boolean;
+  /** Internal links only: set false to skip the in-viewport prefetch. */
+  prefetch?: boolean;
 }
 
 type ButtonProps = Common & ButtonHTMLAttributes<HTMLButtonElement> & { href?: undefined };
@@ -35,7 +37,7 @@ const Inner = ({ icon, children }: { icon?: SpriteName; children: ReactNode }) =
 /** Link-or-button with the 8-bit press. */
 const PixelButton = (props: LinkProps | ButtonProps) => {
   if (typeof props.href === "string") {
-    const { href, external, srContext, variant = "secondary", icon, className = "", children } = props as LinkProps;
+    const { href, external, srContext, prefetch, variant = "secondary", icon, className = "", children } = props as LinkProps;
     const sr = [srContext, external ? "(opens in new tab)" : ""].filter(Boolean).join(" ");
     const content = (
       <>
@@ -58,7 +60,7 @@ const PixelButton = (props: LinkProps | ButtonProps) => {
       );
     }
     return (
-      <Link href={href}>
+      <Link href={href} prefetch={prefetch}>
         <a className={cls(variant, className)}>{content}</a>
       </Link>
     );

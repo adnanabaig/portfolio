@@ -2,18 +2,7 @@ import type { Project } from "../../types/portfolio";
 import Led from "../pixel/Led";
 import PixelButton from "../pixel/PixelButton";
 import Sprite from "../pixel/Sprite";
-import type { SpriteName } from "../../lib/pixel/toPaths";
-
-/** Original 32x32 art per project. Unknown ids fall back to a skill block. */
-const ICONS: Record<string, SpriteName> = {
-  "operator-hmi": "icon-hmi",
-  "fleet-operations": "icon-fleet",
-  "figure-humanoid": "icon-humanoid",
-  "so101-research": "icon-arm",
-  wram: "icon-satellite",
-  sentrysight: "icon-eye",
-  "blockchain-dapp": "icon-chain",
-};
+import { PROJECT_ICONS as ICONS, dossierHref, unitLabel } from "../../lib/projects";
 
 export interface WorkCardProps {
   project: Project;
@@ -29,7 +18,7 @@ const WorkCard = ({ project, index, kind = "module", skills = "" }: WorkCardProp
   const { id, title, org, role, period, category, status, summary, highlights, stack, links } = project;
   const headingId = `project-${id}`;
   const meta = [org, role, period].filter(Boolean);
-  const unit = `${kind === "bench" ? "RIG" : "MOD"}-${String(index).padStart(2, "0")}`;
+  const unit = unitLabel(kind, index);
 
   return (
     <article
@@ -82,22 +71,30 @@ const WorkCard = ({ project, index, kind = "module", skills = "" }: WorkCardProp
           </ul>
         )}
 
-        {links && links.length > 0 && (
-          <p className="card__links">
-            {links.map((link) => (
-              <PixelButton
-                key={link.href}
-                href={link.href}
-                external
-                variant="secondary"
-                icon="glyph-branch"
-                srContext={`(${link.label} for ${title})`}
-              >
-                PULL SOURCE
-              </PixelButton>
-            ))}
-          </p>
-        )}
+        <p className="card__links">
+          <PixelButton
+            href={dossierHref(id)}
+            variant="secondary"
+            icon="glyph-idcard"
+            srContext={`for ${title}`}
+            prefetch={false}
+            className="card__dossier"
+          >
+            Open dossier
+          </PixelButton>
+          {links?.map((link) => (
+            <PixelButton
+              key={link.href}
+              href={link.href}
+              external
+              variant="secondary"
+              icon="glyph-branch"
+              srContext={`(${link.label} for ${title})`}
+            >
+              PULL SOURCE
+            </PixelButton>
+          ))}
+        </p>
       </div>
     </article>
   );

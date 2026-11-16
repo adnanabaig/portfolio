@@ -107,3 +107,30 @@ export interface BlogPost extends BlogPostPreview {
   html: string;
   readingMinutes: number;
 }
+
+/** System sketch for /work/<id> (data/schematics.json). Illustrative only. */
+export type SchematicKind = "hw" | "sw" | "data" | "check";
+
+export interface SchematicNode {
+  id: string;
+  /** One or two lines, each at most 13 characters the bitmap font can draw. */
+  label: string[];
+  kind: SchematicKind;
+  /** Grid cell: col 0 to 3, row 0 to 1. Flow runs left to right. */
+  col: number;
+  row: number;
+}
+
+export interface SchematicEdge {
+  from: string;
+  to: string;
+  /** flow: arrow (default). link: dashed, no arrow. gate: coral arrow. */
+  kind?: "flow" | "link" | "gate";
+  /** Words from the project's own copy, shown in the netlist. */
+  note?: string;
+}
+
+export interface Schematic {
+  nodes: SchematicNode[];
+  edges: SchematicEdge[];
+}

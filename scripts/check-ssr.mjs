@@ -152,6 +152,45 @@ check(/id="project-operator-hmi"/.test(hmi), "OPS 'open operator-hmi' target: #p
 check(/id="take-control"/.test(body), "TAKE CONTROL has id=take-control (OPS 'teleop')");
 for (const f of ["og.png", "icon-32.png", "apple-touch-icon.png"]) check(fs.existsSync(path.join(root, "public", f)), `public/${f} exists`);
 
+// 9a. Every card links to its dossier; the dossier pages are complete.
+const allProjects = [...data.projects, ...data.engineeringProjects];
+for (const p of allProjects) {
+  const card = (body.match(new RegExp(`<article[^>]*id="card-${p.id}"[\\s\\S]*?</article>`)) || [""])[0];
+  check(card.includes(`href="/work/${p.id}"`) && /Open dossier/.test(card), `card ${p.id} has an "Open dossier" link to /work/${p.id}`);
+}
+const sitemap = fs.readFileSync(path.join(root, "public/sitemap.xml"), "utf8");
+const dossierFacts = (p) => [p.title, p.summary, p.category, ...(p.org ? [p.org] : []), ...(p.role ? [p.role] : []), ...(p.period ? [p.period] : []), ...p.highlights, ...p.stack];
+allProjects.forEach((p, i) => {
+  const file = path.join(root, distDir, `server/pages/work/${p.id}.html`);
+  if (!fs.existsSync(file)) {
+    check(false, `dossier /work/${p.id} is prerendered`);
+    return;
+  }
+  const html = fs.readFileSync(file, "utf8");
+  const vis = html.replace(/<script[\s\S]*?<\/script>/gi, "").replace(/<!--[\s\S]*?-->/g, "").replace(/<svg[\s\S]*?<\/svg>/gi, "<svg></svg>");
+  const vtext = textAt(vis);
+  const h1 = [...vis.matchAll(/<h1[\s>][\s\S]*?<\/h1>/gi)].map((m) => textAt(m[0]));
+  const miss = dossierFacts(p).filter((f) => !vtext.includes(squash(f)));
+  const ld = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1]));
+  const ok = [
+    [h1.length === 1 && h1[0] === p.title, "one h1 with the title"],
+    [miss.length === 0, `every field renders${miss.length ? ` (missing ${miss.map((m) => JSON.stringify(m)).join(", ")})` : ""}`],
+    [html.includes(`<link rel="canonical" href="${data.siteUrl}/work/${p.id}"/>`), "canonical"],
+    [html.includes(`<meta property="og:url" content="${data.siteUrl}/work/${p.id}"/>`), "og:url"],
+    [ld.some((x) => x["@type"] === "CreativeWork" && x.name === p.title), "CreativeWork JSON-LD"],
+    [/<nav aria-label="Breadcrumb"[\s\S]*?href="\/"[\s\S]*?href="\/#card-/.test(vis), "breadcrumb back to the bay"],
+    [new RegExp(`FIG\\. ${i + 1} / system sketch \\(illustrative\\)`).test(vtext), `"FIG. ${i + 1} / system sketch (illustrative)" caption`],
+    [/class="sketch__svg sketch__svg--wide"[\s\S]*?<path /.test(html) && /sketch__svg--narrow/.test(html), "sketch SVG is server-rendered"],
+    [i === 0 || html.includes(`href="/work/${allProjects[i - 1].id}"`), "prev link"],
+    [i === allProjects.length - 1 || html.includes(`href="/work/${allProjects[i + 1].id}"`), "next link"],
+    [(p.links ?? []).every((l) => html.includes(`href="${l.href}"`)), "source links"],
+    [!/_todo|TODO\(/.test(html) && data.experience.filter((j) => j.hidden).every((j) => !html.includes(j.org)), "no private notes or hidden entries"],
+    [sitemap.includes(`${data.siteUrl}/work/${p.id}</loc>`), "listed in the sitemap"],
+  ];
+  const bad = ok.filter(([pass]) => !pass).map(([, label]) => label);
+  check(bad.length === 0, `dossier /work/${p.id}: ${bad.length ? `FAILED ${bad.join("; ")}` : ok.map(([, l]) => l.replace(/ \(.*$/, "")).length + " checks"}`);
+});
+
 // 9. The 404 page: plain links come before the optional level.
 const lostFile = path.join(root, distDir, "server/pages/404.html");
 if (fs.existsSync(lostFile)) {

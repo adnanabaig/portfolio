@@ -1,4 +1,5 @@
-// Writes public/sitemap.xml from the routes and _posts/*.md. Runs as `prebuild`.
+// Writes public/sitemap.xml from the routes, every project dossier
+// (/work/<id>), and _posts/*.md. Runs as `prebuild`.
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -24,7 +25,8 @@ const posts = fs
   .sort((a, b) => (a.loc < b.loc ? -1 : 1));
 
 const latestPost = posts.map((p) => p.lastmod).filter(Boolean).sort().pop();
-const entries = [{ loc: "/" }, ...(portfolio.showBlog ? [{ loc: "/blog", lastmod: latestPost }, ...posts] : [])];
+const dossiers = [...portfolio.projects, ...portfolio.engineeringProjects].map((p) => ({ loc: `/work/${p.id}` }));
+const entries = [{ loc: "/" }, ...dossiers, ...(portfolio.showBlog ? [{ loc: "/blog", lastmod: latestPost }, ...posts] : [])];
 
 const xml = [
   '<?xml version="1.0" encoding="UTF-8"?>',

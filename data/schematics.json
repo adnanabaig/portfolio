@@ -1,0 +1,139 @@
+{
+  "_about": "System sketches for /work/<id>. Illustrative only. Every node label (lines joined with a space) and every edge note must appear in that project's own copy in portfolio.json; scripts/check-work.mjs enforces it. Grid: col 0 to 3, row 0 to 1, flow runs left to right. kind: hw, sw, data, check. Edge kind: flow (arrow, default), link (dashed, no arrow), gate (coral arrow).",
+  "operator-hmi": {
+    "nodes": [
+      { "id": "suit", "label": ["TELEOPERATION", "SUIT"], "kind": "hw", "col": 0, "row": 0 },
+      { "id": "diag", "label": ["ENCODER", "DIAGNOSTICS"], "kind": "hw", "col": 0, "row": 1 },
+      { "id": "app", "label": ["CONTROL APP"], "kind": "sw", "col": 1, "row": 0 },
+      { "id": "checks", "label": ["HARDWARE", "CHECKS"], "kind": "check", "col": 1, "row": 1 },
+      { "id": "latency", "label": ["NETWORK", "LATENCY VIEW"], "kind": "sw", "col": 2, "row": 0 },
+      { "id": "rec", "label": ["DEMONSTRATION", "RECORDING"], "kind": "data", "col": 2, "row": 1 },
+      { "id": "episodes", "label": ["EPISODE", "TRACKING"], "kind": "data", "col": 3, "row": 0 },
+      { "id": "upload", "label": ["UPLOAD", "STATUS"], "kind": "data", "col": 3, "row": 1 }
+    ],
+    "edges": [
+      { "from": "suit", "to": "app", "note": "Suit operation" },
+      { "from": "suit", "to": "diag" },
+      { "from": "diag", "to": "checks" },
+      { "from": "checks", "to": "rec", "kind": "gate", "note": "block recording" },
+      { "from": "app", "to": "latency" },
+      { "from": "app", "to": "rec" },
+      { "from": "rec", "to": "episodes" },
+      { "from": "rec", "to": "upload" }
+    ]
+  },
+  "fleet-operations": {
+    "nodes": [
+      { "id": "inventory", "label": ["ROBOT", "INVENTORY"], "kind": "data", "col": 0, "row": 0 },
+      { "id": "jira", "label": ["LIVE JIRA", "ISSUES"], "kind": "data", "col": 0, "row": 1 },
+      { "id": "dashboard", "label": ["DASHBOARD"], "kind": "sw", "col": 1, "row": 0 },
+      { "id": "report", "label": ["FLEET-HEALTH", "REPORT"], "kind": "sw", "col": 1, "row": 1 },
+      { "id": "sso", "label": ["OIDC SINGLE", "SIGN-ON"], "kind": "check", "col": 2, "row": 0 },
+      { "id": "dedupe", "label": ["DEDUPES", "TICKETS"], "kind": "sw", "col": 2, "row": 1 },
+      { "id": "repairs", "label": ["BLOCKED", "REPAIRS"], "kind": "data", "col": 3, "row": 1 }
+    ],
+    "edges": [
+      { "from": "inventory", "to": "dashboard" },
+      { "from": "jira", "to": "dashboard", "note": "Jira repairs" },
+      { "from": "jira", "to": "report" },
+      { "from": "dashboard", "to": "sso", "kind": "link" },
+      { "from": "report", "to": "dedupe" },
+      { "from": "dedupe", "to": "repairs", "note": "tracks active and blocked repairs" }
+    ]
+  },
+  "figure-humanoid": {
+    "nodes": [
+      { "id": "manus", "label": ["MANUS"], "kind": "hw", "col": 0, "row": 0 },
+      { "id": "foxglove", "label": ["FOXGLOVE"], "kind": "sw", "col": 0, "row": 1 },
+      { "id": "robots", "label": ["HUMANOID", "ROBOTS"], "kind": "hw", "col": 1, "row": 0 },
+      { "id": "health", "label": ["ACTUATOR", "HEALTH"], "kind": "check", "col": 1, "row": 1 },
+      { "id": "demos", "label": ["DEMONSTRATION", "DATA"], "kind": "data", "col": 2, "row": 0 },
+      { "id": "logs", "label": ["SYSTEM LOGS"], "kind": "data", "col": 2, "row": 1 },
+      { "id": "policy", "label": ["POLICY", "UPDATES"], "kind": "sw", "col": 3, "row": 0 },
+      { "id": "teams", "label": ["ENGINEERING", "TEAMS"], "kind": "sw", "col": 3, "row": 1 }
+    ],
+    "edges": [
+      { "from": "manus", "to": "robots", "note": "Teleoperated humanoids" },
+      { "from": "foxglove", "to": "robots" },
+      { "from": "robots", "to": "health", "kind": "link", "note": "Monitored" },
+      { "from": "robots", "to": "demos" },
+      { "from": "robots", "to": "logs", "kind": "link" },
+      { "from": "demos", "to": "policy", "note": "Annotated and quality-checked" },
+      { "from": "demos", "to": "teams", "kind": "link" }
+    ]
+  },
+  "so101-research": {
+    "nodes": [
+      { "id": "quest", "label": ["META QUEST"], "kind": "hw", "col": 0, "row": 0 },
+      { "id": "leader", "label": ["LEADER ARM"], "kind": "hw", "col": 0, "row": 1 },
+      { "id": "arms", "label": ["SO-101 ARMS"], "kind": "hw", "col": 1, "row": 0 },
+      { "id": "failclosed", "label": ["FAIL-CLOSED", "MOTOR CONTROL"], "kind": "check", "col": 1, "row": 1 },
+      { "id": "datasets", "label": ["LEROBOT", "DATASETS"], "kind": "data", "col": 2, "row": 0 },
+      { "id": "realsense", "label": ["REALSENSE"], "kind": "hw", "col": 2, "row": 1 },
+      { "id": "act", "label": ["ACT POLICY"], "kind": "sw", "col": 3, "row": 0 },
+      { "id": "mujoco", "label": ["MUJOCO", "SIMULATION"], "kind": "sw", "col": 3, "row": 1 }
+    ],
+    "edges": [
+      { "from": "quest", "to": "arms", "note": "VR teleoperation" },
+      { "from": "leader", "to": "arms", "note": "leader-arm teleoperation" },
+      { "from": "failclosed", "to": "arms", "kind": "gate", "note": "deadman and watchdog supervision" },
+      { "from": "arms", "to": "datasets" },
+      { "from": "realsense", "to": "datasets", "note": "RealSense capture" },
+      { "from": "datasets", "to": "act", "note": "policy training and evaluation" },
+      { "from": "act", "to": "mujoco", "kind": "link" }
+    ]
+  },
+  "wram": {
+    "nodes": [
+      { "id": "imagery", "label": ["12-BAND", "SENTINEL-2"], "kind": "data", "col": 0, "row": 0 },
+      { "id": "augment", "label": ["DATA", "AUGMENTATION"], "kind": "sw", "col": 1, "row": 0 },
+      { "id": "unet", "label": ["TENSORFLOW", "U-NET"], "kind": "sw", "col": 2, "row": 0 },
+      { "id": "dropout", "label": ["DROPOUT"], "kind": "sw", "col": 2, "row": 1 },
+      { "id": "zones", "label": ["WILDFIRE-RISK", "ZONES"], "kind": "data", "col": 3, "row": 0 },
+      { "id": "truth", "label": ["CAL FIRE", "GROUND-TRUTH"], "kind": "check", "col": 3, "row": 1 }
+    ],
+    "edges": [
+      { "from": "imagery", "to": "augment" },
+      { "from": "augment", "to": "unet", "note": "Trained with data augmentation and dropout" },
+      { "from": "dropout", "to": "unet", "kind": "link" },
+      { "from": "unet", "to": "zones" },
+      { "from": "truth", "to": "zones", "kind": "link", "note": "Validated against Cal Fire ground-truth data" }
+    ]
+  },
+  "sentrysight": {
+    "nodes": [
+      { "id": "opencv", "label": ["OPENCV"], "kind": "sw", "col": 0, "row": 0 },
+      { "id": "tf", "label": ["TENSORFLOW"], "kind": "sw", "col": 1, "row": 0 },
+      { "id": "detect", "label": ["FIREARM", "DETECTION"], "kind": "data", "col": 2, "row": 0 },
+      { "id": "alerts", "label": ["ALERTS"], "kind": "check", "col": 2, "row": 1 },
+      { "id": "web", "label": ["WEB", "INTERFACE"], "kind": "sw", "col": 3, "row": 0 },
+      { "id": "react", "label": ["REACT"], "kind": "sw", "col": 3, "row": 1 }
+    ],
+    "edges": [
+      { "from": "opencv", "to": "tf" },
+      { "from": "tf", "to": "detect" },
+      { "from": "detect", "to": "alerts" },
+      { "from": "detect", "to": "web", "note": "exploring detections and alerts" },
+      { "from": "alerts", "to": "web" },
+      { "from": "react", "to": "web", "kind": "link" }
+    ]
+  },
+  "blockchain-dapp": {
+    "nodes": [
+      { "id": "certs", "label": ["ACADEMIC", "CERTIFICATES"], "kind": "data", "col": 0, "row": 0 },
+      { "id": "solidity", "label": ["SOLIDITY"], "kind": "sw", "col": 1, "row": 0 },
+      { "id": "hashes", "label": ["DOCUMENT", "HASHES"], "kind": "data", "col": 1, "row": 1 },
+      { "id": "react", "label": ["REACT APP"], "kind": "sw", "col": 2, "row": 0 },
+      { "id": "ipfs", "label": ["IPFS"], "kind": "data", "col": 2, "row": 1 },
+      { "id": "verify", "label": ["ANYONE CAN", "VERIFY"], "kind": "check", "col": 3, "row": 0 }
+    ],
+    "edges": [
+      { "from": "certs", "to": "solidity", "note": "Issues and revokes academic certificates on-chain" },
+      { "from": "certs", "to": "hashes" },
+      { "from": "hashes", "to": "ipfs", "note": "Stores document hashes on IPFS" },
+      { "from": "solidity", "to": "react" },
+      { "from": "ipfs", "to": "react" },
+      { "from": "react", "to": "verify", "note": "without a central authority" }
+    ]
+  }
+}
