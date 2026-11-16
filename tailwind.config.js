@@ -1,6 +1,10 @@
-const defaultTheme = require("tailwindcss/defaultTheme");
-
 /** @type {import('tailwindcss').Config} */
+
+// Colors are the Station AB-01 tokens from styles/globals.css (:root), so the
+// amber and mono themes swap every utility too. The default palette is
+// replaced on purpose: slate/cyan/white-alpha classes no longer exist.
+const token = (name) => `var(--${name})`;
+
 module.exports = {
     content: [
         "./pages/**/*.{js,ts,jsx,tsx}",
@@ -20,10 +24,31 @@ module.exports = {
             padding: { DEFAULT: "1.25rem", laptop: "2rem" },
             screens: { tablet: "768px", laptop: "1024px", desktop: "1280px" },
         },
+        colors: {
+            transparent: "transparent",
+            current: "currentColor",
+            ink: token("ink"),
+            panel: token("panel"),
+            "panel-hi": token("panel-hi"),
+            grid: token("grid"),
+            steel: token("steel"),
+            mist: token("mist"),
+            paper: token("paper"),
+            teal: token("teal"),
+            "teal-ink": token("teal-ink"),
+            "teal-deep": token("teal-deep"),
+            amber: token("amber"),
+            coral: token("coral"),
+            leaf: token("leaf"),
+            violet: token("violet"),
+            sky: token("sky"),
+        },
         extend: {
             fontFamily: {
-                sans: ['"IBM Plex Sans"', ...defaultTheme.fontFamily.sans],
-                mono: ['"IBM Plex Mono"', ...defaultTheme.fontFamily.mono],
+                sans: ["var(--font-sans)"],
+                mono: ["var(--font-mono)"],
+                pixel: ["var(--font-pixel)"],
+                label: ["var(--font-label)"],
             },
         },
     },

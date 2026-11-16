@@ -2,6 +2,9 @@ import Link from "next/link";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import portfolio from "../../data/portfolio.json";
 import type { PortfolioData } from "../../types/portfolio";
+import { KEYS, write } from "../../lib/storage";
+import PixelButton from "../pixel/PixelButton";
+import Sprite from "../pixel/Sprite";
 
 const data = portfolio as PortfolioData;
 
@@ -15,7 +18,6 @@ interface NavItem {
   href: string;
   /** Section id this item tracks for aria-current on the home page. */
   section?: string;
-  external?: boolean;
 }
 
 const SECTIONS: { title: string; id: string }[] = [
@@ -25,15 +27,75 @@ const SECTIONS: { title: string; id: string }[] = [
   { title: "About", id: "about-section" },
 ];
 
-const linkClass =
-  "nav-link inline-flex min-h-[44px] items-center rounded px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/5 transition-colors";
+/** Checkpoints on the track, top to bottom of the home page. */
+export const CHECKPOINTS = [
+  "boot",
+  "work-section",
+  "experience-section",
+  "engineering-section",
+  "about-section",
+  "writing-section",
+  "contact-section",
+];
+
+/** TEXT MODE: everything in Plex, one column, no pixel decoration. */
+function TextModeToggle({ plain, onToggle, className = "" }: { plain: boolean; onToggle: () => void; className?: string }) {
+  return (
+    <button type="button" className={`px-btn px-btn--ghost px-btn--compact ${className}`} aria-pressed={plain} onClick={onToggle}>
+      <span>Text mode</span>
+    </button>
+  );
+}
+
+/**
+ * The thin rail under the status bar. AB-01 parks at the checkpoint for the
+ * section you are reading (it cuts there under reduced motion).
+ */
+function Track({ active }: { active: number }) {
+  const [facingLeft, setFacingLeft] = useState(false);
+  const last = useRef(active);
+  useEffect(() => {
+    if (active !== last.current) setFacingLeft(active < last.current);
+    last.current = active;
+  }, [active]);
+  const n = CHECKPOINTS.length - 1;
+  return (
+    <div className="track" aria-hidden="true" data-slot="track">
+      <div className="container mx-auto">
+        <div className="track__rail">
+          <ol className="track__marks">
+            {CHECKPOINTS.map((id, i) => (
+              <li key={id} className="track__mark" data-on={i <= active ? "" : undefined} style={{ left: `${(i / n) * 100}%` }} />
+            ))}
+          </ol>
+          <div className="track__walker" style={{ transform: `translateX(${(active / n) * 100}%)` }}>
+            <Sprite name="ab01" scale={1} flip={facingLeft} className="track__bot" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const Header = ({ current = "home" }: HeaderProps) => {
   const isHome = current === "home";
   const [activeSection, setActiveSection] = useState("");
   const [open, setOpen] = useState(false);
+  const [plain, setPlain] = useState(false);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const panelRef = useRef<HTMLElement | null>(null);
+
+  // The inline _document script already applied ?plain=1 or the saved choice.
+  useEffect(() => {
+    setPlain(document.documentElement.hasAttribute("data-plain"));
+  }, []);
+
+  const togglePlain = useCallback(() => {
+    const next = !document.documentElement.hasAttribute("data-plain");
+    document.documentElement.toggleAttribute("data-plain", next);
+    write(KEYS.plain, next ? "1" : "0");
+    setPlain(next);
+  }, []);
 
   // Track which section is in view so the matching link gets aria-current.
   useEffect(() => {
@@ -46,7 +108,7 @@ const Header = ({ current = "home" }: HeaderProps) => {
       },
       { rootMargin: "-10% 0px -50% 0px", threshold: 0 }
     );
-    [...SECTIONS.map((s) => s.id), "contact-section"].forEach((id) => {
+    CHECKPOINTS.forEach((id) => {
       const element = document.getElementById(id);
       if (element) observer.observe(element);
     });
@@ -84,7 +146,6 @@ const Header = ({ current = "home" }: HeaderProps) => {
   const items: NavItem[] = SECTIONS.map((s) => ({ title: s.title, href: sectionHref(s.id), section: s.id }));
   if (data.showBlog) items.push({ title: "Blog", href: "/blog" });
   items.push({ title: "Contact", href: sectionHref("contact-section"), section: "contact-section" });
-  items.push({ title: "Resume", href: data.resumeUrl, external: true });
 
   const renderLinks = (onNavigate?: () => void) =>
     items.map((item) => {
@@ -95,80 +156,72 @@ const Header = ({ current = "home" }: HeaderProps) => {
           ? ("page" as const)
           : undefined;
 
-      if (item.external) {
-        return (
-          <a
-            key={item.title}
-            href={item.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={linkClass}
-            onClick={onNavigate}
-          >
-            {item.title}
-            <span className="sr-only"> (PDF, opens in new tab)</span>
-          </a>
-        );
-      }
       if (item.href.startsWith("/")) {
         return (
           <Link href={item.href} key={item.title}>
-            <a className={linkClass} aria-current={ariaCurrent} onClick={onNavigate}>
+            <a className="nav-link" aria-current={ariaCurrent} onClick={onNavigate}>
               {item.title}
             </a>
           </Link>
         );
       }
       return (
-        <a key={item.title} href={item.href} className={linkClass} aria-current={ariaCurrent} onClick={onNavigate}>
+        <a key={item.title} href={item.href} className="nav-link" aria-current={ariaCurrent} onClick={onNavigate}>
           {item.title}
         </a>
       );
     });
 
+  const activeIndex = Math.max(0, CHECKPOINTS.indexOf(activeSection));
+
   return (
-    <header className="sticky top-0 z-30 border-b border-white/10 bg-[#0d0e10]/95">
-      <div className="container mx-auto flex min-h-[64px] items-center justify-between gap-4">
+    <header className="statusbar">
+      <div className="container mx-auto statusbar__row">
         <Link href="/">
-          <a className="font-mono text-base font-medium tracking-tight" aria-label={`${data.name}, home`}>
-            {data.name}
+          <a className="brand" aria-label={`${data.name}, home`}>
+            <Sprite name="ab01-head" scale={2} className="brand__head" />
+            <span className="brand__name">{data.name}</span>
           </a>
         </Link>
 
-        <nav aria-label="Main" className="hidden tablet:flex items-center gap-1">
+        <nav aria-label="Main" className="nav-desktop">
           {renderLinks()}
         </nav>
 
-        <button
-          ref={buttonRef}
-          type="button"
-          className="tablet:hidden inline-flex h-11 w-11 items-center justify-center rounded border border-white/15 hover:bg-white/5"
-          aria-label="Menu"
-          aria-expanded={open}
-          aria-controls="mobile-nav"
-          onClick={() => setOpen((value) => !value)}
-        >
-          {open ? (
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true" focusable="false">
-              <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        <div className="statusbar__actions">
+          <PixelButton href={data.resumeUrl} variant="primary" external srContext="PDF" className="px-btn--compact">
+            RESUME.PDF
+          </PixelButton>
+          <TextModeToggle plain={plain} onToggle={togglePlain} className="statusbar__textmode" />
+          <div className="hud-slot" data-slot="hud" />
+          <button
+            ref={buttonRef}
+            type="button"
+            className="px-btn px-btn--ghost px-btn--compact menu-button"
+            aria-label="Menu"
+            aria-expanded={open}
+            aria-controls="mobile-nav"
+            onClick={() => setOpen((value) => !value)}
+          >
+            <svg width="16" height="16" viewBox="0 0 8 8" shapeRendering="crispEdges" aria-hidden="true" focusable="false">
+              {open ? (
+                <path d="M1 1h1v1H1zM2 2h1v1H2zM3 3h2v2H3zM5 2h1v1H5zM6 1h1v1H6zM2 5h1v1H2zM1 6h1v1H1zM5 5h1v1H5zM6 6h1v1H6z" fill="currentColor" />
+              ) : (
+                <path d="M1 1h6v1H1zM1 3.5h6v1H1zM1 6h6v1H1z" fill="currentColor" />
+              )}
             </svg>
-          ) : (
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true" focusable="false">
-              <path d="M3 6h14M3 10h14M3 14h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-          )}
-        </button>
+          </button>
+        </div>
       </div>
 
-      <nav
-        ref={panelRef}
-        id="mobile-nav"
-        aria-label="Main"
-        hidden={!open}
-        className="tablet:hidden absolute inset-x-0 top-full max-h-[calc(100vh-6rem)] max-h-[calc(100svh-6rem)] overflow-y-auto border-b border-white/10 bg-[#0d0e10]"
-      >
-        <div className="container mx-auto grid py-2">{renderLinks(() => close(false))}</div>
+      <nav ref={panelRef} id="mobile-nav" aria-label="Main" hidden={!open} className="nav-mobile">
+        <div className="container mx-auto nav-mobile__inner">
+          {renderLinks(() => close(false))}
+          <TextModeToggle plain={plain} onToggle={togglePlain} className="nav-mobile__textmode" />
+        </div>
       </nav>
+
+      {isHome && <Track active={activeIndex} />}
     </header>
   );
 };

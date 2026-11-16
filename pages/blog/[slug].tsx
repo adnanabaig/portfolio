@@ -4,6 +4,7 @@ import type { GetStaticPaths, GetStaticProps } from "next";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import Seo from "../../components/Seo";
+import Sprite from "../../components/pixel/Sprite";
 import { getPostBySlug, getAllPosts } from "../../utils/api";
 import markdownToHtml, { readingMinutes } from "../../utils/markdownToHtml";
 import { ISOToDate } from "../../utils";
@@ -41,22 +42,28 @@ const BlogPostPage = ({ post }: BlogPostPageProps) => {
         Skip to article
       </a>
       <Header current="blog" />
-      <main id="main-content" tabIndex={-1} className="container mx-auto focus:outline-none">
-        <div className="mx-auto max-w-3xl">
+      <main id="main-content" tabIndex={-1} className="container mx-auto page-main focus:outline-none" data-bay="5">
+        <div className="reading">
           <Link href="/blog">
-            <a className="mt-8 inline-flex min-h-[44px] items-center text-sm text-cyan-300">
-              <span aria-hidden="true">&larr;&nbsp;</span>All posts
+            <a className="back-link">
+              <Sprite name="glyph-arrow" scale={2} mono />
+              All posts
             </a>
           </Link>
           <article aria-labelledby="post-title">
-            <header className="mt-6">
-              <h1 id="post-title" className="text-3xl tablet:text-4xl laptop:text-5xl font-semibold leading-tight">
-                {post.title}
-              </h1>
-              <p className="mt-3 text-lg leading-relaxed text-slate-300">{post.tagline}</p>
-              <p className="mt-5 font-mono text-sm text-slate-400">
-                <time dateTime={post.date}>{ISOToDate(post.date)}</time> · {post.readingMinutes} min read
-              </p>
+            <header className="post-head px-frame" data-accent="violet">
+              <div className="px-titlebar">
+                <span className="px-titlebar__label">Log entry · {post.readingMinutes} min</span>
+              </div>
+              <div className="px-body">
+                <h1 id="post-title" className="post-title">
+                  {post.title}
+                </h1>
+                <p className="post-tagline">{post.tagline}</p>
+                <p className="post-meta">
+                  <time dateTime={post.date}>{ISOToDate(post.date)}</time> · {post.readingMinutes} min read
+                </p>
+              </div>
             </header>
             <div className="markdown-class" dangerouslySetInnerHTML={{ __html: post.html }} />
           </article>

@@ -1,85 +1,117 @@
-/* Markdown Styling */
-
-/* Markdown Container */
+/* Blog post body: reading-first Plex at a 68ch measure, code in inset bevels. */
 
 .markdown-class {
-  @apply mt-8 pb-8;
+  margin-top: 32px;
+  padding-bottom: 32px;
+  max-width: 68ch;
   overflow-wrap: anywhere;
+  font-size: 18px;
+  line-height: 1.7;
+  color: var(--paper);
 }
 
-/* Headings */
-
-.markdown-class h1 {
-  @apply mt-5 text-3xl;
+.markdown-class h2,
+.markdown-class h3,
+.markdown-class h4,
+.markdown-class h5,
+.markdown-class h6 {
+  margin-top: 40px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--paper);
 }
 .markdown-class h2 {
-  @apply mt-5 text-2xl;
+  font-size: 28px;
 }
 .markdown-class h3 {
-  @apply mt-5 text-xl;
+  font-size: 23px;
 }
 .markdown-class h4 {
-  @apply mt-5 text-lg;
+  font-size: 20px;
 }
-.markdown-class h5 {
-  @apply mt-5 text-base;
-}
+.markdown-class h5,
 .markdown-class h6 {
-  @apply mt-5 text-sm;
-}
-
-.markdown-class a {
-  @apply opacity-80 font-bold text-base underline transition-all duration-200 ease-out hover:opacity-100;
+  font-size: 18px;
 }
 
 .markdown-class p {
-  @apply mt-5 text-slate-300 leading-8 font-normal text-base tablet:text-lg;
+  margin-top: 20px;
+}
+
+.markdown-class a {
+  color: var(--teal);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.markdown-class a:hover {
+  color: var(--paper);
 }
 
 .markdown-class strong {
-  @apply font-extrabold;
+  font-weight: 700;
 }
 
 .markdown-class hr {
-  @apply my-5;
+  margin: 40px 0;
+  border: 0;
+  height: 4px;
+  background: repeating-linear-gradient(90deg, var(--grid) 0 8px, transparent 8px 12px);
 }
-
-/* BlockQuote */
 
 .markdown-class blockquote {
-  @apply bg-black p-5 border-l-8 rounded-lg shadow-lg text-white text-sm;
+  margin-top: 24px;
+  padding: 4px 0 4px 20px;
+  border-left: 4px solid var(--violet);
+  color: var(--mist);
+}
+.markdown-class blockquote p:first-child {
+  margin-top: 0;
 }
 
-.markdown-class blockquote p {
-  @apply text-white text-sm;
-}
-
-/* Markdown Lists */
-
-.markdown-class ol {
-  @apply mt-5 ml-5;
-}
-
-.markdown-class ol li {
-  @apply text-base leading-8 text-slate-300 list-decimal;
-}
-
+.markdown-class ol,
 .markdown-class ul {
-  @apply mt-5 ml-5;
+  margin-top: 20px;
+  padding-left: 24px;
 }
-
+.markdown-class ol li {
+  list-style: decimal;
+}
 .markdown-class ul li {
-  @apply text-base leading-8 text-slate-300 list-disc;
+  list-style: square;
 }
-
-
-
-
-
-/* Image */
+.markdown-class li + li {
+  margin-top: 8px;
+}
+.markdown-class li::marker {
+  color: var(--violet);
+}
 
 .markdown-class img {
-  @apply max-h-96 w-full my-5 object-cover rounded-lg shadow-lg;
+  margin: 24px 0;
+  max-height: 24rem;
+  width: 100%;
+  object-fit: cover;
+  border: 2px solid var(--grid);
 }
 
-.markdown-class pre { overflow-x: auto; max-width: 100%; margin: 1.5rem 0; }
+/* Code: inset bevel, never a rounded box. */
+.markdown-class :not(pre) > code {
+  padding: 1px 6px;
+  font-size: 0.88em;
+  background: var(--panel);
+  border: 2px solid var(--grid);
+}
+.markdown-class pre {
+  margin: 24px 0;
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 16px 18px;
+  background: var(--ink);
+  border: 2px solid var(--grid);
+  box-shadow: inset 2px 2px 0 var(--outline), inset -2px -2px 0 var(--panel-hi);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.markdown-class pre code {
+  font-size: inherit;
+}

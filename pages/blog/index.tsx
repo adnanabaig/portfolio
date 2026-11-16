@@ -4,13 +4,17 @@ import type { GetStaticProps } from "next";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 import Seo from "../../components/Seo";
-import { getAllPosts } from "../../utils/api";
+import Eyebrow from "../../components/pixel/Eyebrow";
+import { getAllPosts, getPostBySlug } from "../../utils/api";
+import { readingMinutes } from "../../utils/markdownToHtml";
 import { ISOToDate } from "../../utils";
 import portfolio from "../../data/portfolio.json";
 import type { BlogPostPreview } from "../../types/portfolio";
 
+type PostCard = BlogPostPreview & { readingMinutes: number };
+
 interface BlogPageProps {
-  posts: BlogPostPreview[];
+  posts: PostCard[];
 }
 
 const DESCRIPTION = "Notes on robotics, software, and building things that work in the real world.";
@@ -22,23 +26,31 @@ const Blog = ({ posts }: BlogPageProps) => (
       Skip to content
     </a>
     <Header current="blog" />
-    <main id="main-content" tabIndex={-1} className="container mx-auto pt-16 focus:outline-none">
-      <h1 className="text-4xl laptop:text-6xl font-semibold tracking-tight">Blog</h1>
-      <p className="mt-5 max-w-2xl text-lg leading-relaxed text-slate-300">{DESCRIPTION}</p>
-      <ul className="mt-10 grid grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-3 gap-4">
+    <main id="main-content" tabIndex={-1} className="container mx-auto page-main focus:outline-none" data-bay="5">
+      <header className="page-head">
+        <Eyebrow bay={5} label="Transmissions" />
+        <h1 className="page-title">Blog</h1>
+        <p className="page-lede">{DESCRIPTION}</p>
+      </header>
+      <ul className="post-grid layout-grid">
         {posts.map((post) => (
           <li key={post.slug}>
-            <article className="relative flex h-full min-w-0 flex-col rounded border border-white/10 bg-white/[0.02] p-5 hover:border-white/30 transition-colors">
-              <time dateTime={post.date} className="font-mono text-sm text-slate-400">
-                {ISOToDate(post.date)}
-              </time>
-              <h2 className="mt-3 text-xl font-semibold leading-snug">
-                <Link href={`/blog/${post.slug}`}>
-                  {/* The stretched link makes the whole card clickable with one tab stop. */}
-                  <a className="after:absolute after:inset-0 after:content-['']">{post.title}</a>
-                </Link>
-              </h2>
-              <p className="mt-3 leading-relaxed text-slate-300">{post.preview}</p>
+            <article className="post-card px-frame" data-accent="violet">
+              <div className="px-titlebar">
+                <span className="px-titlebar__label">Log entry · {post.readingMinutes} min</span>
+              </div>
+              <div className="px-body">
+                <time dateTime={post.date} className="post-card__date">
+                  {ISOToDate(post.date)}
+                </time>
+                <h2 className="post-card__title">
+                  <Link href={`/blog/${post.slug}`}>
+                    {/* The stretched link makes the whole card clickable with one tab stop. */}
+                    <a className="stretched">{post.title}</a>
+                  </Link>
+                </h2>
+                <p className="post-card__preview">{post.preview}</p>
+              </div>
             </article>
           </li>
         ))}
@@ -49,7 +61,12 @@ const Blog = ({ posts }: BlogPageProps) => (
 );
 
 export const getStaticProps: GetStaticProps<BlogPageProps> = () => {
-  const posts = getAllPosts(["slug", "title", "tagline", "preview", "date"]) as unknown as BlogPostPreview[];
+  const posts = (getAllPosts(["slug", "title", "tagline", "preview", "date"]) as unknown as BlogPostPreview[]).map(
+    (post) => ({
+      ...post,
+      readingMinutes: readingMinutes((getPostBySlug(post.slug, ["content"]) as { content: string }).content),
+    })
+  );
   return { props: { posts } };
 };
 
