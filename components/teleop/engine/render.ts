@@ -3,7 +3,7 @@
 // on screen. Colors come from the live CSS custom properties, so the amber
 // and mono themes recolor the canvas too.
 import { PALETTE_KEYS, Raster } from "../../../lib/pixel/raster";
-import { palette } from "../../../lib/pixel/toPaths";
+import { palette } from "../../../lib/pixel/spriteData";
 import {
   BIN_W,
   BIN_Y,

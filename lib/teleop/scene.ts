@@ -5,11 +5,11 @@ import teleop from "../../data/teleop.json";
 import type { PortfolioData } from "../../types/portfolio";
 import { forwardK, solveIK as solve2, type Link2 } from "../../components/teleop/engine/ik";
 import { Raster } from "../pixel/raster";
+import { CELL_H, CELL_W } from "./dims";
 
 const data = portfolio as PortfolioData;
 
-export const CELL_W = 320;
-export const CELL_H = 180;
+export { CELL_H, CELL_W };
 
 export const BASE = { x: 160, y: 100 };
 export const LINK1 = 64;

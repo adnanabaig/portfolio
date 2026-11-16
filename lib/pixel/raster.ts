@@ -6,7 +6,8 @@
 // Pixels are palette indexes in a Uint8Array (0 = transparent), which keeps
 // per-frame redraws cheap.
 import fontData from "./font.json";
-import { palette, sprites, type SpriteName } from "./toPaths";
+import { palette, sprites } from "./spriteData";
+import type { SpriteName } from "./toPaths";
 
 const glyphs = fontData.glyphs as Record<string, string[]>;
 export const FONT_ADVANCE = fontData.advance;

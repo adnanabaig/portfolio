@@ -326,6 +326,12 @@ html[data-theme="mono"] .crt-screen::after {
   image-rendering: pixelated;
   overflow: visible;
 }
+/* A fresh client mount waits a moment for the sprite sheet (server-rendered
+   sprites always carry a viewBox), so it takes no space until it can draw. */
+.sprite:not([viewBox]) {
+  width: 0;
+  height: 0;
+}
 .sprite--flip {
   transform: scaleX(-1);
 }

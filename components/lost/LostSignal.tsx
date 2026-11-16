@@ -11,7 +11,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { MouseEvent as RMouseEvent, PointerEvent as RPointerEvent } from "react";
 import { emit, on } from "../../lib/bus";
 import { PALETTE_KEYS, Raster } from "../../lib/pixel/raster";
-import { palette } from "../../lib/pixel/toPaths";
+import { palette } from "../../lib/pixel/spriteData";
 import { isEstop, prefersReducedMotion } from "../../lib/station";
 import { createLoop } from "../teleop/engine/loop";
 

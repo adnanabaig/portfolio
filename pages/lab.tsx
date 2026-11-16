@@ -12,7 +12,9 @@ import PixelButton from "../components/pixel/PixelButton";
 import Sprite from "../components/pixel/Sprite";
 import CellPoster from "../components/teleop/CellPoster";
 import { contrast, TOKENS } from "../lib/pixel/tokens";
-import { sprites, type SpriteName } from "../lib/pixel/toPaths";
+// Static import: /lab draws every sprite, so it registers the sheet up front.
+import { sprites } from "../lib/pixel/spriteData";
+import type { SpriteName } from "../lib/pixel/toPaths";
 
 const INK = TOKENS.find((t) => t.name === "--ink")!.hex;
 const PANEL = TOKENS.find((t) => t.name === "--panel")!.hex;

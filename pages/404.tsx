@@ -1,4 +1,3 @@
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -8,9 +7,10 @@ import Seo from "../components/Seo";
 import Eyebrow from "../components/pixel/Eyebrow";
 import Sprite from "../components/pixel/Sprite";
 import portfolio from "../data/portfolio.json";
+import { clientOnly } from "../lib/clientOnly";
 
 // The micro-level loads only when the visitor asks for it.
-const LostSignal = dynamic(() => import("../components/lost/LostSignal"), { ssr: false });
+const LostSignal = clientOnly(() => import("../components/lost/LostSignal"));
 
 export default function NotFound() {
   const [drive, setDrive] = useState(false);

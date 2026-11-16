@@ -1,5 +1,7 @@
-import type { CSSProperties } from "react";
-import { fillFor, spritePaths, sprites, type SpriteName } from "../../lib/pixel/toPaths";
+import { useRef, type CSSProperties } from "react";
+import { useServerMarkup } from "../../hooks/useServerMarkup";
+import { getSheet, loadSheet } from "../../lib/pixel/spriteStore";
+import type { SpriteName } from "../../lib/pixel/toPaths";
 
 export interface SpriteProps {
   name: SpriteName;
@@ -19,20 +21,29 @@ export interface SpriteProps {
   style?: CSSProperties;
 }
 
-/** Crisp, SSR-rendered pixel art: one <path> per palette color. */
+/**
+ * Crisp, SSR-rendered pixel art: one <path> per palette color.
+ *
+ * The server paints the paths, the viewBox, and the --sw/--sh size. The
+ * browser keeps that markup through hydration without the sprite sheet
+ * (see hooks/useServerMarkup), so no art ships in the main bundle. If this
+ * element has to draw something the server did not (a fresh client mount,
+ * or a new frame/name/mono), it loads the sheet and redraws.
+ */
 const Sprite = ({ name, frame = 0, scale, title, className = "", flip = false, mono = false, style }: SpriteProps) => {
-  const def = sprites[name];
-  const paths = spritePaths(name, frame);
+  const ref = useRef<SVGSVGElement | null>(null);
+  const sheet = useServerMarkup(ref, getSheet(), loadSheet, `${name}:${frame}:${mono ? 1 : 0}`);
+  const def = sheet?.sprites[name];
   const vars = {
-    "--sw": def.w,
-    "--sh": def.h,
+    ...(def ? { "--sw": def.w, "--sh": def.h } : {}),
     ...(scale ? { "--sc": `${scale}px` } : {}),
     ...style,
   } as CSSProperties;
 
   return (
     <svg
-      viewBox={`0 0 ${def.w} ${def.h}`}
+      ref={ref}
+      viewBox={def ? `0 0 ${def.w} ${def.h}` : undefined}
       shapeRendering="crispEdges"
       className={`sprite${title ? "" : " deco"}${flip ? " sprite--flip" : ""} ${className}`}
       style={vars}
@@ -41,11 +52,9 @@ const Sprite = ({ name, frame = 0, scale, title, className = "", flip = false, m
       aria-hidden={title ? undefined : true}
       focusable="false"
       data-sprite={name}
-    >
-      {paths.map((p) => (
-        <path key={p.key} d={p.d} style={{ fill: mono ? "currentColor" : fillFor(p.key) }} />
-      ))}
-    </svg>
+      dangerouslySetInnerHTML={{ __html: sheet ? sheet.spriteMarkup(name, frame, mono) : "" }}
+      suppressHydrationWarning
+    />
   );
 };
 

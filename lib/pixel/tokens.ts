@@ -49,7 +49,6 @@ export function contrast(a: string, b: string) {
   return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
 }
 
-/** Skill-group colors, always paired with the group's text label. */
-export const GROUP_ACCENTS = ["teal", "amber", "leaf", "violet"] as const;
-export type GroupAccent = (typeof GROUP_ACCENTS)[number];
-export const groupAccent = (index: number): GroupAccent => GROUP_ACCENTS[index % GROUP_ACCENTS.length];
+// Skill-group colors live in ./groups (kept apart so the home page does not
+// ship this palette table, which only /lab needs).
+export { GROUP_ACCENTS, groupAccent, type GroupAccent } from "./groups";

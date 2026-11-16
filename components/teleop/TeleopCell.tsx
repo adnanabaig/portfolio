@@ -1,19 +1,18 @@
 // The Teleop Cell shell (main bundle, kept tiny). SSR renders the static
 // CellPoster plus a visible "Skip teleop" link and the TAKE CONTROL button;
-// the engine loads only on intent and swaps a canvas into the same 16:9 box,
-// so nothing shifts. Esc inside the cell hands focus back to TAKE CONTROL.
-import dynamic from "next/dynamic";
+// the engine loads only on intent and lays a canvas over the poster in the
+// same 16:9 box, so nothing shifts. Esc inside the cell hands focus back to TAKE CONTROL.
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
+import { clientOnly } from "../../lib/clientOnly";
 import Led from "../pixel/Led";
 import CellPoster from "./CellPoster";
 import type { TeleopLiveHandle, TeleopLiveProps } from "./TeleopLive";
 
 const load = () => import("./TeleopLive");
-const TeleopLive = dynamic<TeleopLiveProps>(load, {
-  ssr: false,
-  loading: () => <CellPoster />,
-});
+// The poster stays mounted under the live canvas (which is absolutely
+// positioned and opaque), so there is nothing to draw while it loads.
+const TeleopLive = clientOnly<TeleopLiveProps>(load);
 
 const ARROWS = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"]);
 
@@ -110,10 +109,9 @@ const TeleopCell = () => {
             )}
           </div>
           <div className="crt-screen cell__screen" id="cell-screen">
-            {start ? (
+            <CellPoster />
+            {start && (
               <TeleopLive handleRef={liveRef} start={start} panelHost={panelHost} onFocusChange={setFocused} onRelease={release} />
-            ) : (
-              <CellPoster />
             )}
           </div>
         </div>

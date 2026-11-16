@@ -1,4 +1,3 @@
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import type { GetStaticProps } from "next";
 
@@ -16,6 +15,7 @@ import { questLevels, skillCount } from "../lib/facts";
 import { buildSkillIndex, skillsByTarget, skillToken } from "../lib/skillIndex";
 import { getAllPosts } from "../utils/api";
 import { ISOToDate } from "../utils";
+import { clientOnly } from "../lib/clientOnly";
 
 import portfolioJson from "../data/portfolio.json";
 import type { BlogPostPreview, PortfolioData } from "../types/portfolio";
@@ -23,7 +23,7 @@ import type { BlogPostPreview, PortfolioData } from "../types/portfolio";
 const data = portfolioJson as PortfolioData;
 
 // Visitor badges are client-only and live apart from the real awards.
-const VisitorBadges = dynamic(() => import("../components/Badges"), { ssr: false });
+const VisitorBadges = clientOnly(() => import("../components/Badges"));
 
 interface HomeProps {
   posts: BlogPostPreview[];

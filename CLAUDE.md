@@ -93,7 +93,10 @@ lib/
   audio.ts          the synth (lazy; the only AudioContext)
   hello.ts          console greeting + window.ab01 (lazy)
   puppet.ts         AB-01 wave/dance/color and the idle sit (lazy)
-  pixel/            sprites.json, font.json (5x7 bitmap), toPaths.ts, raster.ts, tokens.ts
+  pixel/            sprites.json, font.json (5x7 bitmap), toPaths.ts (pure), spriteData.ts (the sheet,
+                    lazy in the browser), spriteStore.ts (where <Sprite> finds it), raster.ts, tokens.ts, groups.ts
+  clientOnly.tsx    React.lazy behind a mount guard; use it instead of next/dynamic
+  teleop/dims.ts    the cell's 320x180 frame (so the poster shell does not import the scene)
   teleop/scene.ts   workcell geometry and drawing shared by the SSR poster and the canvas
 data/
   portfolio.json    all content (typed by types/portfolio.ts)
@@ -111,14 +114,14 @@ scripts/            guards, sitemap, OG renderer, private-data loader
 - **Focus:** 2px teal outline at 2px offset plus pixel corner brackets on buttons and chips. Always visible on `:focus-visible`.
 - **Digits and ampersands:** Pixelify Sans draws 5 like an S, and Silkscreen draws & like a $. Two `unicode-range` faces fix both everywhere: "Pixel Digits" (0-9 from Silkscreen) leads `--font-pixel`, and "Label Amp" (& from Pixelify) leads `--font-label`. Big numbers (telemetry values, LV numbers) use Silkscreen outright. Check any new numeric display on a screenshot.
 - **Type rules:** Silkscreen only at 16px, 24px, or 32px (multiples of its 8px grid; 32px is for LV numbers only), uppercase, 0.04em tracking, `-webkit-font-smoothing: none` on those elements only. Anything smaller uses Plex Mono 13 to 14px. Paragraphs are Plex Sans 17 to 18px, line height 1.6.
-- **Sprites:** authored at 1x as palette-indexed string rows in `lib/pixel/sprites.json` (`.` is transparent; keys come from `palette`). `components/pixel/Sprite.tsx` renders crisp SSR SVG, one `<path>` per color via `rowsToPaths` (horizontal runs merged). `--px` is 3px under 768px and 4px above. The canvas and the OG renderer use the same JSON, and canvas text uses `lib/pixel/font.json`, so no font load gates the canvas.
+- **Sprites:** authored at 1x as palette-indexed string rows in `lib/pixel/sprites.json` (`.` is transparent; keys come from `palette`). `components/pixel/Sprite.tsx` renders crisp SSR SVG, one `<path>` per color via `rowsToPaths` (horizontal runs merged). The art is server markup: the browser keeps it through hydration without the sheet (`hooks/useServerMarkup.ts`, `dangerouslySetInnerHTML` plus `suppressHydrationWarning`), and loads `lib/pixel/spriteData.ts` only when it must draw something the server did not (a client-side navigation, or a new frame such as the SND speaker). The cell poster (`CellPoster` + `posterArt.ts`) and the track walker frames work the same way. `--px` is 3px under 768px and 4px above. The canvas and the OG renderer use the same JSON, and canvas text uses `lib/pixel/font.json`, so no font load gates the canvas.
 
 ### Adding a sprite
 
 1. Add rows to `lib/pixel/sprites.json` (every row the same width, only palette keys). Generating rows with a script is fine; keep the output in the JSON.
 2. Review it on `/lab` (every sprite renders at 1x to 4x) and on the page where it is used.
 3. **Original art only.** No recreating or imitating any existing game, character, sprite, level, logo, or look. Genre conventions (pixel art, HUDs, CRTs, platforming) are fine. AB-01 is a squat 16x24 biped: steel chassis, digitigrade legs with boxy feet, thin arms with 2-finger grippers, a wide black teleop visor with two 2x2 teal eyes, one antenna with a status LED, a 5-segment battery pack on the back. Do not drift it toward a known character.
-4. `sprites.json` ships in the main bundle. Keep big, page-specific art small, and watch First Load JS.
+4. `sprites.json` does not ship in the main bundle (see Sprites above), so new art costs nothing on first load. A sprite that changes on the client (new `frame`, `name`, or `mono`) loads the sheet chunk the first time it changes. A lazy chunk that draws sprites on mount imports `lib/pixel/spriteData` directly (Badges and Toast do).
 
 ## Adding or editing content
 
@@ -162,7 +165,8 @@ The first viewport is plain SSR HTML. Heavy or optional pieces load on intent:
 
 | Piece | Loads when | Budget (gzip) |
 | --- | --- | --- |
-| `/` First Load JS | always | 110 kB target, 130 kB hard ceiling |
+| `/` First Load JS | always | 110 kB target, 130 kB hard ceiling (99 kB after the sprite split) |
+| Sprite sheet (`lib/pixel/spriteData`) | a client-side navigation, a live sprite frame change, or a lazy chunk that draws sprites | about 4 kB |
 | Teleop engine + live cell (`TeleopLive`) | TAKE CONTROL / AUTO DEMO, or idle prefetch once the cell is half visible | 25 kB |
 | OPS console UI (`Terminal`) | first open (`/`, `` ` ``, OPS>) | 8 kB per chunk (about 4 kB today) |
 | OPS parser + command table (`commands.ts`) | `import()` as the console mounts | 8 kB per chunk (about 6.5 kB today; the two together are about 10 kB) |
@@ -172,7 +176,7 @@ The first viewport is plain SSR HTML. Heavy or optional pieces load on intent:
 | Visitor badges row | after hydration, client-only | small |
 | 404 level (`LostSignal`) | "Drive AB-01 home" click | 8 kB |
 
-After a build, check the table Next prints, and confirm lazy chunks are not in `build-manifest.json` for `/`. Sprites cost zero image requests. Fixed aspect-ratio boxes mean no layout shift when the poster swaps for the canvas.
+After a build, check the table Next prints, and confirm lazy chunks are not in `build-manifest.json` for `/`. Client-only lazy components use `lib/clientOnly` (React.lazy behind a mount guard), not `next/dynamic`, which drags its loadable runtime into the first load. Server-only code behind `typeof window === "undefined" ? require(...) : null` is dropped from the browser build (Next compiles `typeof window` to a constant). Sprites cost zero image requests. Fixed aspect-ratio boxes mean no layout shift when the poster swaps for the canvas.
 
 ## Motion, sound, and access contract
 

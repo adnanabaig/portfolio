@@ -1,11 +1,13 @@
-// "Visitor badges (earned in this browser)": client-only (next/dynamic with
-// ssr: false), so the server HTML never contains it and it can never be
-// confused with the real awards above it. Locked badges show a dim outline
-// of the medal with a padlock (frame 1) and a text hint.
+// "Visitor badges (earned in this browser)": client-only (lib/clientOnly),
+// so the server HTML never contains it and it can never be confused with the
+// real awards above it. Locked badges show a dim outline of the medal with a
+// padlock (frame 1) and a text hint.
 import { useEffect, useState } from "react";
 import { on } from "../../lib/bus";
 import { BADGES, earned, type BadgeId } from "../../lib/badges";
 import Sprite from "../pixel/Sprite";
+// Client-only island: register the sprite sheet so the medals draw on mount.
+import "../../lib/pixel/spriteData";
 
 export default function VisitorBadges() {
   const [have, setHave] = useState<Set<BadgeId> | null>(null);

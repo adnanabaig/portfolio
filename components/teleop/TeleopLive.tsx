@@ -1,5 +1,5 @@
 // The live Teleop Cell: canvas, control panel, touch pads, and narration.
-// Loaded with next/dynamic only on intent (TAKE CONTROL, AUTO DEMO, or an
+// Loaded with clientOnly (lib/clientOnly) only on intent (TAKE CONTROL, AUTO DEMO, or an
 // idle prefetch), so none of this is in the first-load bundle.
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { MutableRefObject } from "react";
@@ -15,7 +15,7 @@ export interface TeleopLiveHandle {
 
 export interface TeleopLiveProps {
   start: "teleop" | "auto";
-  /** Filled with an imperative handle (next/dynamic does not forward refs). */
+  /** Filled with an imperative handle (the lazy wrapper does not forward refs). */
   handleRef: MutableRefObject<TeleopLiveHandle | null>;
   panelHost: HTMLElement | null;
   onFocusChange(focused: boolean): void;

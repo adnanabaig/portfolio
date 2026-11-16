@@ -5,6 +5,8 @@ import { useEffect, useRef, useState } from "react";
 import { on } from "../../lib/bus";
 import { badgeTitle, listen } from "../../lib/badges";
 import Sprite from "../pixel/Sprite";
+// Lazy chunk: register the sprite sheet so the medal draws on mount.
+import "../../lib/pixel/spriteData";
 
 const SHOW_MS = 4000;
 

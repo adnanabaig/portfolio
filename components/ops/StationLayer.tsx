@@ -2,14 +2,14 @@
 // OPS console, "?" for the keymap), the two dialogs (each lazy-loaded on
 // first open), and the idle boot: badge toast + rules, the console greeting,
 // AB-01 puppetry, and a saved sound opt-in. Renders nothing on the server.
-import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { on } from "../../lib/bus";
+import { clientOnly } from "../../lib/clientOnly";
 import { resumeSavedSound } from "./sound";
 
-const Terminal = dynamic(() => import("./Terminal"), { ssr: false });
-const Keymap = dynamic(() => import("./Keymap"), { ssr: false });
-const Toast = dynamic(() => import("../Toast"), { ssr: false });
+const Terminal = clientOnly(() => import("./Terminal"));
+const Keymap = clientOnly(() => import("./Keymap"));
+const Toast = clientOnly(() => import("../Toast"));
 
 /** True for text fields and editable regions, where shortcuts must not fire. */
 export function isTypingTarget(target: EventTarget | null) {

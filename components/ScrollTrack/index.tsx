@@ -10,7 +10,8 @@
 import { useEffect, useRef } from "react";
 import { onReducedMotionChange, prefersReducedMotion, isEstop } from "../../lib/station";
 import { on as onBus } from "../../lib/bus";
-import { fillFor, spritePaths } from "../../lib/pixel/toPaths";
+import { getSheet, loadSheet, type SpriteSheet } from "../../lib/pixel/spriteStore";
+import { useServerMarkup } from "../../hooks/useServerMarkup";
 import type { Sections } from "../../hooks/useSections";
 
 export interface Checkpoint {
@@ -36,22 +37,14 @@ const ACT_FRAMES: { cls: string; name: "ab01-wave" | "ab01-sit"; frame: number }
   { cls: "sit", name: "ab01-sit", frame: 0 },
 ];
 
-const paths = (name: "ab01" | "ab01-wave" | "ab01-sit", frame: number) =>
-  spritePaths(name, frame).map((p) => <path key={p.key} d={p.d} style={{ fill: fillFor(p.key) }} />);
-
-function walkerFrames() {
+// Every frame is painted once, server side, and CSS shows one at a time
+// (data-frame / puppet classes), so the browser never redraws them and the
+// sprite sheet stays out of the main bundle (see hooks/useServerMarkup).
+function walkerMarkup(sheet: SpriteSheet): string {
   return [
-    ...FRAMES.map((f) => (
-      <g key={f} className={`track__f track__f${f}`}>
-        {paths("ab01", f)}
-      </g>
-    )),
-    ...ACT_FRAMES.map((a) => (
-      <g key={a.cls} className={`track__a track__a-${a.cls}`}>
-        {paths(a.name, a.frame)}
-      </g>
-    )),
-  ];
+    ...FRAMES.map((f) => `<g class="track__f track__f${f}">${sheet.spriteMarkup("ab01", f)}</g>`),
+    ...ACT_FRAMES.map((a) => `<g class="track__a track__a-${a.cls}">${sheet.spriteMarkup(a.name, a.frame)}</g>`),
+  ].join("");
 }
 
 const ScrollTrack = ({ checkpoints, sections }: ScrollTrackProps) => {
@@ -59,6 +52,8 @@ const ScrollTrack = ({ checkpoints, sections }: ScrollTrackProps) => {
   const walkerRef = useRef<HTMLDivElement | null>(null);
   const trailRef = useRef<HTMLDivElement | null>(null);
   const cellsRef = useRef<(SVGRectElement | null)[]>([]);
+  const framesRef = useRef<SVGGElement | null>(null);
+  const sheet = useServerMarkup(framesRef, getSheet(), loadSheet);
   const activeRef = useRef(sections.activeIndex);
   activeRef.current = sections.activeIndex;
   const wakeRef = useRef<() => void>(() => undefined);
@@ -280,7 +275,7 @@ const ScrollTrack = ({ checkpoints, sections }: ScrollTrackProps) => {
           <div className="track__walker" ref={walkerRef} data-frame="0">
             <span className="track__beam" />
             <svg viewBox="0 0 16 24" shapeRendering="crispEdges" className="track__bot" focusable="false">
-              {walkerFrames()}
+              <g ref={framesRef} dangerouslySetInnerHTML={{ __html: sheet ? walkerMarkup(sheet) : "" }} suppressHydrationWarning />
               <g className="track__over">
                 {CELLS.map((y, i) => (
                   <rect

@@ -1,7 +1,10 @@
 // Turns palette-indexed string rows into one SVG path per palette key.
 // Horizontal runs of the same key merge into a single rectangle, so a
 // 32x32 icon becomes a handful of short paths instead of 1024 rects.
-import spriteData from "./sprites.json";
+//
+// This module is pure and tiny. The sprite sheet itself (sprites.json) lives
+// behind lib/pixel/spriteData.ts, which the browser loads only when it has to
+// draw a sprite the server did not (see lib/pixel/spriteStore.ts).
 
 export interface PaletteEntry {
   var: string;
@@ -19,9 +22,8 @@ export interface SpriteDef {
   frames: string[][];
 }
 
-export const palette = spriteData.palette as Record<string, PaletteEntry>;
-export const sprites = spriteData.sprites as Record<string, SpriteDef>;
-export type SpriteName = keyof typeof spriteData.sprites;
+/** Every sprite name in sprites.json (type only: no JSON reaches the bundle from here). */
+export type SpriteName = keyof (typeof import("./sprites.json"))["sprites"];
 
 /**
  * Pure: rows in, paths out, in order of each key's first appearance.
@@ -68,22 +70,7 @@ export function rowsToPaths(rows: readonly string[], transparent = "."): PixelPa
   return order.map((key) => ({ key, d: parts[key].join("") }));
 }
 
-const cache = new Map<string, PixelPath[]>();
-
-/** Memoized paths for one frame of a named sprite. */
-export function spritePaths(name: SpriteName, frame = 0): PixelPath[] {
-  const id = `${name}:${frame}`;
-  const hit = cache.get(id);
-  if (hit) return hit;
-  const def = sprites[name];
-  const rows = def.frames[Math.min(frame, def.frames.length - 1)];
-  const paths = rowsToPaths(rows);
-  cache.set(id, paths);
-  return paths;
-}
-
-/** CSS fill for a palette key: the theme variable, with the hex as fallback. */
-export function fillFor(key: string): string {
-  const entry = palette[key];
-  return entry ? `var(${entry.var}, ${entry.hex})` : "currentColor";
+/** SVG markup for a list of paths, one <path> per color. */
+export function pathsMarkup(paths: readonly PixelPath[], fill: (key: string) => string): string {
+  return paths.map((p) => `<path d="${p.d}" style="fill:${fill(p.key)}"></path>`).join("");
 }

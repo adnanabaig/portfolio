@@ -4,7 +4,7 @@
 // events and mark the chip as found.
 import { useEffect, useState } from "react";
 import { on } from "../../lib/bus";
-import { groupAccent } from "../../lib/pixel/tokens";
+import { groupAccent } from "../../lib/pixel/groups";
 import { skillToken, type SkillHits } from "../../lib/skillIndex";
 import type { SkillGroup } from "../../types/portfolio";
 
