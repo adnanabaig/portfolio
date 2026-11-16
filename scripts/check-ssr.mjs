@@ -218,6 +218,38 @@ if (fs.existsSync(lostFile)) {
   check(false, "404.html exists");
 }
 
+// 10. Access basics on every prerendered page: a skip link to the one <main>,
+// one nav named "Main" (the menu panel is "Menu"), zoom never disabled, and
+// every SVG either hidden from assistive tech or given a role and name.
+{
+  const pagesDir = path.join(root, distDir, "server/pages");
+  const walk = (dir) =>
+    fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(path.join(dir, e.name)) : e.name.endsWith(".html") ? [path.join(dir, e.name)] : []));
+  const files = walk(pagesDir).filter((f) => !/[/\\](500|lab)\.html$/.test(f));
+  const bad = [];
+  for (const f of files) {
+    const name = "/" + path.relative(pagesDir, f).replace(/\.html$/, "").replace(/(^|\/)index$/, "");
+    const html = fs.readFileSync(f, "utf8").replace(/<script[\s\S]*?<\/script>/gi, "");
+    const mains = (html.match(/<main[\s>]/g) || []).length;
+    const skip = /<a href="#main-content" class="skip-link"/.test(html) && /<main id="main-content"/.test(html);
+    const mainNavs = (html.match(/<nav[^>]*aria-label="Main"/g) || []).length;
+    const menuNav = /<nav[^>]*id="mobile-nav"[^>]*aria-label="Menu"/.test(html);
+    const viewport = (html.match(/<meta name="viewport" content="([^"]*)"/) || [])[1] || "";
+    const zoomOk = viewport && !/maximum-scale|user-scalable\s*=\s*(no|0)/i.test(viewport);
+    const svgsOk = [...html.matchAll(/<svg\b([^>]*)>/g)].every((m) => /aria-hidden="true"/.test(m[1]) || (/role="img"/.test(m[1]) && /aria-label(ledby)?="/.test(m[1])));
+    const issues = [
+      [mains === 1, `${mains} <main>`],
+      [skip, "skip link to #main-content"],
+      [mainNavs === 1, `${mainNavs} navs named Main`],
+      [menuNav, 'menu panel nav named "Menu"'],
+      [zoomOk, `viewport "${viewport}"`],
+      [svgsOk, "an SVG with no aria-hidden and no role/name"],
+    ].filter(([ok]) => !ok).map(([, l]) => l);
+    if (issues.length) bad.push(`${name}: ${issues.join(", ")}`);
+  }
+  check(files.length > 3 && bad.length === 0, `access basics on ${files.length} pages (one main + skip link, one Main nav, zoom allowed, SVGs hidden or named)${bad.length ? `: ${bad.join("; ")}` : ""}`);
+}
+
 for (const p of passes) console.log(`  ok   ${p}`);
 for (const f of failures) console.error(`  FAIL ${f}`);
 if (failures.length) {

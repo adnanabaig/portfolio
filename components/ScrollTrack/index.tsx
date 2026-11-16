@@ -274,7 +274,7 @@ const ScrollTrack = ({ checkpoints, sections }: ScrollTrackProps) => {
           </ol>
           <div className="track__walker" ref={walkerRef} data-frame="0">
             <span className="track__beam" />
-            <svg viewBox="0 0 16 24" shapeRendering="crispEdges" className="track__bot" focusable="false">
+            <svg viewBox="0 0 16 24" shapeRendering="crispEdges" className="track__bot" aria-hidden="true" focusable="false">
               <g ref={framesRef} dangerouslySetInnerHTML={{ __html: sheet ? walkerMarkup(sheet) : "" }} suppressHydrationWarning />
               <g className="track__over">
                 {CELLS.map((y, i) => (
