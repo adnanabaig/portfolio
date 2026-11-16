@@ -23,17 +23,18 @@ export PATH=$HOME/.local/node/bin:$PATH
 
 NEXT_DIST_DIR=.next-dev npx next dev -p 3200    # dev server
 NEXT_DIST_DIR=.next-build npm run build         # production build (runs tsc + lint; prebuild writes public/sitemap.xml and public/rss.xml)
-npx tsc --noEmit                                # types
+npm run typecheck                               # tsc --noEmit for the app, then for tests/ (tests/tsconfig.json)
 npm run lint                                    # ESLint (next lint)
 npm run check:copy                              # copy guard + teleop catalog guard + OPS console guard + dossier sketch guard
-npm run check:ssr                               # reads .next-build/server/pages/*.html, so build first
-npm run test:teleop                             # teleop engine self-test (IK, safety, latency, sorting)
+npm test                                        # the Vitest unit suite (everything in tests/)
+npm run test:teleop                             # just tests/teleop (the engine)
+npm run check:ssr                               # reads $NEXT_DIST_DIR (default .next-build)/server/pages/*.html, so build first
 npm run og                                      # regenerate public/og.png and the icons, then commit them
 ```
 
 **Always set `NEXT_DIST_DIR`** for local builds and dev. A long-running `next start` may be serving `.next`; never write to `.next` and never touch `node_modules` in a way that breaks it. Builds fail on any TypeScript or ESLint error by design.
 
-Before every commit: `tsc`, `lint`, `check:copy`, then one build and `check:ssr`.
+Before every commit: `typecheck`, `lint`, `check:copy`, `npm test`, then one build and `check:ssr`. That is also the CI order (see Engineering).
 
 ## Guards (all must pass)
 
@@ -46,6 +47,32 @@ Before every commit: `tsc`, `lint`, `check:copy`, then one build and `check:ssr`
 | `check:ssr` | `scripts/check-ssr.mjs` | On the built home page: one h1 with the name; eyebrow, lede, proof lines, and the resume link come before the cell; every visible fact string renders; hidden entries and `_todo` never leak; no invented numbers; no canvas, console, badges, or toast in SSR; skip link before TAKE CONTROL; E-STOP and track wiring; `og:image` and `twitter:card`; icons exist. Every card has an "Open dossier" link. Each built `/work/<id>`: one h1 with the title, every project field, canonical and `og:url`, CreativeWork JSON-LD, breadcrumb back to the card, the "FIG. n / system sketch (illustrative)" caption with server-rendered SVG, prev/next, source links, nothing private, listed in the sitemap. `public/rss.xml` lists every post with pubDate and description; the head links it and `/blog` shows an RSS link. On the built 404: Home, Work, and Blog links come before the "Drive AB-01 home" button. |
 
 When you add a guard-relevant feature, extend the guard in the same commit.
+
+## Engineering
+
+**Unit tests** live in `tests/` (Vitest, node environment, no jsdom) and run with `npm test`. They test the real modules, not copies:
+
+| File | Covers |
+| --- | --- |
+| `tests/teleop/ik.test.ts` | IK round trips, the elbow branch, reach limits (including targets exactly on the reach circle), unwrap, the cable-wrap window, `clampWorkspace`, the servo |
+| `tests/teleop/safety.test.ts` | The FSM: E-STOP latches until an explicit CLEAR (refused under the site stop), deadman, watchdog timing, scripted modes |
+| `tests/teleop/latency.test.ts` | `CommandBuffer` delays a 60 Hz stream by exactly the set amount; ring overflow; `RttTrace` |
+| `tests/teleop/world.test.ts` | Catalog to bin mapping, right bin sorts, every wrong bin bounces, stacking, seeded shuffles |
+| `tests/teleop/episodes.test.ts` | Recorder at 30 Hz and its 60 s cap, Player round trip and determinism, storage parsing (malformed frames dropped) |
+| `tests/teleop/pipeline.test.ts` | The headless cell (latency link, `driveArm`, `World.step`): auto demo at several latencies, a manual misroute and re-sort, park, cable-wrap unwinding, deterministic replay |
+| `tests/teleop/engine.test.ts` | `createEngine` itself, with `render` and `loop` mocked and the clock owned by the test: E-STOP, site stop, watchdog park, deadman, latency, record and replay, through the public `Engine` API |
+| `tests/facts.test.ts` | Every `lib/facts.ts` value matches its source sentence; rewording a sentence makes the import throw (via `vi.doMock` of `portfolio.json`) |
+| `tests/ops.test.ts` | OPS parser and registry: help, open/dossier, eggs and the latch, argument checks, Tab completion |
+| `tests/feeds.test.ts` | `scripts/feeds.mjs` sitemap and RSS builders, and that the committed `public/sitemap.xml` and `public/rss.xml` are current |
+| `tests/content.test.ts` | Project and job fields, unique ids, sketches, the private-data loader, copy rules on every published string |
+
+- Tests type-check under `tests/tsconfig.json` (adds node types); the app `tsconfig.json` excludes `tests/` so Next never sees them.
+- `vitest.config.mjs` swaps the server-only `require("./spriteData")` in `lib/pixel/spriteStore.ts` for a dynamic import, because vite-node cannot `require` a .ts file. App code is unchanged.
+- Use `tests/helpers/rng.ts` (`seeded()`) wherever a `World` is built, so runs are reproducible.
+- A bug fix lands in its own commit with the test that would have caught it. New engine, parser, or generator behavior gets a test in the same commit.
+- `vite` is pinned to 6 because Vite 7 needs Node 20.19 or newer.
+
+**CI** is `.github/workflows/ci.yml`: on every push and pull request, Node from `.nvmrc` (20, matching `engines`), then `npm ci`, `lint`, `typecheck`, `check:copy`, `npm test`, `build` (into `.next-build`), and `check:ssr`. To reproduce it, export HEAD into an empty directory (`git archive HEAD | tar -x -C /tmp/ci`) and run the same steps there.
 
 ## Fact rules (non-negotiable)
 
@@ -108,7 +135,9 @@ data/
   teleop.json       skill block labels and bin labels for the cell
   schematics.json   per-project sketch spec (nodes on a 4x2 grid, edges); labels must come from that project's copy
 _drafts/            unpublished posts (never read by the build; move to _posts/ only after Adnan approves)
-scripts/            guards, sitemap, RSS feed, OG renderer, private-data loader
+scripts/            guards, feeds.mjs (pure sitemap and RSS builders) + the prebuild writers, OG renderer, private-data loader
+tests/              Vitest unit suite (see Engineering)
+.github/workflows/  ci.yml
 ```
 
 ## Design tokens and pixel primitives
