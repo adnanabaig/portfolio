@@ -125,7 +125,7 @@ const COMMANDS: Command[] = [
       for (const p of data.projects) c.print(`${p.id.padEnd(18)} ${p.title}`);
       c.print("Independent builds", "head");
       for (const p of data.engineeringProjects) c.print(`${p.id.padEnd(18)} ${p.title}`);
-      c.print("Type open <id> to jump to one.", "dim");
+      c.print("Type open <id> to jump to a card, or dossier <id> for its full page.", "dim");
     },
   },
   {
@@ -140,7 +140,23 @@ const COMMANDS: Command[] = [
         return;
       }
       c.print(`Opening ${p.title}.`, "ok");
+      c.print(`For the full page, type dossier ${p.id}.`, "dim");
       if (!c.focusCard(p.id)) c.navigate(`/#card-${p.id}`);
+    },
+  },
+  {
+    name: "dossier",
+    usage: "<id>",
+    help: "Open a project's full page.",
+    run(args, c) {
+      const id = args[0];
+      const p = projects.find((x) => x.id === id);
+      if (!p) {
+        c.print(id ? `No module named ${id}. Type projects for the list.` : "Usage: dossier <id>. Type projects for the list.", "err");
+        return;
+      }
+      c.print(`Opening the ${p.title} dossier.`, "ok");
+      c.navigate(`/work/${p.id}`);
     },
   },
   {
@@ -425,6 +441,7 @@ export async function run(input: string, c: Ctx): Promise<"ok" | "deny"> {
 
 const ARG_OPTIONS: Record<string, string[]> = {
   open: projects.map((p) => p.id),
+  dossier: projects.map((p) => p.id),
   theme: THEMES,
   sound: ONOFF,
   crt: ONOFF,

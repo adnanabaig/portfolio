@@ -7,7 +7,8 @@
 //   unless the line labels it as the visitor's own (your run, your link,
 //   your clock, SIM, this browser)
 // - the eggs say exactly what they should, and make no availability claim
-// - `open operator-hmi` targets the operator-hmi card
+// - `open operator-hmi` targets the operator-hmi card and offers the dossier
+// - `dossier <id>` navigates to /work/<id> for every project
 import fs from "fs";
 import os from "os";
 import path from "path";
@@ -92,6 +93,7 @@ try {
 
   const SAMPLE_ARGS = {
     open: "operator-hmi",
+    dossier: "operator-hmi",
     latency: "120",
     theme: "amber",
     sound: "on",
@@ -112,7 +114,7 @@ try {
   for (const name of ops.commandNames()) if (!all.some((c) => c.name === name || (c.aliases || []).includes(name))) fail(`help lists "${name}" with no handler`);
 
   // 2. Run everything (plus a few bad inputs) and check every line.
-  const lines = [...all.map((c) => `${c.name} ${SAMPLE_ARGS[c.name] ?? ""}`.trim()), "open nope", "latency 999", "theme", "sudo make sandwich", "frobnicate"];
+  const lines = [...all.map((c) => `${c.name} ${SAMPLE_ARGS[c.name] ?? ""}`.trim()), "open nope", "dossier nope", "dossier", "latency 999", "theme", "sudo make sandwich", "frobnicate"];
   let printed = 0;
   for (const line of lines) {
     const { out } = await runLine(line);
@@ -131,6 +133,14 @@ try {
   // 3. Specific contracts.
   const open = await runLine("open operator-hmi");
   if (!open.calls.some(([k, id]) => k === "focusCard" && id === "operator-hmi")) fail("open operator-hmi did not target the operator-hmi card");
+
+  if (!open.out.some((l) => /dossier operator-hmi/.test(l.text))) fail("open operator-hmi does not offer the dossier");
+  for (const p of [...data.projects, ...data.engineeringProjects]) {
+    const dossier = await runLine(`dossier ${p.id}`);
+    if (!dossier.calls.some(([k, path]) => k === "navigate" && path === `/work/${p.id}`)) fail(`dossier ${p.id} did not navigate to /work/${p.id}`);
+  }
+  const noDossier = await runLine("dossier nope");
+  if (noDossier.calls.some(([k]) => k === "navigate") || !noDossier.out.some((l) => l.kind === "err")) fail("dossier nope should print an error and stay put");
 
   const hire = await runLine("sudo hire adnan");
   if (!hire.out.some((l) => l.text === "Access granted. Opening a channel.")) fail("sudo hire adnan: wrong reply");
@@ -157,6 +167,8 @@ try {
   if (c1.value !== "projects ") fail(`complete("pro") gave ${JSON.stringify(c1.value)}`);
   const c2 = ops.complete("open op");
   if (c2.value !== "open operator-hmi ") fail(`complete("open op") gave ${JSON.stringify(c2.value)}`);
+  const c3 = ops.complete("dossier fl");
+  if (c3.value !== "dossier fleet-operations ") fail(`complete("dossier fl") gave ${JSON.stringify(c3.value)}`);
 
   if (problems.length) {
     console.error(`check-ops found ${problems.length} problem(s):`);
