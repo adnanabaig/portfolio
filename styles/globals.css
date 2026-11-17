@@ -254,8 +254,11 @@ html[data-theme="mono"] .crt-screen::after {
   }
 }
 
-/* Keep anchored sections clear of the sticky status bar and track. */
+/* Keep anchor targets clear of the sticky status bar and track (check:ssr
+   fails if an in-page link or an OPS card target is not covered here). */
 [id$="-section"],
+[id^="card-"],
+#cell-after,
 #main-content,
 #boot {
   scroll-margin-top: calc(var(--header-h) + var(--track-h) + 16px);

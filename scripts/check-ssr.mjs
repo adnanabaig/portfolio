@@ -250,6 +250,29 @@ if (fs.existsSync(lostFile)) {
   check(files.length > 3 && bad.length === 0, `access basics on ${files.length} pages (one main + skip link, one Main nav, zoom allowed, SVGs hidden or named)${bad.length ? `: ${bad.join("; ")}` : ""}`);
 }
 
+// Anchor targets clear the sticky status bar: every in-page fragment link on
+// any built page (plus the card ids OPS `open <id>` scrolls to) must match the
+// scroll-margin-top rule in styles/globals.css, or it lands under the header.
+{
+  const css = fs.readFileSync(path.join(root, "styles/globals.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+  const selectors = [...css.matchAll(/([^{}]+)\{[^}]*scroll-margin-top:[^}]*\}/g)].flatMap((m) => m[1].split(",").map((s) => s.trim()));
+  const covers = (id) =>
+    selectors.some((sel) => {
+      let m;
+      if ((m = sel.match(/^#([\w-]+)$/))) return m[1] === id;
+      if ((m = sel.match(/^\[id\$="([^"]+)"\]$/))) return id.endsWith(m[1]);
+      if ((m = sel.match(/^\[id\^="([^"]+)"\]$/))) return id.startsWith(m[1]);
+      return false;
+    });
+  const pagesDir = path.join(root, distDir, "server/pages");
+  const walk = (dir) =>
+    fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(path.join(dir, e.name)) : e.name.endsWith(".html") ? [path.join(dir, e.name)] : []));
+  const targets = new Set(allProjects.map((p) => `card-${p.id}`));
+  for (const f of walk(pagesDir)) for (const m of fs.readFileSync(f, "utf8").matchAll(/href="(?:\/[^"#]*)?#([^"]+)"/g)) targets.add(decode(m[1]));
+  const uncovered = [...targets].filter((id) => !covers(id));
+  check(selectors.length > 0 && uncovered.length === 0, `${targets.size} anchor targets clear the status bar (scroll-margin-top)${uncovered.length ? `; uncovered: ${uncovered.join(", ")}` : ""}`);
+}
+
 for (const p of passes) console.log(`  ok   ${p}`);
 for (const f of failures) console.error(`  FAIL ${f}`);
 if (failures.length) {
