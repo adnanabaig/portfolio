@@ -212,6 +212,7 @@ export default function Dossier({ entry, prev, next, sketch }: DossierProps) {
             </aside>
           </div>
 
+          <div className="hairline dossier__rule" aria-hidden="true" />
           <figure className="sketch px-frame" data-accent={bay.accent} aria-labelledby="sketch-caption">
             <figcaption id="sketch-caption" className="px-titlebar">
               <span className="px-titlebar__label">
@@ -250,6 +251,7 @@ export default function Dossier({ entry, prev, next, sketch }: DossierProps) {
           </figure>
         </article>
 
+        <div className="hairline dossier__rule" aria-hidden="true" />
         <nav aria-label="More projects" className="dossier__pager">
           {prev ? (
             <Link href={dossierHref(prev.id)}>

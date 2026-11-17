@@ -73,8 +73,10 @@ const BlogPostPage = ({ post, newer, older }: BlogPostPageProps) => {
                 </p>
               </div>
             </header>
+            <div className="hairline post-rule--head" aria-hidden="true" />
             <div className="markdown-class" dangerouslySetInnerHTML={{ __html: post.html }} />
           </article>
+          <div className="hairline post-rule--end" aria-hidden="true" />
           <div className="post-end">
             <Link href="/blog">
               <a className="back-link">

@@ -589,20 +589,32 @@ html[data-theme="mono"] .crt-screen::after {
   transform: translate(2px, 2px);
   box-shadow: 2px 2px 0 var(--btn-shadow);
 }
+/* Primary: a lit keycap (top highlight, bottom shade) with a key-light glow behind it. */
 .px-btn--primary {
   --btn-shadow: var(--teal-deep);
+  --btn-keycap: inset 0 2px 0 rgb(255 255 255 / calc(0.35 * var(--lit))), inset 0 -2px 0 rgb(0 0 0 / calc(0.18 * var(--lit)));
   background: var(--teal);
   border-color: var(--teal);
   color: var(--teal-ink);
+  box-shadow: 4px 4px 0 var(--btn-shadow), var(--btn-keycap);
+}
+.px-btn--primary:active {
+  box-shadow: 2px 2px 0 var(--btn-shadow), var(--btn-keycap);
 }
 .px-btn--primary:hover {
   background: var(--paper);
   border-color: var(--paper);
 }
 .px-btn--secondary {
+  --btn-keycap: inset 0 2px 0 var(--edge);
   background: var(--panel);
+  background: linear-gradient(180deg, var(--panel-hi), var(--panel));
   border-color: var(--teal);
   color: var(--paper);
+  box-shadow: 4px 4px 0 var(--btn-shadow), var(--btn-keycap);
+}
+.px-btn--secondary:active {
+  box-shadow: 2px 2px 0 var(--btn-shadow), var(--btn-keycap);
 }
 .px-btn--secondary:hover {
   background: var(--panel-hi);
@@ -612,6 +624,46 @@ html[data-theme="mono"] .crt-screen::after {
   background: var(--coral);
   border-color: var(--coral);
   color: var(--ink);
+}
+/*
+ * Button light: a glow on ::before, behind the button. Light glides
+ * (opacity on --ease-light); the button itself still snaps.
+ */
+.px-btn--primary::before,
+.px-btn--secondary::before,
+.px-btn--danger::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.5;
+  transition: opacity 160ms var(--ease-light);
+}
+.px-btn--primary::before {
+  box-shadow: 0 0 22px 2px rgb(var(--glow-rgb) / calc(0.38 * var(--lit)));
+}
+.px-btn--secondary::before {
+  opacity: 0;
+  box-shadow: 0 0 14px -2px rgb(var(--glow-rgb) / calc(0.25 * var(--lit)));
+}
+.px-btn--danger::before {
+  box-shadow: 0 0 18px 0 rgb(var(--fault-rgb) / calc(0.35 * var(--lit)));
+}
+.px-btn--primary:hover::before,
+.px-btn--primary:focus-visible::before,
+.px-btn--secondary:hover::before,
+.px-btn--secondary:focus-visible::before,
+html[data-estop] .px-btn--danger::before {
+  opacity: 1;
+}
+/* Hover lift (pointer devices, motion allowed): up 1px, shadow out to 5px. Pressing still sinks 2px. */
+@media (hover: hover) {
+  html.motion-ok:not([data-plain]):not([data-estop]) .px-btn--primary:not([disabled]):hover:not(:active),
+  html.motion-ok:not([data-plain]):not([data-estop]) .px-btn--secondary:not([disabled]):hover:not(:active) {
+    transform: translate(-1px, -1px);
+    box-shadow: 5px 5px 0 var(--btn-shadow), var(--btn-keycap);
+  }
 }
 .px-btn--ghost {
   background: transparent;
@@ -636,6 +688,9 @@ html[data-theme="mono"] .crt-screen::after {
   box-shadow: none;
   transform: none;
 }
+.px-btn[disabled]::before {
+  display: none;
+}
 /* The 32px glyph overhangs the 10px padding by 4px each way, so an icon
    button is 48px tall like a text button. */
 .px-btn__icon {
@@ -659,6 +714,8 @@ html[data-theme="mono"] .crt-screen::after {
     linear-gradient(var(--b), var(--b)) bottom left / 2px 8px no-repeat,
     linear-gradient(var(--b), var(--b)) bottom right / 8px 2px no-repeat,
     linear-gradient(var(--b), var(--b)) bottom right / 2px 8px no-repeat;
+  /* A static glow on the bracket layer; the outline stays the authority. */
+  box-shadow: 0 0 16px 0 rgb(var(--glow-rgb) / calc(0.18 * var(--lit)));
 }
 
 /* Chips */
@@ -869,6 +926,30 @@ html[data-theme="mono"] .crt-screen::after {
 }
 .eyebrow--fault {
   --accent: var(--amber);
+}
+/* A trace runs out from the label to the right. Zero net size (the -10px
+   margin cancels the gap), so it never wraps or adds a line. */
+.eyebrow::after {
+  content: "";
+  flex: 1 1 0;
+  min-width: 0;
+  height: 2px;
+  margin-left: -10px;
+  background: linear-gradient(90deg, transparent 16px, var(--accent) 16px, transparent 256px);
+  opacity: 0.6;
+}
+
+/*
+ * Hairline: a 2px rule lit from the middle, with a 6x2 accent pip. The
+ * .hairline element is decorative (aria-hidden); .card__links uses the same
+ * light on a pseudo-element inside its existing padding.
+ */
+.hairline,
+.card__links::before {
+  display: block;
+  height: 2px;
+  background: linear-gradient(var(--accent), var(--accent)) 50% 0 / 6px 2px no-repeat,
+    linear-gradient(90deg, transparent, var(--grid) 12%, var(--accent) 50%, var(--grid) 88%, transparent);
 }
 
 .section-title {
@@ -1970,11 +2051,20 @@ html[data-estop] .sitestop {
   color: var(--amber);
 }
 .card__links {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
   margin-top: auto;
   padding-top: 24px;
+}
+.card__links::before {
+  content: "";
+  position: absolute;
+  top: 11px;
+  left: 0;
+  right: 0;
+  opacity: 0.7;
 }
 
 .checklist {
@@ -2632,6 +2722,14 @@ html[data-plain] .dossier__links {
 .sketch {
   margin-top: 48px;
 }
+/* The hairlines between dossier parts split the old 48px gaps (23 + 2 + 23). */
+.dossier__rule {
+  margin-top: 23px;
+}
+.dossier__rule + .sketch,
+.dossier__rule + .dossier__pager {
+  margin-top: 23px;
+}
 .sketch__canvas {
   overflow: hidden;
 }
@@ -2783,6 +2881,18 @@ html[data-plain] .dossier__links {
   margin-top: 56px;
   padding-top: 24px;
   border-top: 2px dashed var(--grid);
+}
+/* The hairline replaces the dashed rule (56 + 2 + 24, as before). */
+.post-rule--end {
+  margin-top: 56px;
+}
+.post-rule--end + .post-end {
+  margin-top: 0;
+  border-top: 0;
+}
+/* Under the title: splits the 32px gap above the body (15 + 2 + 15). */
+.post-rule--head {
+  margin-top: 15px;
 }
 .post-end .post-pager {
   margin-top: 20px;
@@ -3504,8 +3614,32 @@ html[data-theme="mono"] .statusbar::after,
 html[data-plain] .hero::before,
 html[data-theme="mono"] .hero::before,
 html[data-plain] .cell .crt-screen::before,
-html[data-theme="mono"] .cell .crt-screen::before {
+html[data-theme="mono"] .cell .crt-screen::before,
+html[data-plain] .px-btn::before,
+html[data-theme="mono"] .px-btn::before,
+html[data-plain] .eyebrow::after,
+html[data-theme="mono"] .eyebrow::after {
   display: none !important;
+}
+html[data-plain] .hairline,
+html[data-theme="mono"] .hairline,
+html[data-plain] .card__links::before,
+html[data-theme="mono"] .card__links::before {
+  background: var(--grid);
+}
+html[data-plain] .px-btn--secondary,
+html[data-theme="mono"] .px-btn--secondary {
+  background: var(--panel);
+}
+html[data-theme="mono"] .px-btn--primary,
+html[data-theme="mono"] .px-btn--secondary {
+  box-shadow: 4px 4px 0 var(--btn-shadow);
+}
+html[data-plain] .px-btn:focus-visible::after,
+html[data-theme="mono"] .px-btn:focus-visible::after,
+html[data-plain] .chip:focus-visible::after,
+html[data-theme="mono"] .chip:focus-visible::after {
+  box-shadow: none;
 }
 html[data-plain] .cell .crt-screen,
 html[data-theme="mono"] .cell .crt-screen {
@@ -3740,8 +3874,17 @@ html[data-estop] *::after {
   /* Lights off (the same list as the mono and Text Mode block above). */
   .statusbar::after,
   .hero::before,
-  .cell .crt-screen::before {
+  .cell .crt-screen::before,
+  .px-btn::before,
+  .eyebrow::after {
     display: none !important;
+  }
+  .hairline,
+  .card__links::before {
+    background: var(--grid);
+  }
+  .px-btn--secondary {
+    background: var(--panel);
   }
   .statusbar,
   .px-frame::before,

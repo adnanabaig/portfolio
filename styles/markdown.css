@@ -1,5 +1,8 @@
 /* Blog post body: reading-first Plex at a 68ch measure, code in inset bevels. */
 
+.post-rule--head + .markdown-class {
+  margin-top: 15px;
+}
 .markdown-class {
   margin-top: 32px;
   padding-bottom: 32px;
