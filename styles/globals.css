@@ -1499,9 +1499,11 @@ html[data-estop] .sitestop {
   .hero__copy {
     grid-column: span 7 / span 7;
   }
+  /* The static cell view and boot log sit centered against the copy, so the
+     column balances at every two-column width. */
   .hero__cell {
     grid-column: span 5 / span 5;
-    margin-top: 8px;
+    align-self: center;
   }
 }
 .hero__name {
