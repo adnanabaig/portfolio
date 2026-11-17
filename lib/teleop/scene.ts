@@ -103,6 +103,20 @@ export function drawStatic(r: Raster, hudRight = "SIM  STANDBY") {
   r.disc(BASE.x, BASE.y, 8, "a");
 }
 
+/** Operator station: AB-01 at its console, watching the arm. Drawn by the poster and the live canvas alike, so going live never removes it. */
+export function drawOperatorStation(r: Raster) {
+  r.rect(63, 95, 22, 24, "o");
+  r.rect(64, 96, 20, 22, "s");
+  r.rect(66, 98, 16, 8, "k");
+  r.rect(67, 101, 3, 1, "t");
+  r.rect(71, 100, 3, 2, "t");
+  r.rect(75, 102, 5, 1, "t");
+  r.rect(66, 109, 4, 2, "g");
+  r.rect(72, 109, 4, 2, "a");
+  r.rect(78, 109, 4, 2, "r");
+  r.sprite("ab01", 28, 71, 0, false, 2);
+}
+
 /** The arm at the given joint angles, with the gripper open or closed (or left off, to draw a payload under it). */
 export function drawArm(r: Raster, q1: number, q2: number, closed = false, withGripper = true) {
   const { ex, ey, wx, wy } = forward(q1, q2);

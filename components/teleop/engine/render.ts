@@ -15,6 +15,7 @@ import {
   drawArm,
   drawBlock,
   drawGripper,
+  drawOperatorStation,
   drawStatic,
 } from "../../../lib/teleop/scene";
 import { BELT_STOP, BLOCK_H, SKILL_COUNT, type Block, type World } from "./blocks";
@@ -71,6 +72,7 @@ export class Screen {
     this.ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
     this.image = this.bctx.createImageData(CELL_W, CELL_H);
     drawStatic(this.base, "");
+    drawOperatorStation(this.base);
     this.refreshPalette();
     this.resize();
   }

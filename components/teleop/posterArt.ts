@@ -5,7 +5,7 @@
 import { fillFor } from "../../lib/pixel/spriteData";
 import { Raster } from "../../lib/pixel/raster";
 import { pathsMarkup, rowsToPaths, type PixelPath } from "../../lib/pixel/toPaths";
-import { CELL_H, CELL_W, CONVEYOR_Y, drawArm, drawBlock, drawStatic, posterBlocks, solveIK } from "../../lib/teleop/scene";
+import { CELL_H, CELL_W, CONVEYOR_Y, drawArm, drawBlock, drawOperatorStation, drawStatic, posterBlocks, solveIK } from "../../lib/teleop/scene";
 
 const BLOCK_X = [14, 86, 178, 262];
 
@@ -23,17 +23,7 @@ export function posterPaths(): PixelPath[] {
     // CONVEYOR_Y + 18), so neither the gripper nor the forearm covers a label.
     if (i === 2) target = { x: (BLOCK_X[i] ?? 0) + Math.round(w / 2), y: CONVEYOR_Y + 26 };
   });
-  // Operator station: AB-01 at its console, watching the arm.
-  r.rect(63, 95, 22, 24, "o");
-  r.rect(64, 96, 20, 22, "s");
-  r.rect(66, 98, 16, 8, "k");
-  r.rect(67, 101, 3, 1, "t");
-  r.rect(71, 100, 3, 2, "t");
-  r.rect(75, 102, 5, 1, "t");
-  r.rect(66, 109, 4, 2, "g");
-  r.rect(72, 109, 4, 2, "a");
-  r.rect(78, 109, 4, 2, "r");
-  r.sprite("ab01", 28, 71, 0, false, 2);
+  drawOperatorStation(r);
   const ik = solveIK(target.x, target.y, true);
   if (ik) drawArm(r, ik.q1, ik.q2, false);
   cached = rowsToPaths(r.rows());
