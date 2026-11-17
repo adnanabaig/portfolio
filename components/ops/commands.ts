@@ -9,10 +9,12 @@ import type { PortfolioData } from "../../types/portfolio";
 import { issuesResolved, automatedTests, questLevels, robotPrograms, skillCount } from "../../lib/facts";
 import { BADGES, discover, earn, earned, type SecretId } from "../../lib/badges";
 import { getTheme, isCrtOn, isEstop, setCrt, setEstop, setTheme } from "../../lib/station";
+import { tableRows } from "./table";
 
 const data = portfolio as PortfolioData;
 
-export type Kind = "in" | "out" | "ok" | "err" | "dim" | "head";
+/** "row" is a table row from tableRows (help, projects): the console renders it as two cells. */
+export type Kind = "in" | "out" | "ok" | "err" | "dim" | "head" | "row";
 
 export interface Line {
   text: string;
@@ -74,11 +76,11 @@ const COMMANDS: Command[] = [
     help: "List commands.",
     run(_a, c) {
       c.print("Commands", "head");
-      for (const cmd of COMMANDS) {
-        if (cmd.secret) continue;
-        const name = [cmd.name, ...(cmd.aliases ?? [])].join(", ") + (cmd.usage ? ` ${cmd.usage}` : "");
-        c.print(`${name.padEnd(22)} ${cmd.help}`);
-      }
+      const rows = COMMANDS.filter((cmd) => !cmd.secret).map((cmd): [string, string] => [
+        [cmd.name, ...(cmd.aliases ?? [])].join(", ") + (cmd.usage ? ` ${cmd.usage}` : ""),
+        cmd.help,
+      ]);
+      for (const row of tableRows(rows)) c.print(row, "row");
       c.print("Tab completes. Up and Down walk history. Esc closes.", "dim");
     },
   },
@@ -122,9 +124,11 @@ const COMMANDS: Command[] = [
     help: "List project ids.",
     run(_a, c) {
       c.print("Selected work", "head");
-      for (const p of data.projects) c.print(`${p.id.padEnd(18)} ${p.title}`);
+      // One width for both tables, so the two lists line up.
+      const rows = tableRows(projects.map((p): [string, string] => [p.id, p.title]));
+      rows.slice(0, data.projects.length).forEach((row) => c.print(row, "row"));
       c.print("Independent builds", "head");
-      for (const p of data.engineeringProjects) c.print(`${p.id.padEnd(18)} ${p.title}`);
+      rows.slice(data.projects.length).forEach((row) => c.print(row, "row"));
       c.print("Type open <id> to jump to a card, or dossier <id> for its full page.", "dim");
     },
   },

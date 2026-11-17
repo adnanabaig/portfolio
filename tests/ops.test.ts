@@ -3,6 +3,7 @@
 import { describe, expect, it } from "vitest";
 import portfolio from "../data/portfolio.json";
 import { allCommands, commandNames, complete, run, type Ctx, type Kind } from "../components/ops/commands";
+import { splitRow, tableRows } from "../components/ops/table";
 
 const projects = [...portfolio.projects, ...portfolio.engineeringProjects];
 
@@ -212,5 +213,37 @@ describe("tab completion", () => {
 
   it("keeps leading whitespace", () => {
     expect(complete("  pro").value).toBe("  projects ");
+  });
+});
+
+describe("table rows (help, projects)", () => {
+  it("every help row splits into the command and its description", async () => {
+    const { out } = await stub().exec("help");
+    const rows = out.filter((l) => l.kind === "row");
+    const visible = allCommands().filter((c) => !c.secret);
+    expect(rows).toHaveLength(visible.length);
+    rows.forEach((l, i) => {
+      const row = splitRow(l.text);
+      expect(row, l.text).not.toBeNull();
+      expect(row!.name.split(/[ ,]/)[0]).toBe(visible[i].name);
+      expect(row!.description).toBe(visible[i].help);
+    });
+    expect(new Set(rows.map((l) => splitRow(l.text)!.col)).size).toBe(1);
+  });
+
+  it("every projects row splits into the id and title, in one column for both lists", async () => {
+    const { out } = await stub().exec("projects");
+    const rows = out.filter((l) => l.kind === "row").map((l) => splitRow(l.text));
+    expect(rows.map((r) => r?.name)).toEqual(projects.map((p) => p.id));
+    expect(rows.map((r) => r?.description)).toEqual(projects.map((p) => p.title));
+    expect(new Set(rows.map((r) => r!.col)).size).toBe(1);
+  });
+
+  it("a long name still leaves two spaces, and only row lines are tables", async () => {
+    const long = "a-project-id-longer-than-the-old-padding";
+    const [row] = tableRows([[long, "Title"], ["x", "y"]]);
+    expect(splitRow(row)).toEqual({ name: long, description: "Title", col: long.length + 2 });
+    const { out } = await stub({ history: () => ["echo  two  spaces"] }).exec("history");
+    expect(out.every((l) => l.kind !== "row")).toBe(true);
   });
 });

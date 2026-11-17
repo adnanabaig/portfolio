@@ -11,6 +11,7 @@ import { prefersReducedMotion } from "../../lib/station";
 import { KEYS, read, write } from "../../lib/storage";
 import type { Ctx, Kind, Line } from "./commands";
 import { setSound, soundSaved } from "./sound";
+import { splitRow } from "./table";
 import { useModal } from "./useModal";
 
 export interface TerminalProps {
@@ -35,20 +36,13 @@ function loadHistory(): string[] {
   }
 }
 
-/**
- * A table row from commands.ts ("help", "projects"): a name padded with spaces,
- * then its description. Rendered as two cells so a phone can stack them
- * instead of wrapping the description under the name column.
- */
-const ROW = /^(\S(?:.*?\S)?) {2,}(\S.*)$/;
-
+/** A table row (help, projects) renders as two cells, so a phone can stack them. */
 function renderText(l: Line) {
-  const m = l.kind === "out" ? ROW.exec(l.text) : null;
-  if (!m) return l.text;
-  const col = l.text.length - m[2].length;
+  const row = l.kind === "row" ? splitRow(l.text) : null;
+  if (!row) return l.text;
   return (
-    <span className="ops__row-cells" style={{ ["--ops-col" as string]: `${col}ch` }}>
-      <span className="ops__key">{m[1]}</span> <span className="ops__val">{m[2]}</span>
+    <span className="ops__row-cells" style={{ ["--ops-col" as string]: `${row.col}ch` }}>
+      <span className="ops__key">{row.name}</span> <span className="ops__val">{row.description}</span>
     </span>
   );
 }

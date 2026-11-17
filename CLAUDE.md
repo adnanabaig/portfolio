@@ -62,7 +62,7 @@ When you add a guard-relevant feature, extend the guard in the same commit.
 | `tests/teleop/pipeline.test.ts` | The headless cell (the engine's `CommandLink`, `driveArm`, `World.step`; only the three-call step order mirrors `engine/index.ts`): auto demo at several latencies, a manual misroute and re-sort, the parked servo, cable-wrap unwinding, deterministic replay |
 | `tests/teleop/engine.test.ts` | `createEngine` itself, with `render` and `loop` mocked and the clock owned by the test: E-STOP, site stop, watchdog park, deadman, latency, record and replay, through the public `Engine` API |
 | `tests/facts.test.ts` | Every `lib/facts.ts` value matches its source sentence; rewording a sentence makes the import throw (via `vi.doMock` of `portfolio.json`) |
-| `tests/ops.test.ts` | OPS parser and registry: help, open/dossier, eggs and the latch, argument checks, Tab completion |
+| `tests/ops.test.ts` | OPS parser and registry: help, open/dossier, eggs and the latch, argument checks, Tab completion, table rows (every `help` and `projects` row splits into name and description) |
 | `tests/feeds.test.ts` | `scripts/feeds.mjs` sitemap and RSS builders, and that the committed `public/sitemap.xml` and `public/rss.xml` are current |
 | `tests/content.test.ts` | Project and job fields, unique ids, sketches, the private-data loader, copy rules on every published string |
 
@@ -233,7 +233,7 @@ Opened with `/`, `` ` ``, or the OPS> button. Commands (all output generated fro
 
 `help`, `whoami`, `status`, `resume`, `projects` / `ls`, `open <id>`, `dossier <id>`, `experience`, `skills`, `education`, `awards`, `contact`, `email` (copy), `github`, `linkedin`, `blog`, `teleop`, `latency <ms>` (0 to 300, SIM), `estop`, `keys`, `badges`, `clear`, `theme cyan|amber|mono`, `sound on|off`, `crt on|off`, `ping` (your link), `history`, `date` (your clock), `exit`.
 
-Table output (`help`, `projects`) is a name padded with `padEnd` and then a description. `Terminal.tsx` splits any plain output line with two or more spaces after the name into two cells that stack under 640px, so keep that format for new tables.
+Table output (`help`, `projects`) goes through `tableRows()` in `components/ops/table.ts` (names padded to the longest plus two spaces) and is printed with kind `"row"`. `Terminal.tsx` splits only `row` lines (via `splitRow`) into two cells that stack under 640px, so a visitor's own text (`history`) is never split. Use the same helper for new tables; `tests/ops.test.ts` asserts every row splits.
 
 Eggs (not listed in `help`): `sudo hire adnan` ("Access granted. Opening a channel.", then focuses Contact's COPY ADDRESS), `rm -rf /` ("Fail-closed. Request denied and latched. Type clear to resume."; the console stays latched until `clear`). Every command has an ordinary on-page equivalent.
 
