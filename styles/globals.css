@@ -452,17 +452,39 @@ html[data-theme="mono"] .crt-screen::after {
   position: relative;
   isolation: isolate;
   padding: 2px;
-  box-shadow: 4px 4px 0 0 var(--outline);
+  /* The hard 4px pixel shadow stays dominant; --depth is a soft drop under it. */
+  box-shadow: 4px 4px 0 0 var(--outline), var(--depth);
 }
+/*
+ * The face, top to bottom: the lamp wash (only while the lamp is over this
+ * frame, --spot), the --hi top sheen, the grain, then --frame-bg. The
+ * --edge line is the lit top inner edge, over the bevel.
+ */
 .px-frame::before {
   content: "";
   position: absolute;
   inset: 0;
   z-index: -1;
   background: var(--frame-bg);
+  background: linear-gradient(180deg, var(--hi), transparent 72px), var(--grain) 0 0 / 192px 192px, var(--frame-bg);
+  image-rendering: pixelated;
   border: 2px solid var(--frame-border);
-  box-shadow: inset 2px 2px 0 var(--bevel-hi), inset -2px -2px 0 var(--bevel-lo);
+  box-shadow: inset 0 2px 0 var(--edge), inset 2px 2px 0 var(--bevel-hi), inset -2px -2px 0 var(--bevel-lo);
   clip-path: var(--notch);
+}
+@supports (color: color-mix(in srgb, red 50%, transparent)) {
+  .px-frame::before {
+    background: radial-gradient(
+        360px circle at var(--mx, 50%) var(--my, -400px),
+        color-mix(in srgb, var(--accent) calc(var(--wash-max) * var(--spot, 0) * var(--lit)), transparent),
+        transparent 70%
+      ),
+      linear-gradient(180deg, var(--hi), transparent 72px), var(--grain) 0 0 / 192px 192px, var(--frame-bg);
+  }
+  .px-frame--active::before {
+    box-shadow: inset 0 2px 0 var(--edge), inset 0 0 0 2px color-mix(in srgb, var(--accent) calc(18% * var(--lit)), transparent),
+      inset 2px 2px 0 var(--bevel-hi), inset -2px -2px 0 var(--bevel-lo);
+  }
 }
 .px-frame--active {
   --frame-border: var(--teal);
@@ -477,6 +499,15 @@ html[data-theme="mono"] .crt-screen::after {
   --frame-bg: var(--panel-hi);
   --frame-border: var(--steel);
 }
+/* No sheen, grain, or lamp wash on wells and bezels; a well reads recessed. */
+.px-frame.px-frame--inset::before,
+.px-frame.px-frame--crt::before {
+  background: var(--frame-bg);
+}
+.px-frame.px-frame--inset::before {
+  box-shadow: inset 2px 2px 0 var(--bevel-hi), inset -2px -2px 0 var(--bevel-lo),
+    inset 0 6px 10px -6px rgb(0 0 0 / calc(0.5 * var(--lit)));
+}
 
 .px-titlebar {
   display: flex;
@@ -487,8 +518,16 @@ html[data-theme="mono"] .crt-screen::after {
   min-height: 40px;
   padding: 6px 14px;
   background: var(--panel-hi);
+  background: linear-gradient(180deg, var(--titlebar-top), var(--panel-hi));
+  box-shadow: inset 0 2px 0 var(--edge);
   border-bottom: 2px solid var(--grid);
   color: var(--accent);
+}
+/* The bottom hairline carries the bay accent in from the left. */
+@supports (color: color-mix(in srgb, red 50%, transparent)) {
+  .px-titlebar {
+    border-image: linear-gradient(90deg, var(--accent) 0, color-mix(in srgb, var(--accent) 30%, var(--grid)) 30%, var(--grid) 70%) 1;
+  }
 }
 .px-titlebar__label {
   min-width: 0;
@@ -841,7 +880,20 @@ html[data-theme="mono"] .crt-screen::after {
   top: 0;
   z-index: 40;
   background: var(--ink);
+  background: linear-gradient(180deg, #0f1420, var(--ink));
   border-bottom: 2px solid var(--grid);
+  box-shadow: 0 10px 18px -12px rgb(0 0 0 / calc(0.7 * var(--lit)));
+}
+/* A 2px light rail over the bottom border: opaque bar, no added height. */
+.statusbar::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 2px;
+  pointer-events: none;
+  background: var(--rail);
 }
 .statusbar__row {
   display: flex;
@@ -3329,6 +3381,39 @@ main:has(.level) .lost__bot {
 }
 
 /* ==========================================================================
+   Lights off. --lit: 0 (mono, Text Mode, print) zeroes every light alpha;
+   these resets cover the layers --lit cannot reach (grain, gradients that
+   are not alpha, border-image, pseudo-element lights). Print has the same
+   list inside @media print below. tests/lighting.test.ts keeps the three
+   lists in step.
+   ========================================================================== */
+html[data-plain] .statusbar::after,
+html[data-theme="mono"] .statusbar::after {
+  display: none !important;
+}
+html[data-plain] .statusbar,
+html[data-theme="mono"] .statusbar {
+  background: var(--ink);
+  box-shadow: none;
+}
+html[data-plain] .px-frame::before,
+html[data-theme="mono"] .px-frame::before {
+  background: var(--frame-bg);
+  box-shadow: inset 2px 2px 0 var(--bevel-hi), inset -2px -2px 0 var(--bevel-lo);
+}
+html[data-theme="mono"] .px-frame:not(.px-frame--inset) {
+  box-shadow: 4px 4px 0 0 var(--outline);
+}
+html[data-plain] .px-titlebar,
+html[data-theme="mono"] .px-titlebar {
+  border-image: none;
+  box-shadow: none;
+}
+html[data-theme="mono"] .px-titlebar {
+  background: var(--panel-hi);
+}
+
+/* ==========================================================================
    Text Mode (html[data-plain]): one column, all Plex, no pixel decoration.
    ========================================================================== */
 html[data-plain] .deco,
@@ -3502,6 +3587,17 @@ html[data-estop] *::after {
   }
   .layout-grid > * + * {
     margin-top: 24px;
+  }
+  /* Lights off (the same list as the mono and Text Mode block above). */
+  .statusbar::after {
+    display: none !important;
+  }
+  .statusbar,
+  .px-frame::before {
+    background: none;
+  }
+  .px-titlebar {
+    border-image: none;
   }
   .px-frame::before {
     display: none;
