@@ -2107,6 +2107,14 @@ html[data-estop] .sitestop {
   max-width: 52ch;
   font-size: 19px;
 }
+/* No one-word last lines ("...to reach / me.") on ledes and short copy. */
+.uplink__lede,
+.hero__lede,
+.page-lede,
+.post-tagline,
+.sub-title + p {
+  text-wrap: pretty;
+}
 .uplink__mail {
   margin-top: 20px;
 }
@@ -2533,15 +2541,25 @@ html[data-plain] .dossier__links {
   font-size: 13px;
   color: var(--mist);
 }
-.dossier__pager {
+.dossier__pager,
+.post-pager {
   display: grid;
   gap: 20px;
   margin-top: 48px;
 }
 @media (min-width: 768px) {
-  .dossier__pager {
+  .dossier__pager,
+  .post-pager {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+.post-end {
+  margin-top: 56px;
+  padding-top: 24px;
+  border-top: 2px dashed var(--grid);
+}
+.post-end .post-pager {
+  margin-top: 20px;
 }
 .pager {
   display: flex;
@@ -2867,14 +2885,22 @@ html[data-crt="off"] .crt-screen::after {
 .ops__input:focus-visible {
   border-color: var(--teal);
 }
+/* The label keeps its own column; the chips wrap under each other, not under it. */
 .ops__chips {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+  /* Baseline: the label lines up with the first row of chips however many wrap. */
+  align-items: baseline;
   gap: 8px;
   padding: 0 12px 12px;
 }
+.ops__chips-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
 .ops__chips-label {
+  flex: none;
   font-family: var(--font-mono);
   font-size: 13px;
   color: var(--mist);
@@ -2882,6 +2908,10 @@ html[data-crt="off"] .crt-screen::after {
 .ops__chips .chip {
   font-family: var(--font-mono);
   font-size: 14px;
+}
+/* Text Mode: prose at a readable measure instead of the full container. */
+html[data-plain] main :is(p, li, dd) {
+  max-width: 70ch;
 }
 
 /* Keymap placard: a laminated control-panel card, amber caution edge. */
@@ -3026,6 +3056,11 @@ html[data-crt="off"] .crt-screen::after {
   height: auto;
   z-index: 60;
   pointer-events: none;
+}
+/* Over an open dialog (the OPS drawer is bottom-anchored), show it at the top. */
+body:has(dialog[open]) .toast {
+  top: calc(16px + env(safe-area-inset-top));
+  bottom: auto;
 }
 /* Closed popover: keep the (empty) live region rendered so it can announce. */
 .toast[popover]:not(:popover-open) {

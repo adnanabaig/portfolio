@@ -11,11 +11,19 @@ import { ISOToDate } from "../../utils";
 import portfolio from "../../data/portfolio.json";
 import type { BlogPost, BlogPostPreview } from "../../types/portfolio";
 
-interface BlogPostPageProps {
-  post: BlogPost;
+interface Neighbor {
+  slug: string;
+  title: string;
 }
 
-const BlogPostPage = ({ post }: BlogPostPageProps) => {
+interface BlogPostPageProps {
+  post: BlogPost;
+  /** Posts are listed newest first; null at either end. */
+  newer: Neighbor | null;
+  older: Neighbor | null;
+}
+
+const BlogPostPage = ({ post, newer, older }: BlogPostPageProps) => {
   const path = `/blog/${post.slug}`;
   const postJsonLd = {
     "@context": "https://schema.org",
@@ -67,6 +75,44 @@ const BlogPostPage = ({ post }: BlogPostPageProps) => {
             </header>
             <div className="markdown-class" dangerouslySetInnerHTML={{ __html: post.html }} />
           </article>
+          <div className="post-end">
+            <Link href="/blog">
+              <a className="back-link">
+                <Sprite name="glyph-arrow" scale={2} mono />
+                All posts
+              </a>
+            </Link>
+            {(newer || older) && (
+              <nav aria-label="More posts" className="post-pager">
+                {older ? (
+                  <Link href={`/blog/${older.slug}`}>
+                    <a className="pager px-frame" rel="prev">
+                      <span className="label pager__dir">
+                        <Sprite name="glyph-arrow" scale={2} mono />
+                        Older post
+                      </span>
+                      <span className="pager__title">{older.title}</span>
+                    </a>
+                  </Link>
+                ) : (
+                  <span />
+                )}
+                {newer ? (
+                  <Link href={`/blog/${newer.slug}`}>
+                    <a className="pager pager--next px-frame" rel="next">
+                      <span className="label pager__dir">
+                        Newer post
+                        <Sprite name="glyph-arrow" scale={2} mono flip />
+                      </span>
+                      <span className="pager__title">{newer.title}</span>
+                    </a>
+                  </Link>
+                ) : (
+                  <span />
+                )}
+              </nav>
+            )}
+          </div>
         </div>
       </main>
       <Footer />
@@ -80,6 +126,9 @@ export const getStaticProps: GetStaticProps<BlogPostPageProps> = async ({ params
     content: string;
   };
   const { content, ...meta } = raw;
+  const list = getAllPosts(["slug", "title"]) as Pick<BlogPostPreview, "slug" | "title">[];
+  const at = list.findIndex((p) => p.slug === slug);
+  const neighbor = (p?: Pick<BlogPostPreview, "slug" | "title">): Neighbor | null => (p ? { slug: p.slug, title: p.title } : null);
 
   return {
     props: {
@@ -88,6 +137,8 @@ export const getStaticProps: GetStaticProps<BlogPostPageProps> = async ({ params
         html: await markdownToHtml(content),
         readingMinutes: readingMinutes(content),
       },
+      newer: neighbor(list[at - 1]),
+      older: neighbor(list[at + 1]),
     },
   };
 };

@@ -266,11 +266,13 @@ export default function Terminal({ onClose, onKeys }: TerminalProps) {
         </div>
         <div className="ops__chips">
           <span className="ops__chips-label">Quick</span>
-          {CHIPS.map((c) => (
-            <button key={c} type="button" className="chip chip--skill" onClick={() => void exec(c)}>
-              {c}
-            </button>
-          ))}
+          <div className="ops__chips-group">
+            {CHIPS.map((c) => (
+              <button key={c} type="button" className="chip chip--skill" onClick={() => void exec(c)}>
+                {c}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </dialog>
