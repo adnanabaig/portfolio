@@ -139,16 +139,10 @@ describe("motion gate", () => {
     }
   });
 
-  it("the tube warm-up is a one-shot steps(4)", () => {
-    const warm = rules.find((r) => /animation:\s*tube-warm/.test(r.body));
-    expect(warm?.body).toMatch(/tube-warm 480ms steps\(4, end\) both/);
-    expect(warm?.selectors.every((s) => s.startsWith(".motion-ok"))).toBe(true);
-  });
-
   it("no backdrop-filter, no blur filter, no blur radius over 60px", () => {
     expect(css).not.toMatch(/backdrop-filter/);
     expect(css).not.toMatch(/filter:\s*blur/);
-    for (const m of css.matchAll(/(?:box-shadow|--depth(?:-lg)?|--bloom(?:-live|-half)?):[^;]*/g)) {
+    for (const m of css.matchAll(/(?:box-shadow|--depth(?:-lg)?|--bloom(?:-half)?):[^;]*/g)) {
       for (const shadow of m[0].replace(/^[^:]+:/, "").split(/,(?![^(]*\))/)) {
         const lengths = [...shadow.matchAll(/(-?\d+(?:\.\d+)?)px/g)].map((x) => Number(x[1]));
         // offset-x offset-y blur spread: the third length is the blur radius.

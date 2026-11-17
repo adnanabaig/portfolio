@@ -1,7 +1,7 @@
 // Global E-STOP: a latched site-wide motion kill switch. Sets html[data-estop]
 // (persisted, and re-applied before paint by pages/_document), which pauses
-// every CSS animation, freezes the AB-01 track and the teleop canvas, and
-// broadcasts "ab:estop" so sound can mute.
+// every CSS animation, freezes the AB-01 track and the 404 level, turns the
+// hero CRT's glow to a coral fault light, and broadcasts "ab:estop" so sound can mute.
 import { useEffect, useState } from "react";
 import { on as onBus } from "../../lib/bus";
 import { isEstop, setEstop } from "../../lib/station";

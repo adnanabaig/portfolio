@@ -2,8 +2,8 @@
 // only when the visitor presses the button under the plain links. AB-01 walks
 // and jumps over a few equipment cases to the HOME dock; arriving focuses a
 // real link to "/" and earns the Signal found visitor badge (via "ab:home").
-// Same pieces as the Teleop Cell: the fixed 60 Hz loop, the palette-indexed
-// Raster, the 5x7 bitmap font, and theme colors read from CSS.
+// Built from shared pieces: the fixed 60 Hz loop (lib/loop), the
+// palette-indexed Raster, the 5x7 bitmap font, and theme colors read from CSS.
 // Keys only while the level has focus; Esc releases. Reduced motion: no
 // landing squash, no dust, no screen motion.
 // Narrow screens (under NARROW css px) show half the world at twice the size,
@@ -16,7 +16,7 @@ import { emit, on } from "../../lib/bus";
 import { PALETTE_KEYS, Raster } from "../../lib/pixel/raster";
 import { palette } from "../../lib/pixel/spriteData";
 import { isEstop, prefersReducedMotion } from "../../lib/station";
-import { createLoop } from "../teleop/engine/loop";
+import { createLoop } from "../../lib/loop";
 
 const W = 320;
 const H = 180;

@@ -1,6 +1,6 @@
-// Fixed 60 Hz simulation with an accumulator, rendered on rAF. The loop only
-// runs while `shouldRun()` says so (on screen, tab visible, no E-STOP, not
-// settled); anything that changes the world calls wake().
+// Fixed 60 Hz simulation with an accumulator, rendered on rAF (the 404
+// level's loop). It only runs while `shouldRun()` says so (on screen, tab
+// visible, no E-STOP, not settled); anything that changes the world calls wake().
 export const STEP = 1 / 60;
 
 export interface Loop {

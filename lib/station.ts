@@ -6,7 +6,7 @@ import { KEYS, write } from "./storage";
 
 const root = () => (typeof document === "undefined" ? null : document.documentElement);
 
-/** Global E-STOP: html[data-estop] freezes every animation, the track, and the cell. */
+/** Global E-STOP: html[data-estop] freezes every animation, the track, and the 404 level. */
 export const isEstop = () => !!root()?.hasAttribute("data-estop");
 
 export function setEstop(on: boolean) {

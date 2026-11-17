@@ -1,15 +1,15 @@
-// Power-on self test strip under the cell. CSS-only and aria-hidden: it
+// Power-on self test strip under the cell view. CSS-only and aria-hidden: it
 // types in once per session (gated on .motion-ok and not [data-booted]) and
 // otherwise shows its final state. Every number comes from lib/facts.
 import { automatedTests, issuesResolved, robotPrograms, skillCount } from "../../lib/facts";
 
 const LINES: [string, string][] = [
-  ["ARM SERVO", "OK"],
-  ["SKILL BLOCKS", `${skillCount} LOADED`],
+  ["POWER", "OK"],
   ["SERVICE LOG", `${issuesResolved} RESOLVED`],
-  ["TEST SUITE", `${automatedTests} TESTS`],
   ["ROBOT PROGRAMS", String(robotPrograms)],
-  ["OPERATOR", "READY"],
+  ["TEST SUITE", `${automatedTests} TESTS`],
+  ["SKILLS", String(skillCount)],
+  ["SELF TEST", "PASS"],
 ];
 
 const BootLog = () => (

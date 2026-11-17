@@ -4,7 +4,7 @@
 // painted every sprite on the page, so the main bundle carries no art. It
 // loads only when something must draw a sprite the server did not (a client
 // side navigation, a live frame change such as the SND speaker) or when a
-// lazy chunk that draws sprites (teleop engine, 404 level, badges, toast,
+// lazy chunk that draws sprites (404 level, badges, toast, cell view,
 // /lab) imports it directly. Importing this module registers the sheet with
 // lib/pixel/spriteStore, so <Sprite> can then draw synchronously.
 import spriteJson from "./sprites.json";

@@ -1,11 +1,11 @@
 // BAY 00 / BOOT. Name, role, lede, proof, and the resume link all paint as
-// plain HTML at t=0; the cell view sits beside (or below) and never gates it.
+// plain HTML at t=0; the static cell view sits beside (or below) and never gates it.
 import portfolio from "../../data/portfolio.json";
 import type { PortfolioData } from "../../types/portfolio";
-import TeleopCell from "../teleop/TeleopCell";
 import Led from "../pixel/Led";
 import PixelButton from "../pixel/PixelButton";
 import Socials from "../Socials";
+import CellView from "../workcell/CellView";
 import BootLog from "./BootLog";
 import Telemetry from "./Telemetry";
 
@@ -67,7 +67,7 @@ const Hero = () => (
         </div>
 
         <div className="hero__cell">
-          <TeleopCell />
+          <CellView />
           <BootLog />
         </div>
       </div>

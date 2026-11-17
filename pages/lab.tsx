@@ -11,7 +11,7 @@ import Led from "../components/pixel/Led";
 import Panel from "../components/pixel/Panel";
 import PixelButton from "../components/pixel/PixelButton";
 import Sprite from "../components/pixel/Sprite";
-import CellPoster from "../components/teleop/CellPoster";
+import CellView from "../components/workcell/CellView";
 import { contrast, LIGHTING, litSurfaces, TOKENS, worstOn } from "../lib/pixel/tokens";
 // Static import: /lab draws every sprite, so it registers the sheet up front.
 import { sprites } from "../lib/pixel/spriteData";
@@ -146,14 +146,13 @@ export default function Lab() {
           </div>
         </section>
 
-        <section aria-labelledby="lab-poster">
-          <h2 id="lab-poster" className="section-title">
-            Cell poster
+        <section aria-labelledby="lab-cell">
+          <h2 id="lab-cell" className="section-title">
+            Cell view
           </h2>
-          <div className="px-frame px-frame--crt cell lab-poster">
-            <div className="crt-screen">
-              <CellPoster />
-            </div>
+          <p className="section-sub">The hero CRT: a static render of the workcell, nothing interactive.</p>
+          <div className="lab-cell">
+            <CellView />
           </div>
         </section>
 
@@ -186,18 +185,7 @@ export default function Lab() {
                   <div className="hairline lab-lit__rule" aria-hidden="true" />
                   <p className="font-mono text-mist">Hairline above, lamp ring on hover.</p>
                 </Panel>
-                <div className="px-frame px-frame--crt cell">
-                  <div className="px-titlebar">
-                    <span className="px-titlebar__label">CELL VIEW / AB-01</span>
-                    <span className="px-titlebar__right">
-                      <Led color="amber" />
-                      <span>SIM</span>
-                    </span>
-                  </div>
-                  <div className="crt-screen">
-                    <CellPoster />
-                  </div>
-                </div>
+                <CellView />
                 <div className="lab-row">
                   <PixelButton variant="primary">Primary</PixelButton>
                   <PixelButton variant="secondary">Secondary</PixelButton>

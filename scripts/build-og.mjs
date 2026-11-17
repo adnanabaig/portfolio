@@ -15,7 +15,6 @@ const readJson = (f) => JSON.parse(fs.readFileSync(path.join(root, f), "utf8"));
 const { palette, sprites } = readJson("lib/pixel/sprites.json");
 const font = readJson("lib/pixel/font.json");
 const data = readJson("data/portfolio.json");
-const teleop = readJson("data/teleop.json");
 
 const hex = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
 const COLORS = Object.fromEntries(Object.entries(palette).map(([k, v]) => [k, hex(v.hex)]));
@@ -122,7 +121,8 @@ function card() {
   const feet = FLOOR + 22;
   r.sprite("ab01", botX, feet - 48, { scale: 2 });
 
-  // The workcell arm (side view): pedestal, two links, gripper, one real skill block.
+  // The workcell arm (side view): pedestal, two links, gripper, and a block
+  // labeled with a real skill (the first six letters of "Teleoperation").
   const pedX = 194;
   r.sprite("arm-pedestal", pedX, feet - 40, { scale: 2 });
   const shoulder = { x: pedX + 24, y: feet - 32 };
@@ -137,7 +137,9 @@ function card() {
   r.disc(elbow.x, elbow.y, 4, "m");
   r.disc(elbow.x, elbow.y, 1.6, "k");
   r.sprite("gripper", Math.round(wrist.x) - 6, Math.round(wrist.y), { frame: 1 });
-  const label = Object.keys(teleop.blocks).find((k) => teleop.blocks[k] === "Teleoperation") ?? "TELEOP";
+  const skill = data.skills.flatMap((g) => g.items).find((s) => s === "Teleoperation");
+  if (!skill) throw new Error("build-og: the Teleoperation skill is missing from data/portfolio.json");
+  const label = skill.slice(0, 6).toUpperCase();
   const bw = Raster.textWidth(label) + 6;
   const bx = Math.round(wrist.x) - Math.round(bw / 2);
   const by = Math.round(wrist.y) + 12;

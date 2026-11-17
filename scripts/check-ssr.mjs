@@ -69,7 +69,7 @@ check(h1s.some((h) => h.includes(data.name)), `<h1> contains "${data.name}"`);
 
 // 2. Recruiter path: eyebrow, lede, proof, and resume link before the cell.
 const cellAt = (() => {
-  const marks = [body.indexOf('data-marker="cell"'), body.indexOf("data-cell-poster"), body.indexOf("<canvas")].filter((i) => i >= 0);
+  const marks = [body.indexOf('data-marker="cell"'), body.indexOf("data-cell-art")].filter((i) => i >= 0);
   return marks.length ? Math.min(...marks) : -1;
 })();
 check(cellAt > 0, "cell marker present");
@@ -149,14 +149,13 @@ const allow = new Set([
 const strays = [...new Set((text.match(/\d+/g) || []).filter((run) => !allow.has(run) && !factText.includes(run) && !postText.includes(run)))];
 check(strays.length === 0, `no invented numbers${strays.length ? `; unexplained: ${strays.join(", ")}` : ""}`);
 
-// 7. Teleop cell and station switches: the poster is SSR, the game is not.
-check(!/<canvas[\s>]/i.test(raw), "no <canvas> in SSR HTML (the game is client-only)");
-check(/data-cell-poster[^>]*>[\s\S]*?<path /.test(raw), "cell poster SVG is server-rendered with paths");
-const skipAt = body.indexOf('href="#cell-after"');
-const takeAt = body.search(/<button[^>]*>\s*<span>Take control<\/span>/i);
-check(skipAt > 0 && /Skip teleop/.test(body.slice(skipAt, skipAt + 200)), '"Skip teleop" link present');
-check(takeAt > skipAt && skipAt > 0, "TAKE CONTROL button present, after the skip link");
-check(/id="cell-after"/.test(body), "skip target #cell-after exists");
+// 7. The cell view is static SSR art with nothing to play; station switches.
+const cell = (raw.match(/<div[^>]*data-marker="cell"[\s\S]*?<\/svg>/) || [""])[0];
+check(/^<div[^>]*aria-hidden="true"/.test(cell), "cell view frame is decorative (aria-hidden)");
+check(/data-cell-art[^>]*>[\s\S]*?<path /.test(cell), "cell view SVG is server-rendered with paths");
+check(!/<canvas[\s>]/i.test(raw), "no <canvas> on the home page");
+check(!/<(button|a|input)[\s>]/i.test(cell), "cell view has no controls");
+check(!/take control|auto demo|skip teleop|teleop cell/i.test(text), "no game wording on the home page");
 check(/<button[^>]*class="[^"]*estop[^"]*"[^>]*aria-pressed="false"/.test(header), "header has the E-STOP toggle (aria-pressed)");
 check(/<p class="sitestop">/.test(header) && /class="estop__off"/.test(header) && /class="estop__on" aria-hidden="true"/.test(header), "header has the latched site-stop strip and a fixed-width E-STOP label");
 check(/class="track"[^>]*aria-hidden="true"/.test(header), "AB-01 track is in the header and aria-hidden");
@@ -169,7 +168,6 @@ check(raw.includes('<meta name="twitter:card" content="summary_large_image"/>'),
 check(/rel="apple-touch-icon" href="\/apple-touch-icon.png"/.test(raw) && /href="\/icon-32.png"/.test(raw), "icon links present");
 const hmi = (body.match(/<article[^>]*id="card-operator-hmi"[\s\S]*?<\/article>/) || [""])[0];
 check(/id="project-operator-hmi"/.test(hmi), "OPS 'open operator-hmi' target: #project-operator-hmi sits in its article");
-check(/id="take-control"/.test(body), "TAKE CONTROL has id=take-control (OPS 'teleop')");
 for (const f of ["og.png", "icon-32.png", "apple-touch-icon.png"]) check(fs.existsSync(path.join(root, "public", f)), `public/${f} exists`);
 
 // 9a. Every card links to its dossier; the dossier pages are complete.

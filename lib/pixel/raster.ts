@@ -1,7 +1,7 @@
-// A tiny palette-indexed bitmap. The SSR cell poster is composed here and
-// then converted to SVG paths with rowsToPaths, so it is pixel-exact and
-// needs no image request. The canvas game draws the same scene into the
-// same structure every frame and blits it, so poster and game match.
+// A tiny palette-indexed bitmap. The SSR cell view is composed here and then
+// converted to SVG paths with rowsToPaths, so it is pixel-exact and needs no
+// image request. The 404 level draws into the same structure every frame
+// and blits it to its canvas.
 //
 // Pixels are palette indexes in a Uint8Array (0 = transparent), which keeps
 // per-frame redraws cheap.
@@ -11,12 +11,10 @@ import type { SpriteName } from "./toPaths";
 
 const glyphs = fontData.glyphs as Record<string, string[]>;
 export const FONT_ADVANCE = fontData.advance;
-export const FONT_HEIGHT = fontData.h;
 
 /** Palette keys by index; index 0 is transparent ("."). */
 export const PALETTE_KEYS: string[] = [".", ...Object.keys(palette)];
 const INDEX: Record<string, number> = Object.fromEntries(PALETTE_KEYS.map((k, i) => [k, i]));
-export const keyIndex = (key: string) => INDEX[key] ?? 0;
 
 export class Raster {
   readonly w: number;
@@ -31,11 +29,6 @@ export class Raster {
 
   clear() {
     this.px.fill(0);
-  }
-
-  /** Copies another raster of the same size (used to restore a cached static layer). */
-  copyFrom(other: Raster) {
-    this.px.set(other.px);
   }
 
   set(x: number, y: number, key: string) {

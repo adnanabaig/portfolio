@@ -211,9 +211,7 @@ html[data-estop] .cell .crt-screen {
   --depth: 0 14px 28px -14px rgb(0 0 0 / calc(0.6 * var(--lit))); /* soft drop under the hard 4px shadow */
   --depth-lg: 0 24px 56px -20px rgb(0 0 0 / calc(0.8 * var(--lit))); /* dialogs, drawer, toast */
   --bloom: 0 0 18px 0 rgb(var(--glow-rgb) / calc(0.22 * var(--lit))),
-    0 0 48px 4px rgb(var(--glow-rgb) / calc(0.1 * var(--lit))); /* idle CRT */
-  --bloom-live: 0 0 18px 0 rgb(var(--glow-rgb) / calc(0.3 * var(--lit))),
-    0 0 48px 4px rgb(var(--glow-rgb) / calc(0.15 * var(--lit))); /* the live cell */
+    0 0 48px 4px rgb(var(--glow-rgb) / calc(0.1 * var(--lit))); /* the hero CRT */
   --bloom-half: 0 0 18px 0 rgb(var(--glow-rgb) / calc(0.11 * var(--lit))),
     0 0 48px 4px rgb(var(--glow-rgb) / calc(0.05 * var(--lit))); /* dossier FIG frame, 404 screen */
   /* 2px light rail: the status bar's bottom edge. */
@@ -345,7 +343,6 @@ html[data-theme="mono"] .crt-screen::after {
    fails if an in-page link or an OPS card target is not covered here). */
 [id$="-section"],
 [id^="card-"],
-#cell-after,
 #main-content,
 #boot {
   scroll-margin-top: calc(var(--header-h) + var(--track-h) + 16px);
@@ -1575,38 +1572,17 @@ html[data-estop] .sitestop {
   margin-top: 16px;
 }
 
-/* Cell view */
-.skip-teleop {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  margin-bottom: 8px;
-  font-family: var(--font-mono);
-  font-size: 14px;
-  color: var(--mist);
-  text-decoration: underline;
-  text-underline-offset: 4px;
-}
-.skip-teleop:hover {
-  color: var(--teal);
-}
-.cell__after:focus {
-  outline: none;
-}
+/* Cell view: a static, decorative CRT (components/workcell/CellView). */
 /*
  * The powered CRT is the brightest object on the page: a --bloom around the
- * tube (hotter once live, coral under E-STOP), and a glass layer of a hard
- * pixel glint plus a tube vignette. Inside the screen: content, then the
- * glass (::before), then the scanlines (::after), then the live cell's
- * focus ring and banner. The TAKE CONTROL bar sits outside at z 2.
+ * tube (coral under E-STOP), and a glass layer of a hard pixel glint plus a
+ * tube vignette. Inside the screen: the art, then the glass (::before), then
+ * the scanlines (::after).
  */
 .cell .crt-screen {
   aspect-ratio: 16 / 9;
   isolation: isolate;
   box-shadow: 0 0 0 2px var(--steel), var(--bloom);
-}
-.cell__stage[data-live] .crt-screen {
-  box-shadow: 0 0 0 2px var(--steel), var(--bloom-live);
 }
 .cell .crt-screen::before {
   content: "";
@@ -1621,274 +1597,16 @@ html[data-estop] .sitestop {
 .cell .crt-screen::after {
   z-index: 1;
 }
-/* A one-shot tube warm-up when the cell powers on. */
-.motion-ok .cell__stage[data-live] .crt-screen::before {
-  animation: tube-warm 480ms steps(4, end) both;
-}
-@keyframes tube-warm {
-  from {
-    opacity: 0.4;
-  }
-  to {
-    opacity: 1;
-  }
-}
 /* The bezel is lit by its own tube. */
 .px-frame--crt.cell::before {
   background: radial-gradient(70% 60% at 50% 55%, rgb(var(--glow-rgb) / calc(0.07 * var(--lit))), transparent 75%),
     var(--frame-bg);
 }
-.cell-poster,
-.cell canvas {
+.cell__art {
   display: block;
   width: 100%;
   height: 100%;
   image-rendering: pixelated;
-}
-.cell__controls:empty {
-  display: none;
-}
-/* The stage holds the CRT screen and the TAKE CONTROL buttons. By default
-   (phones, tablets, small laptops, and every live cell) the buttons sit in a
-   bar under the screen, so they never cover the workcell art or the bins. Only
-   the poster on a wide screen, where both fit on one row, overlays them on the
-   screen. The buttons stay first in the DOM so TAKE CONTROL comes before the
-   live canvas in tab order. */
-.cell__stage {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-}
-.cell__overlay {
-  order: 1;
-  z-index: 2;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
-  padding: 0 10px 10px;
-}
-.cell__overlay > .px-btn {
-  flex: 1 1 auto;
-  padding-left: 10px;
-  padding-right: 10px;
-}
-@media (min-width: 1100px) {
-  /* The overlay covers the screen exactly (its 10px margin plus the 2px border). */
-  .cell__stage:not([data-live]) .cell__overlay {
-    position: absolute;
-    inset: 12px;
-    align-items: center;
-    align-content: center;
-    gap: 12px;
-    padding: 12px;
-    background: rgba(11, 14, 20, 0.55);
-  }
-  .cell__stage:not([data-live]) .cell__overlay > .px-btn {
-    flex: 0 0 auto;
-    padding-left: 18px;
-    padding-right: 18px;
-  }
-}
-
-/* The live cell: role=application wrapper with a visible teal ring. */
-.teleop {
-  position: absolute;
-  inset: 0;
-  cursor: crosshair;
-}
-/* The ring is drawn on a layer above the canvas (an outline would be clipped by the CRT). */
-.teleop:focus {
-  outline: none;
-}
-.teleop:focus::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  box-shadow: inset 0 0 0 3px var(--teal);
-}
-/* Drag-to-target on touch only while the cell is in control; otherwise the page scrolls. */
-.teleop:focus canvas {
-  touch-action: none;
-}
-.teleop__banner {
-  position: absolute;
-  top: 18%;
-  left: 50%;
-  z-index: 2;
-  transform: translateX(-50%);
-  padding: 6px 12px;
-  border: 2px solid var(--coral);
-  background: var(--ink);
-  color: var(--coral);
-  font-family: var(--font-label);
-  font-size: 16px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  -webkit-font-smoothing: none;
-}
-
-/* Control panel under the canvas (client-only). */
-.tpanel {
-  display: grid;
-  gap: 14px;
-  padding: 4px 12px 14px;
-  font-size: 15px;
-}
-.tpanel__status {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 18px;
-  font-family: var(--font-mono);
-  font-size: 13px;
-}
-.tpanel__status div {
-  display: flex;
-  gap: 6px;
-  min-width: 0;
-}
-.tpanel__status dt {
-  color: var(--mist);
-}
-.tpanel__status dd {
-  color: var(--paper);
-  overflow-wrap: anywhere;
-}
-.tpanel__status dd[data-mode="TELEOP"] {
-  color: var(--teal);
-}
-.tpanel__status dd[data-mode="STOPPED"] {
-  color: var(--coral);
-}
-.tpanel__status dd[data-mode="PARKED"],
-.tpanel__limit {
-  color: var(--amber);
-}
-.tpanel__status dd[data-mode="AUTO"] {
-  color: var(--sky);
-}
-.tpanel__status dd[data-mode="REPLAY"] {
-  color: var(--violet);
-}
-.tpanel__tag {
-  color: var(--mist);
-  font-family: var(--font-mono);
-  font-size: 13px;
-}
-.tpanel__latency {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 12px;
-  font-family: var(--font-mono);
-  font-size: 14px;
-}
-.tpanel__latency label {
-  color: var(--paper);
-}
-.tpanel__latency input {
-  width: 100%;
-  min-height: 44px;
-  accent-color: var(--teal);
-}
-.tpanel__latency output {
-  color: var(--teal);
-  white-space: nowrap;
-}
-.tpanel__buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-.tpanel__buttons .px-btn {
-  padding: 10px 12px;
-}
-.tpanel__episode,
-.tpanel__hint,
-.tpanel__log {
-  font-family: var(--font-mono);
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--mist);
-}
-.tpanel__done {
-  color: var(--leaf);
-}
-.tpanel__log {
-  display: grid;
-  gap: 2px;
-  padding: 8px 10px;
-  border: 2px dashed var(--grid);
-}
-.tpanel__log li::before {
-  content: "> ";
-  content: "> " / "";
-  color: var(--teal);
-}
-
-/* Touch pads: only on devices with a coarse pointer. */
-.tpad {
-  display: none;
-  grid-template-columns: auto 1fr 1fr;
-  align-items: center;
-  gap: 12px;
-}
-@media (any-pointer: coarse) {
-  .tpad {
-    display: grid;
-  }
-}
-.tpad__dpad {
-  display: grid;
-  grid-template-columns: repeat(3, 56px);
-  grid-template-rows: repeat(3, 56px);
-  gap: 4px;
-}
-.tpad__btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 56px;
-  min-height: 56px;
-  border: 2px solid var(--grid);
-  background: var(--panel-hi);
-  color: var(--paper);
-  box-shadow: 4px 4px 0 var(--outline);
-  font-family: var(--font-label);
-  font-size: 16px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  -webkit-font-smoothing: none;
-  touch-action: none;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
-}
-.tpad__btn:active,
-.tpad__btn[aria-pressed="true"] {
-  transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0 var(--outline);
-  border-color: var(--teal);
-  color: var(--teal);
-}
-.tpad__btn--up {
-  grid-area: 1 / 2;
-}
-.tpad__btn--left {
-  grid-area: 2 / 1;
-}
-.tpad__btn--right {
-  grid-area: 2 / 3;
-}
-.tpad__btn--down {
-  grid-area: 3 / 2;
-}
-.tpad__btn--grip,
-.tpad__btn--hold {
-  min-height: 72px;
 }
 
 /* Boot POST log: final state by default; types in once per session with motion. */
@@ -3071,7 +2789,7 @@ html[data-plain] .dossier__links {
   gap: 20px;
   background: repeating-conic-gradient(var(--panel) 0 25%, var(--panel-hi) 0 50%) 0 0 / 16px 16px;
 }
-.lab-poster {
+.lab-cell {
   max-width: 980px;
   margin-top: 20px;
 }
@@ -3667,7 +3385,6 @@ html.js .about__badges:empty {
 /* 404 micro-level */
 /* Without JS these controls cannot do anything, so they do not render. */
 html:not(.js) .lost__drive,
-html:not(.js) .cell__overlay,
 html:not(.js) .estop,
 html:not(.js) .ops-btn,
 html:not(.js) .menu-button,

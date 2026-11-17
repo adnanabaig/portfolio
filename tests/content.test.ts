@@ -6,7 +6,6 @@ import { createRequire } from "module";
 import { describe, expect, it } from "vitest";
 import portfolio from "../data/portfolio.json";
 import schematics from "../data/schematics.json";
-import teleop from "../data/teleop.json";
 import { copyProblems } from "../scripts/copy-rules.mjs";
 import type { PortfolioData, Project, ProjectCategory } from "../types/portfolio";
 
@@ -78,11 +77,9 @@ describe("experience, skills, and links", () => {
     expect(data.experience.filter((j) => j.current && !j.hidden)).toHaveLength(1);
   });
 
-  it("skills are unique and each has exactly one teleop block", () => {
+  it("skills are unique", () => {
     const skills = data.skills.flatMap((g) => g.items);
     expect(new Set(skills).size).toBe(skills.length);
-    const mapped = Object.values(teleop.blocks);
-    for (const s of skills) expect(mapped.filter((m) => m === s)).toHaveLength(1);
   });
 
   it("socials and the resume point somewhere real", () => {
@@ -132,9 +129,8 @@ describe("copy rules on published content", () => {
     expect(problems).toEqual([]);
   });
 
-  it("the same holds for teleop.json, schematics.json, and every post", () => {
+  it("the same holds for schematics.json and every post", () => {
     const sources: [string, string][] = [
-      ...strings(teleop, "teleop"),
       ...strings(schematics, "schematics"),
       ...fs
         .readdirSync(path.join(root, "_posts"))

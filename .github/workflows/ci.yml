@@ -38,7 +38,7 @@ jobs:
       - name: Types (app and tests)
         run: npm run typecheck
 
-      - name: Copy, teleop, OPS, and sketch guards
+      - name: Copy, OPS, and sketch guards
         run: npm run check:copy
 
       - name: Unit tests
