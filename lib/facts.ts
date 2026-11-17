@@ -57,8 +57,12 @@ export const skillCount = data.skills.reduce((sum, group) => sum + group.items.l
 
 const ncl = data.awards.find((a) => a.title === "National Cyber League");
 const nclMatch = match(ncl?.detail, /Global (Top \d+%) \((\d{4})\)/, "NCL award");
+/** "Top 5%" */
+export const nclTop = nclMatch[1];
+/** "2024" */
+export const nclYear = nclMatch[2];
 /** "Top 5% (2024)" */
-export const nclRank = `${nclMatch[1]} (${nclMatch[2]})`;
+export const nclRank = `${nclTop} (${nclYear})`;
 
 const acm = data.awards.find((a) => a.title === "ACM AI Hackathon");
 /** "2nd" from "2nd place for WRAM". */
@@ -78,12 +82,15 @@ export function questLevels(): { id: string; level: number }[] {
   return visible.map((job, index) => ({ id: job.id, level: visible.length - index }));
 }
 
-/** The telemetry row. Labels are framing; values come from the extractors above. */
+/**
+ * The telemetry row. Labels are framing (the NCL year rides in its label so
+ * every value fits one line); values come from the extractors above.
+ */
 export const telemetry: { label: string; value: string; accent: "teal" | "amber" | "leaf" | "violet" | "sky" }[] = [
   { label: "Issues resolved", value: issuesResolved, accent: "teal" },
   { label: "Robot programs", value: String(robotPrograms), accent: "amber" },
   { label: "Automated tests", value: String(automatedTests), accent: "leaf" },
-  { label: "NCL global", value: nclRank, accent: "sky" },
+  { label: `NCL global ${nclYear}`, value: nclTop, accent: "sky" },
   { label: "ACM AI Hackathon", value: acmPlace, accent: "violet" },
   { label: degreeShort, value: graduated, accent: "teal" },
 ];

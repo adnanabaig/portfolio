@@ -1591,7 +1591,24 @@ html[data-theme="mono"] .crt-screen::after {
   order: 3;
   display: flex;
   gap: 2px;
-  margin-top: 2px;
+  /* Pinned to the tile bottom, so gauges line up whatever sits above them. */
+  margin-top: auto;
+  padding-top: 2px;
+}
+/* Each tile spans three shared rows (label, value, gauge), so values and
+   gauges line up across a row even when one label or value wraps. */
+@supports (grid-template-rows: subgrid) {
+  .telemetry {
+    row-gap: 0;
+    margin-bottom: -12px;
+  }
+  .telemetry__item {
+    display: grid;
+    grid-row: span 3;
+    grid-template-rows: subgrid;
+    row-gap: 6px;
+    margin-bottom: 12px;
+  }
 }
 .telemetry__gauge i {
   flex: 1;

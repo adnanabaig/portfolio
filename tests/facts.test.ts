@@ -35,6 +35,7 @@ describe("derived numbers match their source sentences", () => {
     const ncl = data.awards.find((a) => a.title === "National Cyber League")!.detail!;
     const [rank, year] = facts.nclRank.match(/^(Top \d+%) \((\d{4})\)$/)!.slice(1);
     expect(ncl).toContain(`Global ${rank} (${year})`);
+    expect([facts.nclTop, facts.nclYear]).toEqual([rank, year]);
     expect(data.awards.find((a) => a.title === "ACM AI Hackathon")!.detail).toMatch(new RegExp(`^${facts.acmPlace} place`));
   });
 
@@ -49,10 +50,11 @@ describe("derived numbers match their source sentences", () => {
       facts.issuesResolved,
       String(facts.robotPrograms),
       String(facts.automatedTests),
-      facts.nclRank,
+      facts.nclTop,
       facts.acmPlace,
       facts.graduated,
     ]);
+    expect(facts.telemetry[3].label).toBe(`NCL global ${facts.nclYear}`);
   });
 
   it("LV numbers count visible jobs from the oldest (LV 1), skipping hidden ones", () => {
