@@ -30,6 +30,7 @@ npm test                                        # the Vitest unit suite (everyth
 npm run test:teleop                             # just tests/teleop (the engine)
 npm run check:ssr                               # reads $NEXT_DIST_DIR (default .next-build)/server/pages/*.html; refuses a build older than any source file
 npm run og                                      # regenerate public/og.png and the icons, then commit them
+npm run grain                                   # regenerate public/tex/grain.png (seeded, reproducible), then commit it
 ```
 
 **Always set `NEXT_DIST_DIR`** for local builds and dev. A long-running `next start` may be serving `.next`; never write to `.next` and never touch `node_modules` in a way that breaks it. Builds fail on any TypeScript or ESLint error by design.
@@ -40,7 +41,7 @@ Before every commit: `typecheck`, `lint`, `check:copy`, `npm test`, then one bui
 
 | Guard | File | What it enforces |
 | --- | --- | --- |
-| `check:copy` | `scripts/check-copy.mjs` | No em dashes, no emoji, no forbidden internal terms, no `TODO`/`_todo` in `data/*.json` (except `_todo`), `_posts/*.md`, and all source under `components/` (including `components/ops/**`), `pages/`, `lib/`, `hooks/`, plus `scripts/build-og.mjs`. Rules live in `scripts/copy-rules.mjs`. |
+| `check:copy` | `scripts/check-copy.mjs` | No em dashes, no emoji, no forbidden internal terms, no `TODO`/`_todo` in `data/*.json` (except `_todo`), `_posts/*.md`, and all source under `components/` (including `components/ops/**`), `pages/`, `lib/`, `hooks/`, plus `scripts/build-og.mjs`, `scripts/build-grain.mjs`, and `scripts/png.mjs`. Rules live in `scripts/copy-rules.mjs`. |
 | `check-teleop` | `scripts/check-teleop.mjs` | `data/teleop.json` maps every skill in `portfolio.json` to exactly one block, every group has a bin, labels are drawable by the bitmap font. |
 | `check-ops` | `scripts/check-ops.mjs` | Compiles `components/ops/commands.ts` and runs every command against a stub. Every `help` entry has a handler; all output passes the copy rules; every printed number is a fact from `portfolio.json` / `lib/facts.ts`, a level number, or labeled as the visitor's own (`your run`, `your link`, `your clock`, `SIM`, `this browser`); no availability wording; the eggs reply exactly; `open operator-hmi` targets that card and offers the dossier; `dossier <id>` goes to `/work/<id>` for every project. |
 | `check-work` | `scripts/check-work.mjs` | Every project has a sketch in `data/schematics.json` (and no sketch is orphaned). Every node label and edge note appears in that project's own copy (case and punctuation folded). Labels are 1 or 2 lines of at most 13 bitmap-font characters. 4 x 2 grid, one node per cell, no backward flow, no wire through another node. |
@@ -66,6 +67,8 @@ When you add a guard-relevant feature, extend the guard in the same commit.
 | `tests/feeds.test.ts` | `scripts/feeds.mjs` sitemap and RSS builders, and that the committed `public/sitemap.xml` and `public/rss.xml` are current |
 | `tests/schematic.test.ts` | The dossier sketch renderer: arrowheads sharing a box face get separate ports (at least 16 units apart), and every tip stops `TIP_GAP` short of the box |
 | `tests/content.test.ts` | Project and job fields, unique ids, sketches, the private-data loader, copy rules on every published string |
+| `tests/lighting.test.ts` | Every `litSurfaces` composite holds 4.5:1 for every text token on it (via `tokens.ts` `contrast()`); every decorative light selector is reset in the Text Mode, mono, and print lists; every CSS animation sits under `.motion-ok`; no `backdrop-filter`, blur filter, or shadow blur over 60px; the `tokens.ts` lighting mirror matches `globals.css`; `grain.png` under 2 kB |
+| `tests/lamp.test.ts` | `lib/lamp.ts` on a stubbed DOM: no layout read in pointermove, one rect read on enter and one after a scroll, one style write per frame, dialogs skipped, detach and clear on E-STOP / reduced motion / Text Mode, re-attach on release |
 
 - Tests type-check under `tests/tsconfig.json` (adds node types); the app `tsconfig.json` excludes `tests/` so Next never sees them.
 - `vitest.config.mjs` swaps the server-only `require("./spriteData")` in `lib/pixel/spriteStore.ts` for a dynamic import, because vite-node cannot `require` a .ts file. App code is unchanged.
@@ -99,7 +102,8 @@ pages/
   work/[id].tsx     project dossiers (SSG over every project): breadcrumb, MOD/RIG plate, brief + checklist,
                     spec sheet, FIG. n system sketch (illustrative) + netlist, prev/next, CreativeWork JSON-LD
   blog/             index (with the RSS link) + [slug], reading-first layout
-  lab.tsx           noindex review bench: every sprite, the palette with contrast, frames, the OG card
+  lab.tsx           noindex review bench: every sprite, the palette with contrast, lighting lit/unlit and the
+                    litSurfaces contrast table, frames, the OG card
 components/
   Header/           status bar, nav, RESUME.PDF, Text mode, E-STOP, OPS>, menu; mounts ScrollTrack + StationLayer
   ScrollTrack/      AB-01 walking the 28px track (frames incl. wave and sit groups)
@@ -126,6 +130,7 @@ lib/
   audio.ts          the synth (lazy; the only AudioContext)
   hello.ts          console greeting + window.ab01 (lazy)
   puppet.ts         AB-01 wave/dance/color and the idle sit (lazy)
+  lamp.ts           the inspection lamp: lights the frame under a fine pointer (lazy; see Lighting)
   pixel/            sprites.json, font.json (5x7 bitmap), toPaths.ts (pure), spriteData.ts (the sheet,
                     lazy in the browser), spriteStore.ts (where <Sprite> finds it), raster.ts, tokens.ts, groups.ts
   clientOnly.tsx    React.lazy behind a mount guard; use it instead of next/dynamic
@@ -136,7 +141,8 @@ data/
   teleop.json       skill block labels and bin labels for the cell
   schematics.json   per-project sketch spec (nodes on a 4x2 grid, edges); labels must come from that project's copy
 _drafts/            unpublished posts (never read by the build; move to _posts/ only after Adnan approves)
-scripts/            guards, feeds.mjs (pure sitemap and RSS builders) + the prebuild writers, OG renderer, private-data loader
+scripts/            guards, feeds.mjs (pure sitemap and RSS builders) + the prebuild writers, OG renderer and grain
+                    writer (sharing png.mjs), private-data loader
 tests/              Vitest unit suite (see Engineering)
 .github/workflows/  ci.yml
 ```
@@ -148,10 +154,24 @@ tests/              Vitest unit suite (see Engineering)
 - **Skill groups and bins:** Programming = teal, Robotics & ML = amber, Embedded & Hardware = leaf, Software & Infrastructure = violet. Always paired with the text label.
 - **Bay accents:** 00/01 teal, 02 amber, 03 leaf, 04/05 violet, 06 sky (`data-bay` / `data-accent` set `--accent`).
 - **Primitives:** `.px-frame` (2px border, stepped corner notch on `::before` so `clip-path` never clips a focus ring; variants `--active`, `--inset`, `--crt`), `.px-titlebar`, `.px-body`, `.px-btn` (`--primary`, `--secondary`, `--danger`, `--ghost`, `--compact`; 48px min height; 2px press), `.chip`, `.led` (blink 0.5 Hz, motion only), `.crt-screen` (the only place scanlines appear), `.dither` (static Bayer bands between bays). No `border-radius` anywhere.
-- **Focus:** 2px teal outline at 2px offset plus pixel corner brackets on buttons and chips. Always visible on `:focus-visible`.
+- **Focus:** 2px teal outline at 2px offset plus pixel corner brackets on buttons and chips (the bracket layer carries a static glow). Always visible on `:focus-visible`.
 - **Digits and ampersands:** Pixelify Sans draws 5 like an S, and Silkscreen draws & like a $. Two `unicode-range` faces fix both everywhere: "Pixel Digits" (0-9 from Silkscreen) leads `--font-pixel`, and "Label Amp" (& from Pixelify) leads `--font-label`. Big numbers (telemetry values, LV numbers) use Silkscreen outright. Silkscreen's own 2 reads as Z and its 0 equals O, so the shipped `silkscreen-latin-400-normal.woff2` has a redrawn 2 (rounded shoulder) and a slashed 0, made by `scripts/patch-silkscreen.py` (OFL, no Reserved Font Name; re-run it if the font file is ever replaced). Check any new numeric display on a screenshot.
 - **Type rules:** Silkscreen only at 16px, 24px, or 32px (multiples of its 8px grid; 32px is for LV numbers only), uppercase, 0.04em tracking, `-webkit-font-smoothing: none` on those elements only. Anything smaller uses Plex Mono 13 to 14px. Paragraphs are Plex Sans 17 to 18px, line height 1.6.
 - **Sprites:** authored at 1x as palette-indexed string rows in `lib/pixel/sprites.json` (`.` is transparent; keys come from `palette`). `components/pixel/Sprite.tsx` renders crisp SSR SVG, one `<path>` per color via `rowsToPaths` (horizontal runs merged). The art is server markup: the browser keeps it through hydration without the sheet (`hooks/useServerMarkup.ts`, `dangerouslySetInnerHTML` plus `suppressHydrationWarning`), and loads `lib/pixel/spriteData.ts` only when it must draw something the server did not (a client-side navigation, or a new frame such as the SND speaker). The cell poster (`CellPoster` + `posterArt.ts`) and the track walker frames work the same way. `--px` is 3px under 768px and 4px above. The canvas and the OG renderer use the same JSON, and canvas text uses `lib/pixel/font.json`, so no font load gates the canvas.
+
+## Lighting
+
+"Pixels snap, light glides." Station AB-01 is rendered with modern lighting, but no pixel changes: sprites, the notch, 2px borders, the hard 4px shadows, dither, and scanlines are the same lit or unlit. The tokens are the "Lighting" block in `:root` (`styles/globals.css`), mirrored as `LIGHTING` in `lib/pixel/tokens.ts`.
+
+- **`--lit` is the master switch.** Every light alpha is `calc(<alpha> * var(--lit))`. `html[data-theme="mono"]`, `html[data-plain]`, and `@media print` set `--lit: 0`, `--grain: none`, and `--titlebar-top: var(--panel-hi)`, which is exactly the flat site. Layers `--lit` cannot zero (pseudo-element lights, non-alpha gradients, border-image) are reset explicitly in the "Lights off" block (mono and Text Mode) and in the print block; `tests/lighting.test.ts` keeps the three lists in step. Add any new light to all three.
+- **Derived tokens** (`--hi`, `--edge`, `--depth`, `--depth-lg`, `--bloom`, `--bloom-live`, `--bloom-half`, `--rail`) are declared on `:root, [data-lit], html[data-estop] .cell .crt-screen`, because a custom property that uses `var()` resolves where it is declared. A subtree with `data-lit="0"` is unlit (`/lab` uses it for the side-by-side).
+- **Light sources:** the powered CELL VIEW CRT (`--bloom`, `--bloom-live` once live, coral `--fault-rgb` under E-STOP; a glass `::before` with a hard glint and vignette under the scanlines; a one-shot `steps(4)` warm-up under `.motion-ok`), the hero light (`.hero::before`: teal key from the cell, violet rim, sky bounce, grain, masked out before the next bay), LED halos, telemetry glows, dither strips as light bars, the status bar's 2px `--rail`, the dossier plate key (4% bay accent), the FIG sketch and the 404 level screen (`--bloom-half`), and the 404 coral fault light behind the level.
+- **Hierarchy:** the CRT is the brightest object; primary buttons (and the command palette, if added) are second; everything else stays at 10% light alpha or less; the hard 4px outline shadow stays dominant on every frame (`--depth` sits under it). No `backdrop-filter`, no blur filter, no shadow blur over 60px, no fixed full-viewport layer.
+- **Motion:** pixel objects keep `steps(4)`, 2px presses, and hard shadows. Only light (button glows, the lamp ring) moves, on `--ease-light`. Primary and secondary buttons lift 1px on hover only with `(hover: hover)`, `.motion-ok`, and no E-STOP or Text Mode.
+- **Caps (measured, AA at full light):** `--hi` 3% sheen, `--edge` 6%, lamp wash `--wash-max` 5% (only on `--panel` faces; never on `--inset`, `--crt`, dialogs, or the plate), palette row `--row-mix` 10%, grain alpha at most 8/255 (`npm run grain`, 96x96 drawn at 192px pixelated). `litSurfaces` in `tokens.ts` composites each worst case; `/lab` renders them with live ratios, and `tests/lighting.test.ts` fails under 4.5:1. Today's worst is coral on a leaf-washed frame face at 4.52:1. Raise any alpha only after adding its composite there.
+- **Wrap every `color-mix()` rule** in `@supports (color: color-mix(in srgb, red 50%, transparent))` with a plain fallback declaration first.
+- **The lamp** (`lib/lamp.ts`, lazy): StationLayer's idle boot imports it only for `(hover: hover) and (pointer: fine)`, no reduced motion, no E-STOP, no Text Mode. It sets `html.lamp-on`, marks the frame under the pointer `.is-lit`, and writes one property per frame, `--lamp: <x>px <y>px`, on that element. CSS turns that into a 2px ring masked to the border (`::after`, notched with `--notch`) and the `--spot` face wash. One passive pointermove stores x and y and schedules one rAF; the rect is read once on enter and again only after a scroll or resize; no layout reads in pointermove. It detaches and clears on E-STOP, reduced motion, and Text Mode, and re-attaches on release. `LAMP_SELECTOR` leaves out wells, bezels, dialogs, and the toast; CSS also skips a frame mid-highlight (`[data-hl]`, `[data-pulse]` own `::after` then). Without the lamp, hover lights the ring statically from the top-left corner. Pseudo-elements in use: `.px-frame::before` (face) and `::after` (ring), `.px-btn--primary/--secondary/--danger::before` (glow), `.cell .crt-screen::before` (glass), `.hero::before`, `.statusbar::after`, `.eyebrow::after` (trace, zero net size), `.card__links::before` (hairline), `.lost__level::before`.
+- **Hairlines:** `.hairline` (decorative, `aria-hidden`) is a 2px rule lit from the middle with a 6x2 accent pip. Where one is added, split the existing gap around it so nothing shifts (dossier: 23 + 2 + 23; post: 15 + 2 + 15 under the title, and it replaces the dashed rule before the post footer).
 
 ### Adding a sprite
 
@@ -211,6 +231,7 @@ The first viewport is plain SSR HTML. Heavy or optional pieces load on intent:
 | Keymap placard | first `?` / Keys | small |
 | Synth (`lib/audio.ts`) | SND opt-in (warmed on hover/focus of the toggle) | 2 kB |
 | Toast + badge rules, console greeting, puppetry | idle (or first input) | small |
+| Inspection lamp (`lib/lamp.ts`) | idle (or first input), only for a hovering fine pointer with motion allowed and no E-STOP or Text Mode | under 1 kB |
 | Visitor badges row | after hydration, client-only | small |
 | 404 level (`LostSignal`) | "Drive AB-01 home" click | 8 kB |
 
@@ -218,7 +239,7 @@ After a build, check the table Next prints, and confirm lazy chunks are not in `
 
 ## Motion, sound, and access contract
 
-- Animate only transform, opacity, and canvas. UI transitions are 120ms (buttons, chips) and 160ms (panels) with `steps(4)`.
+- Animate only transform, opacity, and canvas. UI transitions are 120ms (buttons, chips) and 160ms (panels) with `steps(4)`. Light (glows, the lamp ring) is the one exception: opacity on `--ease-light` (see Lighting).
 - Nothing blinks faster than 1 Hz; nothing flashes above 3 Hz. Highlight pulses fire once for 600ms.
 - **Reduced motion:** final states immediately; static conveyor; AB-01 cuts between checkpoints (no walk, beam, or idle sit; puppet acts hold one pose); no boot typing, reels, particles, shake, or landing squash; smooth scroll off.
 - **Canvas loops** (cell, 404 level) run a fixed 60 Hz step with rAF render and stop off-screen, on a hidden tab, under E-STOP, and when settled.
@@ -244,7 +265,7 @@ Other discoveries: `window.ab01.wave()`, `.dance()`, `.color('amber')`; triple-c
 
 ## Social card and icons
 
-`npm run og` (`scripts/build-og.mjs`) is a dependency-free PNG encoder that rasterizes `sprites.json` and `font.json` with the name, title, location, and host from `portfolio.json` into `public/og.png` (1200x630), `public/icon-32.png`, and `public/apple-touch-icon.png` (180x180). Re-run and commit after changing AB-01, the arm, or those facts. `components/Seo` defaults `og:image` to `/og.png` (so `twitter:card` is `summary_large_image`); `favicon.ico` stays.
+`npm run og` (`scripts/build-og.mjs`, with the dependency-free PNG encoder in `scripts/png.mjs`) rasterizes `sprites.json` and `font.json` with the name, title, location, and host from `portfolio.json` into `public/og.png` (1200x630), `public/icon-32.png`, and `public/apple-touch-icon.png` (180x180). Re-run and commit after changing AB-01, the arm, or those facts. `components/Seo` defaults `og:image` to `/og.png` (so `twitter:card` is `summary_large_image`); `favicon.ico` stays.
 
 ## Manual QA before merging to main
 

@@ -225,9 +225,6 @@ html[data-estop] .cell .crt-screen {
     transparent 100%
   );
 }
-[data-lit="0"] {
-  --lit: 0;
-}
 html[data-estop] .cell .crt-screen {
   --glow-rgb: var(--fault-rgb); /* a static fault light */
 }
@@ -257,8 +254,11 @@ html[data-theme="mono"] {
 /* Lights off: mono and Text Mode are the flat site (resets for the layers
    --lit cannot reach live in the "Lights off" block near the end). */
 html[data-theme="mono"],
-html[data-plain] {
+html[data-plain],
+[data-lit="0"] {
   --lit: 0;
+  --grain: none;
+  --titlebar-top: var(--panel-hi);
 }
 html[data-theme="mono"] a {
   text-decoration: underline;
@@ -2790,6 +2790,21 @@ html[data-plain] .dossier__links {
 .dossier__rule {
   margin-top: 23px;
 }
+/*
+ * The plate: the hero's key light behind the project icon, in the bay
+ * accent. 4% (not the hero's 9%) and no lamp wash here, so coral text on the
+ * plate stays AA (litSurfaces "Dossier plate").
+ */
+@supports (color: color-mix(in srgb, red 50%, transparent)) {
+  .dossier__plate.px-frame::before {
+    background: radial-gradient(40% 120% at 12% 40%, color-mix(in srgb, var(--accent) calc(4% * var(--lit)), transparent), transparent 70%),
+      linear-gradient(180deg, var(--hi), transparent 72px), var(--grain) 0 0 / 192px 192px, var(--frame-bg);
+  }
+}
+/* The FIG sketch is a lit drawing board: half the CRT's bloom. */
+.sketch.px-frame {
+  box-shadow: 4px 4px 0 0 var(--outline), var(--depth), var(--bloom-half);
+}
 .dossier__rule + .sketch,
 .dossier__rule + .dossier__pager {
   margin-top: 23px;
@@ -3110,6 +3125,70 @@ html[data-plain] .dossier__links {
   .lab-frames {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
+}
+.lab-lit {
+  display: grid;
+  gap: 24px;
+  margin-top: 24px;
+}
+@media (min-width: 1024px) {
+  .lab-lit {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.lab-lit__side {
+  display: grid;
+  gap: 20px;
+  align-content: start;
+}
+.lab-lit__label {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--mist);
+}
+.lab-lit__rule {
+  margin: 14px 0;
+}
+.lab-lit__head {
+  margin-top: 40px;
+}
+.lab-lit__table-wrap {
+  margin-top: 16px;
+  overflow-x: auto;
+}
+.lab-lit__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+.lab-lit__table th,
+.lab-lit__table td {
+  padding: 8px 10px;
+  border-bottom: 2px solid var(--grid);
+  text-align: left;
+  vertical-align: top;
+}
+.lab-lit__table thead th {
+  color: var(--mist);
+}
+.lab-lit__recipe {
+  display: block;
+  color: var(--mist);
+  font-weight: 400;
+}
+.lab-lit__chip {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  vertical-align: -3px;
+  border: 2px solid var(--grid);
+}
+.lab-lit__samples {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  padding: 6px 8px;
 }
 .lab-crt {
   display: flex;
@@ -3593,7 +3672,18 @@ html:not(.js) .inventory__readout {
   display: none;
 }
 .lost__level {
+  position: relative;
+  isolation: isolate;
   margin-top: 48px;
+}
+/* A coral fault light behind the optional level; the plain links above stay flat. */
+.lost__level::before {
+  content: "";
+  position: absolute;
+  inset: -48px 0 -24px;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(50% 60% at 50% 45%, rgb(var(--fault-rgb) / calc(0.06 * var(--lit))), transparent 70%);
 }
 .level {
   max-width: 980px;
@@ -3601,6 +3691,7 @@ html:not(.js) .inventory__readout {
 }
 .level__screen {
   aspect-ratio: 16 / 9;
+  box-shadow: 0 0 0 2px var(--steel), var(--bloom-half);
 }
 /* Narrow: half the world at 2x (LostSignal sets data-narrow from the canvas width). */
 .level[data-narrow] .level__screen {
@@ -3685,6 +3776,8 @@ html[data-plain] .eyebrow::after,
 html[data-theme="mono"] .eyebrow::after,
 html[data-plain] .px-frame::after,
 html[data-theme="mono"] .px-frame::after,
+html[data-plain] .lost__level::before,
+html[data-theme="mono"] .lost__level::before,
 html[data-plain] .telemetry__item::after,
 html[data-theme="mono"] .telemetry__item::after {
   display: none !important;
@@ -3710,7 +3803,9 @@ html[data-theme="mono"] .chip:focus-visible::after {
   box-shadow: none;
 }
 html[data-plain] .cell .crt-screen,
-html[data-theme="mono"] .cell .crt-screen {
+html[data-theme="mono"] .cell .crt-screen,
+html[data-plain] .level__screen,
+html[data-theme="mono"] .level__screen {
   box-shadow: 0 0 0 2px var(--steel);
 }
 html[data-plain] .chip--live,
@@ -3754,6 +3849,14 @@ html[data-theme="mono"] .px-frame::before {
 }
 html[data-theme="mono"] .px-frame:not(.px-frame--inset) {
   box-shadow: 4px 4px 0 0 var(--outline);
+}
+/* /lab's side-by-side: the unlit half drops the layers --lit cannot reach. */
+[data-lit="0"] .crt-screen::before,
+[data-lit="0"] .px-frame::after {
+  display: none;
+}
+[data-lit="0"] .px-titlebar {
+  border-image: none;
 }
 html[data-plain] .px-titlebar,
 html[data-theme="mono"] .px-titlebar {
@@ -3883,6 +3986,8 @@ html[data-estop] *::after {
 @media print {
   :root {
     --lit: 0;
+    --grain: none;
+    --titlebar-top: var(--panel-hi);
     --ink: #ffffff;
     --panel: #ffffff;
     --panel-hi: #ffffff;
@@ -3946,7 +4051,8 @@ html[data-estop] *::after {
   .px-btn::before,
   .eyebrow::after,
   .px-frame::after,
-  .telemetry__item::after {
+  .telemetry__item::after,
+  .lost__level::before {
     display: none !important;
   }
   .hairline,

@@ -1,6 +1,7 @@
 // /lab: the visual QA bench for Station AB-01. Every sprite and frame at 1x
-// to 4x, every token with its contrast against ink and panel, and every
-// button and frame variant. Not linked, noindex, and left out of the sitemap.
+// to 4x, every token with its contrast against ink and panel, every
+// button and frame variant, and the lighting (lit and unlit side by side,
+// plus the worst-case lit surfaces with their contrast). Not linked, noindex, and left out of the sitemap.
 import { useEffect, useState } from "react";
 import Header from "../components/Header";
 import Seo from "../components/Seo";
@@ -11,7 +12,7 @@ import Panel from "../components/pixel/Panel";
 import PixelButton from "../components/pixel/PixelButton";
 import Sprite from "../components/pixel/Sprite";
 import CellPoster from "../components/teleop/CellPoster";
-import { contrast, TOKENS } from "../lib/pixel/tokens";
+import { contrast, LIGHTING, litSurfaces, TOKENS, worstOn } from "../lib/pixel/tokens";
 // Static import: /lab draws every sprite, so it registers the sheet up front.
 import { sprites } from "../lib/pixel/spriteData";
 import type { SpriteName } from "../lib/pixel/toPaths";
@@ -166,6 +167,94 @@ export default function Lab() {
               <Swatch key={t.name} {...t} live={live[t.name]} ink={live["--ink"] || INK} panel={live["--panel"] || PANEL} />
             ))}
           </ul>
+        </section>
+
+        <section aria-labelledby="lab-lighting">
+          <h2 id="lab-lighting" className="section-title">
+            Lighting
+          </h2>
+          <p className="section-sub">
+            Pixels snap, light glides. The same parts with --lit: 1 and --lit: 0 (what mono, Text Mode, and print get). Hover a
+            card for the lamp ring.
+          </p>
+          <div className="lab-lit">
+            {(["1", "0"] as const).map((lit) => (
+              <div key={lit} className="lab-lit__side" data-lit={lit}>
+                <p className="lab-lit__label">--lit: {lit}</p>
+                <Panel title="MOD-00 LAB-CARD" titleRight={<span>Lit</span>}>
+                  <p>Frame face: sheen, grain, and a soft drop under the hard 4px shadow.</p>
+                  <div className="hairline lab-lit__rule" aria-hidden="true" />
+                  <p className="font-mono text-mist">Hairline above, lamp ring on hover.</p>
+                </Panel>
+                <div className="px-frame px-frame--crt cell">
+                  <div className="px-titlebar">
+                    <span className="px-titlebar__label">CELL VIEW / AB-01</span>
+                    <span className="px-titlebar__right">
+                      <Led color="amber" />
+                      <span>SIM</span>
+                    </span>
+                  </div>
+                  <div className="crt-screen">
+                    <CellPoster />
+                  </div>
+                </div>
+                <div className="lab-row">
+                  <PixelButton variant="primary">Primary</PixelButton>
+                  <PixelButton variant="secondary">Secondary</PixelButton>
+                  <PixelButton variant="danger" icon="glyph-estop">
+                    E-stop
+                  </PixelButton>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <h3 className="sub-title lab-lit__head">Lit surfaces, worst case</h3>
+          <p className="section-sub">
+            Each new light composited at full strength (grain at its brightest speck, {Math.round(LIGHTING.grainMax * 255)}/255).
+            Every text token that can sit on it must hold 4.5:1; tests/lighting.test.ts enforces it.
+          </p>
+          <div className="lab-lit__table-wrap">
+            <table className="lab-lit__table">
+              <thead>
+                <tr>
+                  <th scope="col">Surface</th>
+                  <th scope="col">Composite</th>
+                  <th scope="col">Text on it</th>
+                  <th scope="col">Worst</th>
+                </tr>
+              </thead>
+              <tbody>
+                {litSurfaces.map((surface) => {
+                  const worst = worstOn(surface);
+                  return (
+                    <tr key={surface.name}>
+                      <th scope="row">
+                        {surface.name}
+                        <span className="lab-lit__recipe">{surface.recipe}</span>
+                      </th>
+                      <td>
+                        <span className="lab-lit__chip" style={{ background: surface.hex }} /> {surface.hex}
+                      </td>
+                      <td>
+                        <span className="lab-lit__samples" style={{ background: surface.hex }}>
+                          {surface.text.map((t) => (
+                            <span key={t.name} style={{ color: t.hex }}>
+                              {t.name.replace("--", "")} {ratio(contrast(t.hex, surface.hex))}
+                            </span>
+                          ))}
+                        </span>
+                      </td>
+                      <td>
+                        {worst.name.replace("--", "")} {worst.ratio.toFixed(2)}:1
+                        {worst.ratio < 4.5 && <strong className="lab-bad"> FAILS AA</strong>}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </section>
 
         <section aria-labelledby="lab-ui">

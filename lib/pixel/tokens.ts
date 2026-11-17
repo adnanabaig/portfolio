@@ -69,6 +69,7 @@ export const LIGHTING = {
   rowMix: 0.1, // --row-mix: palette active row (accent into --panel-hi)
   grainMax: 8 / 255, // public/tex/grain.png: brightest speck (white)
   auroraMax: 0.1, // hottest hero light (key .09, rounded up)
+  plateKey: 0.04, // /work/<id> plate key light (bay accent; the plate takes no lamp wash)
   livePill: 0.1, // LIVE eyebrow pill (leaf over the chip's --panel)
   titlebarTop: "#202A3E", // --titlebar-top
 } as const;
@@ -122,6 +123,12 @@ export const litSurfaces: LitSurface[] = [
     name: `Frame face, ${accent.slice(2)} lamp`,
     recipe: `panel + ${LIGHTING.hi * 100}% sheen + ${LIGHTING.washMax * 100}% ${accent} wash + grain 8/255`,
     hex: litFace(accent),
+    text: TEXT,
+  })),
+  ...ACCENTS.map((accent) => ({
+    name: `Dossier plate, ${accent.slice(2)}`,
+    recipe: `panel + ${LIGHTING.hi * 100}% sheen + ${LIGHTING.plateKey * 100}% ${accent} key + grain 8/255 (no lamp wash)`,
+    hex: over(over(over(hexOf("--panel"), WHITE, LIGHTING.hi), hexOf(accent), LIGHTING.plateKey), WHITE, LIGHTING.grainMax),
     text: TEXT,
   })),
   {
