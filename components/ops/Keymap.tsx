@@ -54,7 +54,7 @@ export default function Keymap({ onClose }: KeymapProps) {
       <div className="placard">
         <div className="placard__head">
           <h2 id="keymap-title" className="placard__title">
-            Station AB-01 controls
+            Station <span className="whitespace-nowrap">AB-01</span> controls
           </h2>
           <button ref={closeRef} type="button" className="px-btn px-btn--ghost px-btn--compact" onClick={() => onClose(true)}>
             <span>Close</span>

@@ -2912,18 +2912,43 @@ html[data-crt="off"] .crt-screen::after {
 .placard__group-title {
   font-family: var(--font-label);
   font-size: 16px;
+  line-height: 1.5;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   -webkit-font-smoothing: none;
   color: var(--teal);
 }
+/* Key column as wide as the widest key in its group (subgrid keeps every row
+   aligned), descriptions get the rest; phones stack the key over its text. */
+.placard dl {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+}
 .placard__row {
   display: grid;
+  grid-column: 1 / -1;
   grid-template-columns: minmax(0, 11rem) minmax(0, 1fr);
-  gap: 12px;
+  gap: 4px 16px;
   align-items: baseline;
   padding: 4px 0;
   font-size: 15px;
+}
+@supports (grid-template-columns: subgrid) {
+  .placard__row {
+    grid-template-columns: subgrid;
+  }
+}
+@media (max-width: 479px) {
+  .placard__title {
+    font-size: 26px;
+  }
+  .placard dl,
+  .placard__row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .placard__row {
+    padding: 8px 0;
+  }
 }
 .placard__row + .placard__row {
   border-top: 1px dashed var(--grid);
