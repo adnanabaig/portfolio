@@ -18,13 +18,12 @@ export interface TeleopLiveProps {
   /** Filled with an imperative handle (the lazy wrapper does not forward refs). */
   handleRef: MutableRefObject<TeleopLiveHandle | null>;
   panelHost: HTMLElement | null;
-  onFocusChange(focused: boolean): void;
   onRelease(): void;
 }
 
 const INITIAL_LATENCY = 60;
 
-export default function TeleopLive({ start, handleRef, panelHost, onFocusChange, onRelease }: TeleopLiveProps) {
+export default function TeleopLive({ start, handleRef, panelHost, onRelease }: TeleopLiveProps) {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const engineRef = useRef<Engine | null>(null);
@@ -96,8 +95,6 @@ export default function TeleopLive({ start, handleRef, panelHost, onFocusChange,
         aria-label="Robot arm teleop"
         aria-describedby="teleop-help"
         tabIndex={0}
-        onFocus={() => onFocusChange(true)}
-        onBlur={() => onFocusChange(false)}
       >
         <canvas ref={canvasRef} width={320} height={180} aria-hidden="true" />
         {stopped && (

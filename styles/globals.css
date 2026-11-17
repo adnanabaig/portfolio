@@ -1232,72 +1232,46 @@ html[data-theme="mono"] .crt-screen::after {
 .cell__controls:empty {
   display: none;
 }
-/* The stage holds the CRT screen and the TAKE CONTROL overlay. The overlay
-   covers the screen exactly (its 10px margin plus the 2px border). */
+/* The stage holds the CRT screen and the TAKE CONTROL buttons. By default
+   (phones, tablets, small laptops, and every live cell) the buttons sit in a
+   bar under the screen, so they never cover the workcell art or the bins. Only
+   the poster on a wide screen, where both fit on one row, overlays them on the
+   screen. The buttons stay first in the DOM so TAKE CONTROL comes before the
+   live canvas in tab order. */
 .cell__stage {
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
 .cell__overlay {
-  position: absolute;
-  inset: 12px;
+  order: 1;
   z-index: 2;
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
   justify-content: center;
-  align-content: center;
-  gap: 12px;
-  padding: 12px;
-  background: rgba(11, 14, 20, 0.55);
-  transition: opacity 160ms var(--snap);
+  gap: 8px;
+  padding: 0 10px 10px;
 }
-/* Once the canvas is live the button tucks into the bottom edge so the cell stays visible. */
-.cell__stage[data-live] .cell__overlay {
-  inset: auto 12px 12px 12px;
-  padding: 10px;
-  background: linear-gradient(transparent, rgba(11, 14, 20, 0.85));
-  pointer-events: none;
+.cell__overlay > .px-btn {
+  flex: 1 1 auto;
+  padding-left: 10px;
+  padding-right: 10px;
 }
-.cell__stage[data-live] .cell__overlay > * {
-  pointer-events: auto;
-}
-.cell__overlay[data-hide] {
-  opacity: 0;
-}
-/* Hidden while the cell has focus: clicks go to the canvas underneath. */
-.cell__stage .cell__overlay[data-hide],
-.cell__stage .cell__overlay[data-hide] > * {
-  pointer-events: none;
-}
-.cell__overlay:focus-within {
-  opacity: 1;
-}
-/* Phones: the buttons would cover most of the poster, so they move into a bar
-   under the screen (the overlay stays first in the DOM for tab order). */
-@media (max-width: 639px) {
-  .cell__stage {
-    display: flex;
-    flex-direction: column;
+@media (min-width: 1100px) {
+  /* The overlay covers the screen exactly (its 10px margin plus the 2px border). */
+  .cell__stage:not([data-live]) .cell__overlay {
+    position: absolute;
+    inset: 12px;
+    align-items: center;
+    align-content: center;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(11, 14, 20, 0.55);
   }
-  .cell__stage .cell__overlay,
-  .cell__stage[data-live] .cell__overlay {
-    position: static;
-    order: 1;
-    gap: 8px;
-    padding: 0 10px 10px;
-    background: none;
-    pointer-events: auto;
-  }
-  .cell__overlay > .px-btn {
-    flex: 1 1 auto;
-    padding-left: 10px;
-    padding-right: 10px;
-  }
-  /* Nothing to uncover here, so the bar stays put while the cell has focus. */
-  .cell__stage .cell__overlay[data-hide],
-  .cell__stage .cell__overlay[data-hide] > * {
-    opacity: 1;
-    pointer-events: auto;
+  .cell__stage:not([data-live]) .cell__overlay > .px-btn {
+    flex: 0 0 auto;
+    padding-left: 18px;
+    padding-right: 18px;
   }
 }
 

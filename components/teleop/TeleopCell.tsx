@@ -18,7 +18,6 @@ const ARROWS = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"]);
 
 const TeleopCell = () => {
   const [start, setStart] = useState<"teleop" | "auto" | null>(null);
-  const [focused, setFocused] = useState(false);
   const [panelHost, setPanelHost] = useState<HTMLDivElement | null>(null);
   const takeRef = useRef<HTMLButtonElement | null>(null);
   const liveRef = useRef<TeleopLiveHandle | null>(null);
@@ -85,12 +84,12 @@ const TeleopCell = () => {
             <span>SIM</span>
           </span>
         </div>
-        {/* The stage holds the screen and the TAKE CONTROL overlay. From 640px up
-            the overlay sits on the poster; on phones CSS moves it into a bar
-            under the screen, so the workcell art stays visible. It stays first
-            in the DOM so TAKE CONTROL comes before the live canvas in tab order. */}
+        {/* The stage holds the screen and the TAKE CONTROL buttons. CSS puts them
+            in a bar under the screen (always once live, so they never cover the
+            bins), and over the poster only on wide screens. They stay first in
+            the DOM so TAKE CONTROL comes before the live canvas in tab order. */}
         <div className="cell__stage" data-live={start ? "" : undefined}>
-          <div className="cell__overlay" data-hide={focused ? "" : undefined}>
+          <div className="cell__overlay">
             <button
               ref={takeRef}
               id="take-control"
@@ -111,7 +110,7 @@ const TeleopCell = () => {
           <div className="crt-screen cell__screen" id="cell-screen">
             <CellPoster />
             {start && (
-              <TeleopLive handleRef={liveRef} start={start} panelHost={panelHost} onFocusChange={setFocused} onRelease={release} />
+              <TeleopLive handleRef={liveRef} start={start} panelHost={panelHost} onRelease={release} />
             )}
           </div>
         </div>
