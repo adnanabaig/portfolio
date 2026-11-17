@@ -64,6 +64,7 @@ When you add a guard-relevant feature, extend the guard in the same commit.
 | `tests/facts.test.ts` | Every `lib/facts.ts` value matches its source sentence; rewording a sentence makes the import throw (via `vi.doMock` of `portfolio.json`) |
 | `tests/ops.test.ts` | OPS parser and registry: help, open/dossier, eggs and the latch, argument checks, Tab completion, table rows (every `help` and `projects` row splits into name and description) |
 | `tests/feeds.test.ts` | `scripts/feeds.mjs` sitemap and RSS builders, and that the committed `public/sitemap.xml` and `public/rss.xml` are current |
+| `tests/schematic.test.ts` | The dossier sketch renderer: arrowheads sharing a box face get separate ports (at least 16 units apart), and every tip stops `TIP_GAP` short of the box |
 | `tests/content.test.ts` | Project and job fields, unique ids, sketches, the private-data loader, copy rules on every published string |
 
 - Tests type-check under `tests/tsconfig.json` (adds node types); the app `tsconfig.json` excludes `tests/` so Next never sees them.

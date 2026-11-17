@@ -74,7 +74,40 @@ function place(node: SchematicNode, layout: SketchLayout): Cell {
 /** Stepped arrowhead pointing +x with its tip at the origin, 2-unit pixels. */
 const ARROW_D = "M-2 -1h2v2h-2zM-4 -3h2v6h-2zM-6 -5h2v10h-2zM-8 -7h2v14h-2z";
 
-function wire(edge: SchematicEdge, from: SchematicNode, to: SchematicNode, layout: SketchLayout) {
+/** Arrowheads stop this far short of the box, so a tip never touches the border. */
+export const TIP_GAP = 2;
+
+/** Where an edge enters its target: which face, so edges sharing one can spread out. */
+function entryFace(from: SchematicNode, to: SchematicNode) {
+  return to.col > from.col ? "flow" : to.row > from.row ? "down" : "up";
+}
+
+/**
+ * Entry offset along the target face for each edge (from the face center), or
+ * undefined when the edge is alone on its face. Edges sharing a face get evenly
+ * spaced ports, ordered by where they come from so their wires never cross.
+ */
+function entryPorts(spec: Schematic, layout: SketchLayout): Map<SchematicEdge, number> {
+  const byId = new Map(spec.nodes.map((n) => [n.id, n]));
+  const groups = new Map<string, { edge: SchematicEdge; from: SchematicNode }[]>();
+  for (const edge of spec.edges) {
+    const from = byId.get(edge.from);
+    const to = byId.get(edge.to);
+    if (!from || !to) continue;
+    const key = `${to.id}:${entryFace(from, to)}`;
+    groups.set(key, [...(groups.get(key) ?? []), { edge, from }]);
+  }
+  const face = layout === "wide" ? BOX_H : BOX_W;
+  const ports = new Map<SchematicEdge, number>();
+  for (const group of groups.values()) {
+    if (group.length < 2) continue;
+    group.sort((p, q) => p.from.row - q.from.row || p.from.col - q.from.col);
+    group.forEach(({ edge }, k) => ports.set(edge, Math.round(((k + 0.5) / group.length - 0.5) * face / G) * G));
+  }
+  return ports;
+}
+
+function wire(edge: SchematicEdge, from: SchematicNode, to: SchematicNode, layout: SketchLayout, port?: number) {
   const a = place(from, layout);
   const b = place(to, layout);
   const wide = layout === "wide";
@@ -94,12 +127,14 @@ function wire(edge: SchematicEdge, from: SchematicNode, to: SchematicNode, layou
     if (wide) {
       const elbow = b.x - GAP_FLOW / 2;
       const off = s * 14;
-      pts.push([a.x + BOX_W, cyA + off], [elbow, cyA + off], [elbow, cyB - off], [b.x, cyB - off]);
+      const inY = cyB + (port ?? -off);
+      pts.push([a.x + BOX_W, cyA + off], [elbow, cyA + off], [elbow, inY], [b.x, inY]);
       angle = 0;
     } else {
       const elbow = b.y - GAP_FLOW / 2;
       const off = s * 40;
-      pts.push([cxA + off, a.y + BOX_H], [cxA + off, elbow], [cxB - off, elbow], [cxB - off, b.y]);
+      const inX = cxB + (port ?? -off);
+      pts.push([cxA + off, a.y + BOX_H], [cxA + off, elbow], [inX, elbow], [inX, b.y]);
       angle = 90;
     }
   } else {
@@ -115,13 +150,15 @@ function wire(edge: SchematicEdge, from: SchematicNode, to: SchematicNode, layou
   }
   const kind = edge.kind ?? "flow";
   const arrow = kind !== "link";
-  // Stop the wire where the arrowhead begins, so the tip meets the box.
-  const tip = pts[pts.length - 1];
+  // The tip stops TIP_GAP short of the box, and the wire stops where the
+  // arrowhead begins.
+  const end = pts[pts.length - 1];
   const prev = pts[pts.length - 2];
-  if (arrow) {
-    const len = Math.hypot(tip[0] - prev[0], tip[1] - prev[1]) || 1;
-    pts[pts.length - 1] = [tip[0] - ((tip[0] - prev[0]) / len) * (ARROW - 2), tip[1] - ((tip[1] - prev[1]) / len) * (ARROW - 2)];
-  }
+  const len = Math.hypot(end[0] - prev[0], end[1] - prev[1]) || 1;
+  const ux = (end[0] - prev[0]) / len;
+  const uy = (end[1] - prev[1]) / len;
+  const tip: [number, number] = arrow ? [end[0] - ux * TIP_GAP, end[1] - uy * TIP_GAP] : end;
+  if (arrow) pts[pts.length - 1] = [tip[0] - ux * (ARROW - 2), tip[1] - uy * (ARROW - 2)];
   const d = pts.map(([x, y], i) => `${i ? "L" : "M"}${x} ${y}`).join("");
   const head = arrow ? `<path class="sk-head sk-head--${kind}" transform="translate(${tip[0]} ${tip[1]}) rotate(${angle})" d="${ARROW_D}"></path>` : "";
   return `<path class="sk-wire sk-wire--${kind}" d="${d}" stroke-width="${WIRE}"></path>${head}`;
@@ -151,6 +188,7 @@ export function renderSchematic(spec: Schematic, layout: SketchLayout, idSuffix:
   const w = MARGIN * 2 + 4 + (layout === "wide" ? flowLen : crossLenNarrow);
   const h = MARGIN * 2 + 4 + (layout === "wide" ? crossLen : flowLenNarrow);
   const byId = new Map(spec.nodes.map((n) => [n.id, n]));
+  const ports = entryPorts(spec, layout);
   const pattern = `sk-dots-${idSuffix}-${layout}`;
   // Wires draw over the boxes (so arrowheads clear the drop shadows), and
   // gates draw last so a shared entry point shows the gate color.
@@ -159,7 +197,7 @@ export function renderSchematic(spec: Schematic, layout: SketchLayout, idSuffix:
     .map((e) => {
       const from = byId.get(e.from);
       const to = byId.get(e.to);
-      return from && to ? wire(e, from, to, layout) : "";
+      return from && to ? wire(e, from, to, layout, ports.get(e)) : "";
     })
     .join("");
   const boxes = spec.nodes.map((n) => box(n, layout)).join("");
