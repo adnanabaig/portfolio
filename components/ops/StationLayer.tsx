@@ -1,10 +1,12 @@
 // Mounted once by the Header. Owns the global shortcuts ("/" or "`" for the
 // OPS console, "?" for the keymap), the two dialogs (each lazy-loaded on
 // first open), and the idle boot: badge toast + rules, the console greeting,
-// AB-01 puppetry, and a saved sound opt-in. Renders nothing on the server.
+// AB-01 puppetry, the inspection lamp, and a saved sound opt-in. Renders
+// nothing on the server.
 import { useCallback, useEffect, useRef, useState } from "react";
 import { on } from "../../lib/bus";
 import { clientOnly } from "../../lib/clientOnly";
+import { isEstop, isPlain, prefersReducedMotion } from "../../lib/station";
 import { resumeSavedSound } from "./sound";
 
 const Terminal = clientOnly(() => import("./Terminal"));
@@ -65,6 +67,10 @@ export default function StationLayer() {
       setBooted(true);
       import("../../lib/hello").then((m) => m.hello()).catch(() => undefined);
       import("../../lib/puppet").then((m) => m.start()).catch(() => undefined);
+      // The inspection lamp: only for a hovering fine pointer, motion allowed, no E-STOP or Text Mode.
+      if (window.matchMedia?.("(hover: hover) and (pointer: fine)").matches && !prefersReducedMotion() && !isEstop() && !isPlain()) {
+        import("../../lib/lamp").then((m) => m.start()).catch(() => undefined);
+      }
     };
     resumeSavedSound();
     window.addEventListener("pointerdown", boot, true);

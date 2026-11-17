@@ -475,7 +475,7 @@ html[data-theme="mono"] .crt-screen::after {
 @supports (color: color-mix(in srgb, red 50%, transparent)) {
   .px-frame::before {
     background: radial-gradient(
-        360px circle at var(--mx, 50%) var(--my, -400px),
+        360px circle at var(--lamp, 50% -400px),
         color-mix(in srgb, var(--accent) calc(var(--wash-max) * var(--spot, 0) * var(--lit)), transparent),
         transparent 70%
       ),
@@ -499,6 +499,70 @@ html[data-theme="mono"] .crt-screen::after {
   --frame-bg: var(--panel-hi);
   --frame-border: var(--steel);
 }
+/*
+ * The lamp ring (lib/lamp.ts): the lamp's light caught on the 2px border,
+ * an accent-to-violet falloff masked to the border ring (and to the notch on
+ * frames). The face wash is the --spot layer on ::before above. Wells,
+ * bezels, dialogs, the toast, and a frame mid-highlight ([data-hl],
+ * [data-pulse] own ::after then) are left out. Without the lamp (touch,
+ * reduced motion, before idle), hover lights the ring statically from the
+ * top-left corner. :where() keeps the exclusions at zero specificity, so
+ * the on-state below wins.
+ */
+.px-frame:where(:not(.px-frame--inset, .px-frame--crt, .toast__card, [data-hl], [data-pulse]))::after,
+.telemetry__item:where(:not([data-hl]))::after,
+.dossier__spec:where(:not([data-hl]))::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  padding: 2px;
+  background: radial-gradient(240px circle at var(--lamp, 0 0), var(--accent), transparent 68%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 200ms var(--ease-light);
+}
+.px-frame:where(:not(.px-frame--inset, .px-frame--crt, .toast__card, [data-hl], [data-pulse]))::after,
+.dossier__spec:where(:not([data-hl]))::after {
+  clip-path: var(--notch);
+}
+/* The tile's border is a real 2px border, so its ring sits over it. */
+.telemetry__item:where(:not([data-hl]))::after {
+  inset: -2px;
+}
+@supports (color: color-mix(in srgb, red 50%, transparent)) {
+  .px-frame:where(:not(.px-frame--inset, .px-frame--crt, .toast__card, [data-hl], [data-pulse]))::after,
+  .telemetry__item:where(:not([data-hl]))::after,
+  .dossier__spec:where(:not([data-hl]))::after {
+    background: radial-gradient(
+      240px circle at var(--lamp, 0 0),
+      var(--accent),
+      color-mix(in srgb, var(--violet) 55%, transparent) 38%,
+      transparent 68%
+    );
+  }
+}
+dialog .px-frame::after {
+  display: none;
+}
+html.lamp-on .is-lit {
+  --spot: 1;
+}
+html.lamp-on .is-lit::after {
+  opacity: 1;
+}
+@media (hover: hover) {
+  html:not(.lamp-on) .px-frame:where(:not(.px-frame--inset, .px-frame--crt, .toast__card, [data-hl], [data-pulse])):hover::after,
+  html:not(.lamp-on) .telemetry__item:where(:not([data-hl])):hover::after,
+  html:not(.lamp-on) .dossier__spec:where(:not([data-hl])):hover::after {
+    opacity: 1;
+  }
+}
+
 /* No sheen, grain, or lamp wash on wells and bezels; a well reads recessed. */
 .px-frame.px-frame--inset::before,
 .px-frame.px-frame--crt::before {
@@ -3618,7 +3682,11 @@ html[data-theme="mono"] .cell .crt-screen::before,
 html[data-plain] .px-btn::before,
 html[data-theme="mono"] .px-btn::before,
 html[data-plain] .eyebrow::after,
-html[data-theme="mono"] .eyebrow::after {
+html[data-theme="mono"] .eyebrow::after,
+html[data-plain] .px-frame::after,
+html[data-theme="mono"] .px-frame::after,
+html[data-plain] .telemetry__item::after,
+html[data-theme="mono"] .telemetry__item::after {
   display: none !important;
 }
 html[data-plain] .hairline,
@@ -3876,7 +3944,9 @@ html[data-estop] *::after {
   .hero::before,
   .cell .crt-screen::before,
   .px-btn::before,
-  .eyebrow::after {
+  .eyebrow::after,
+  .px-frame::after,
+  .telemetry__item::after {
     display: none !important;
   }
   .hairline,
