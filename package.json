@@ -14,6 +14,7 @@
     "typecheck": "tsc --noEmit && tsc --noEmit -p tests/tsconfig.json",
     "check:copy": "node scripts/check-copy.mjs && node scripts/check-teleop.mjs && node scripts/check-ops.mjs && node scripts/check-work.mjs",
     "og": "node scripts/build-og.mjs",
+    "grain": "node scripts/build-grain.mjs",
     "check:ssr": "node scripts/check-ssr.mjs",
     "test:teleop": "vitest run tests/teleop",
     "test": "vitest run",

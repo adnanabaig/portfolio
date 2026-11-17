@@ -129,6 +129,47 @@
   --moss: #3e7a5a; /* sprite and terrain only */
   --outline: #05070a; /* sprite outline and hard drop shadows */
 
+  /*
+   * Lighting. "Pixels snap, light glides": the pixel layer above never
+   * changes; these tokens light it. --lit is the master switch (Text Mode,
+   * mono, and print set it to 0, which is exactly the flat site), and every
+   * light alpha is multiplied by it. Caps are measured: see litSurfaces in
+   * lib/pixel/tokens.ts and tests/lighting.test.ts (AA holds at full light).
+   */
+  --lit: 1;
+  --glow-rgb: 46 230 197; /* key light: CRT bloom, primary-button glow, header rail, focus glow */
+  --rim-rgb: 169 139 255; /* violet rim: hero top-left, header rail tail, lamp ring falloff */
+  --bounce-rgb: 90 184 255; /* sky floor bounce: bottom of the hero */
+  --fault-rgb: 255 93 108; /* E-STOP: replaces --glow-rgb on the CRT and the danger halo */
+  --ease-light: cubic-bezier(0.2, 0.7, 0.2, 1); /* LIGHT ONLY (lamp ring, glows). Pixels keep --snap */
+  --wash-max: 5%; /* lamp face-wash cap; only on frames whose face is --panel */
+  --row-mix: 10%; /* palette active-row accent mix into --panel-hi */
+  --titlebar-top: #202a3e; /* titlebar gradient: --titlebar-top to --panel-hi */
+  --grain: url("/tex/grain.png"); /* 96x96 white specks, alpha 0 to 8/255, drawn at 192px pixelated */
+  /* The stepped 2px corner notch, shared by the frame face and the lamp ring. */
+  --notch: polygon(
+    0 4px,
+    2px 4px,
+    2px 2px,
+    4px 2px,
+    4px 0,
+    calc(100% - 4px) 0,
+    calc(100% - 4px) 2px,
+    calc(100% - 2px) 2px,
+    calc(100% - 2px) 4px,
+    100% 4px,
+    100% calc(100% - 4px),
+    calc(100% - 2px) calc(100% - 4px),
+    calc(100% - 2px) calc(100% - 2px),
+    calc(100% - 4px) calc(100% - 2px),
+    calc(100% - 4px) 100%,
+    4px 100%,
+    4px calc(100% - 2px),
+    2px calc(100% - 2px),
+    2px calc(100% - 4px),
+    0 calc(100% - 4px)
+  );
+
   --accent: var(--teal);
   --font-pixel: "Pixel Digits", "Pixelify Sans", "Pixelify Fallback", ui-monospace, monospace;
   --font-label: "Label Amp", "Silkscreen", "Silkscreen Fallback", ui-monospace, monospace;
@@ -156,8 +197,44 @@
   }
 }
 
+/*
+ * Derived light tokens. A custom property that uses var() resolves where it
+ * is declared, so these are declared on every scope that can change --lit or
+ * --glow-rgb: the root (themes, Text Mode, print), any [data-lit] subtree
+ * (/lab's side-by-side), and the CRT under E-STOP (coral fault light).
+ */
+:root,
+[data-lit],
+html[data-estop] .cell .crt-screen {
+  --hi: rgb(255 255 255 / calc(0.03 * var(--lit))); /* frame face top sheen, to transparent at 72px */
+  --edge: rgb(255 255 255 / calc(0.06 * var(--lit))); /* 2px lit top inner edge */
+  --depth: 0 14px 28px -14px rgb(0 0 0 / calc(0.6 * var(--lit))); /* soft drop under the hard 4px shadow */
+  --depth-lg: 0 24px 56px -20px rgb(0 0 0 / calc(0.8 * var(--lit))); /* dialogs, drawer, toast */
+  --bloom: 0 0 18px 0 rgb(var(--glow-rgb) / calc(0.22 * var(--lit))),
+    0 0 48px 4px rgb(var(--glow-rgb) / calc(0.1 * var(--lit))); /* idle CRT */
+  --bloom-live: 0 0 18px 0 rgb(var(--glow-rgb) / calc(0.3 * var(--lit))),
+    0 0 48px 4px rgb(var(--glow-rgb) / calc(0.15 * var(--lit))); /* the live cell */
+  --bloom-half: 0 0 18px 0 rgb(var(--glow-rgb) / calc(0.11 * var(--lit))),
+    0 0 48px 4px rgb(var(--glow-rgb) / calc(0.05 * var(--lit))); /* dossier FIG frame, 404 screen */
+  /* 2px light rail: the status bar's bottom edge. */
+  --rail: linear-gradient(
+    90deg,
+    transparent 0,
+    rgb(var(--glow-rgb) / calc(0.45 * var(--lit))) 22%,
+    rgb(var(--rim-rgb) / calc(0.35 * var(--lit))) 70%,
+    transparent 100%
+  );
+}
+[data-lit="0"] {
+  --lit: 0;
+}
+html[data-estop] .cell .crt-screen {
+  --glow-rgb: var(--fault-rgb); /* a static fault light */
+}
+
 /* Themes (WS3 exposes the switch; the _document script applies the saved one). */
 html[data-theme="amber"] {
+  --glow-rgb: 255 181 71;
   --teal: #ffb547;
   --teal-deep: #8a5a12;
   --paper: #ffe2b0;
@@ -176,6 +253,12 @@ html[data-theme="mono"] {
   --violet: #ffffff;
   --sky: #ffffff;
   --teal-ink: #000000;
+}
+/* Lights off: mono and Text Mode are the flat site (resets for the layers
+   --lit cannot reach live in the "Lights off" block near the end). */
+html[data-theme="mono"],
+html[data-plain] {
+  --lit: 0;
 }
 html[data-theme="mono"] a {
   text-decoration: underline;
@@ -379,28 +462,7 @@ html[data-theme="mono"] .crt-screen::after {
   background: var(--frame-bg);
   border: 2px solid var(--frame-border);
   box-shadow: inset 2px 2px 0 var(--bevel-hi), inset -2px -2px 0 var(--bevel-lo);
-  clip-path: polygon(
-    0 4px,
-    2px 4px,
-    2px 2px,
-    4px 2px,
-    4px 0,
-    calc(100% - 4px) 0,
-    calc(100% - 4px) 2px,
-    calc(100% - 2px) 2px,
-    calc(100% - 2px) 4px,
-    100% 4px,
-    100% calc(100% - 4px),
-    calc(100% - 2px) calc(100% - 4px),
-    calc(100% - 2px) calc(100% - 2px),
-    calc(100% - 4px) calc(100% - 2px),
-    calc(100% - 4px) 100%,
-    4px 100%,
-    4px calc(100% - 2px),
-    2px calc(100% - 2px),
-    2px calc(100% - 4px),
-    0 calc(100% - 4px)
-  );
+  clip-path: var(--notch);
 }
 .px-frame--active {
   --frame-border: var(--teal);
@@ -3384,6 +3446,7 @@ html[data-estop] *::after {
    ========================================================================== */
 @media print {
   :root {
+    --lit: 0;
     --ink: #ffffff;
     --panel: #ffffff;
     --panel-hi: #ffffff;

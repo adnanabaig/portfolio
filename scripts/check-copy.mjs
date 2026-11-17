@@ -3,7 +3,8 @@
 // - data/*.json (except the private `_todo` notes) and _posts/*.md
 // - source: components/ (including components/ops/**), pages/, lib/ (all of
 //   it: badges, audio, hello, pixel data), hooks/ (.ts, .tsx, .json, .mjs)
-// - scripts/build-og.mjs, whose strings end up in public/og.png
+// - scripts/build-og.mjs, whose strings end up in public/og.png, plus the
+//   PNG encoder and grain scripts beside it
 // The OPS console's actual output is checked by scripts/check-ops.mjs.
 import fs from "fs";
 import path from "path";
@@ -77,8 +78,11 @@ for (const dir of SOURCE_DIRS) {
   }
 }
 
-// The social card is rendered from strings in this script.
-scanText(path.join(root, "scripts/build-og.mjs"), fs.readFileSync(path.join(root, "scripts/build-og.mjs"), "utf8"), { checkTodo: true });
+// The social card is rendered from strings in build-og; the grain and PNG
+// scripts sit beside it and follow the same rules.
+for (const rel of ["scripts/build-og.mjs", "scripts/build-grain.mjs", "scripts/png.mjs"]) {
+  scanText(path.join(root, rel), fs.readFileSync(path.join(root, rel), "utf8"), { checkTodo: true });
+}
 
 if (problems.length) {
   console.error(`check:copy found ${problems.length} problem(s):`);
