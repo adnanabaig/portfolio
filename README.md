@@ -23,15 +23,15 @@ npm run build && npm start   # production build
 ## Test and check
 
 ```bash
-npm test             # Vitest unit suite (tests/)
-npm run lint         # ESLint
-npm run typecheck    # TypeScript, app and tests
-npm run check:copy   # copy rules, teleop catalog, OPS console output, dossier sketches
-npm run build        # also writes public/sitemap.xml and public/rss.xml
-npm run check:ssr    # checks the built pages (run after a build)
+npm run lint                                  # ESLint
+npm run typecheck                             # TypeScript, app and tests
+npm run check:copy                            # copy rules, teleop catalog, OPS console output, dossier sketches
+npm test                                      # Vitest unit suite (tests/)
+NEXT_DIST_DIR=.next-build npm run build       # also writes public/sitemap.xml and public/rss.xml
+npm run check:ssr                             # checks the pages built into .next-build (refuses a stale build)
 ```
 
-CI (`.github/workflows/ci.yml`) runs the same steps in that order on every push and pull request.
+CI (`.github/workflows/ci.yml`) runs the same steps in that order, with `NEXT_DIST_DIR=.next-build`, on every push and pull request.
 
 The unit suite covers the teleop engine (IK, the safety state machine, the latency link, sorting, record and replay, and the engine end to end with the canvas stubbed out), the derived numbers in `lib/facts.ts`, the OPS console parser, the sitemap and RSS builders, and the content rules.
 

@@ -28,7 +28,7 @@ npm run lint                                    # ESLint (next lint)
 npm run check:copy                              # copy guard + teleop catalog guard + OPS console guard + dossier sketch guard
 npm test                                        # the Vitest unit suite (everything in tests/)
 npm run test:teleop                             # just tests/teleop (the engine)
-npm run check:ssr                               # reads $NEXT_DIST_DIR (default .next-build)/server/pages/*.html, so build first
+npm run check:ssr                               # reads $NEXT_DIST_DIR (default .next-build)/server/pages/*.html; refuses a build older than any source file
 npm run og                                      # regenerate public/og.png and the icons, then commit them
 ```
 

@@ -14,6 +14,25 @@ if (!fs.existsSync(htmlFile)) {
   console.error(`check:ssr: ${path.relative(root, htmlFile)} not found. Build first (NEXT_DIST_DIR=${distDir} npm run build).`);
   process.exit(1);
 }
+// A stale build passes or fails for the wrong reasons: refuse one older than
+// any source file it is built from.
+{
+  const buildId = path.join(root, distDir, "BUILD_ID");
+  const builtAt = fs.existsSync(buildId) ? fs.statSync(buildId).mtimeMs : 0;
+  const newest = (p) => {
+    if (!fs.existsSync(p)) return { at: 0, file: p };
+    const st = fs.statSync(p);
+    if (!st.isDirectory()) return { at: st.mtimeMs, file: p };
+    return fs.readdirSync(p).map((e) => newest(path.join(p, e))).reduce((a, b) => (b.at > a.at ? b : a), { at: 0, file: p });
+  };
+  const src = ["components", "data", "hooks", "lib", "pages", "styles", "_posts", "utils", "next.config.js"]
+    .map((d) => newest(path.join(root, d)))
+    .reduce((a, b) => (b.at > a.at ? b : a));
+  if (src.at > builtAt) {
+    console.error(`check:ssr: ${distDir} is older than ${path.relative(root, src.file)}. Rebuild first (NEXT_DIST_DIR=${distDir} npm run build).`);
+    process.exit(1);
+  }
+}
 
 const data = JSON.parse(fs.readFileSync(path.join(root, "data/portfolio.json"), "utf8"));
 const raw = fs.readFileSync(htmlFile, "utf8");
