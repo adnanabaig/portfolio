@@ -64,7 +64,10 @@
 /*
  * Pixelify Sans draws 5 like an S. "Pixel Digits" maps only 0-9 to
  * Silkscreen and sits first in --font-pixel, so any digit in an h1, h2, or
- * post title renders unambiguously while letters stay Pixelify.
+ * post title renders unambiguously while letters stay Pixelify. The shipped
+ * Silkscreen file has a redrawn 2 (rounded shoulder, so "2ND" never reads
+ * "ZND") and a slashed 0 (so "SO101" never reads "S0101"); see
+ * scripts/patch-silkscreen.py.
  */
 @font-face {
   font-family: "Pixel Digits";
