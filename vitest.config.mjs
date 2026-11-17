@@ -1,6 +1,6 @@
-// Unit tests: `npm test`. Plain node environment (the engine, parser, and
-// generators are DOM-free; the engine harness stubs the few browser globals
-// it needs), so there is no jsdom.
+// Unit tests: `npm test`. Plain node environment (the parser, generators,
+// and renderers are DOM-free; the lamp test stubs the few browser globals it
+// needs), so there is no jsdom.
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
