@@ -222,6 +222,12 @@ const Header = ({ current = "home", checkpoints = CHECKPOINTS }: HeaderProps) =>
       </nav>
 
       {isHome && <ScrollTrack checkpoints={trackPoints} sections={sections} />}
+      {/* Shown only while html[data-estop] is set (CSS), so it is right before hydration too. */}
+      <p className="sitestop">
+        <span className="sitestop__tag">Site stop</span> <span className="sitestop__msg">
+          Motion frozen. Press <span className="whitespace-nowrap">E-STOP</span> again to release.
+        </span>
+      </p>
       <StationLayer />
     </header>
   );

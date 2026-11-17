@@ -158,6 +158,7 @@ check(skipAt > 0 && /Skip teleop/.test(body.slice(skipAt, skipAt + 200)), '"Skip
 check(takeAt > skipAt && skipAt > 0, "TAKE CONTROL button present, after the skip link");
 check(/id="cell-after"/.test(body), "skip target #cell-after exists");
 check(/<button[^>]*class="[^"]*estop[^"]*"[^>]*aria-pressed="false"/.test(header), "header has the E-STOP toggle (aria-pressed)");
+check(/<p class="sitestop">/.test(header) && /class="estop__off"/.test(header) && /class="estop__on" aria-hidden="true"/.test(header), "header has the latched site-stop strip and a fixed-width E-STOP label");
 check(/class="track"[^>]*aria-hidden="true"/.test(header), "AB-01 track is in the header and aria-hidden");
 
 // 8. Station extras are client-only; social card and icons are wired.

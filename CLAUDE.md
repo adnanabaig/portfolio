@@ -189,7 +189,7 @@ Flags on `<html>`, all applied by the inline pre-paint script in `pages/_documen
 - `motion-ok`: the visitor has not asked for reduced motion. **Every CSS animation must be gated on `.motion-ok`.**
 - `data-plain`: Text Mode (`?plain=1`, or the saved choice). Everything in Plex, one column, no pixel decoration.
 - `data-theme="amber" | "mono"`: saved theme (`theme` command).
-- `data-estop`: the global E-STOP is latched (persists across visits). Stops every CSS animation and transition (`animation: none`, so one-shot entrances such as the OPS drawer and toast land on their visible final state instead of freezing invisible at keyframe 0), freezes the track, the cell, and the 404 level, and mutes sound.
+- `data-estop`: the global E-STOP is latched (persists across visits). CSS shows the coral "Site stop" strip under the status bar and the button's "E-stop on" label (both labels share one grid cell, so the nav never shifts). Stops every CSS animation and transition (`animation: none`, so one-shot entrances such as the OPS drawer and toast land on their visible final state instead of freezing invisible at keyframe 0), freezes the track, the cell, and the 404 level, and mutes sound.
 - `data-booted`: the boot POST already played this session.
 - `data-crt="off"`: scanlines hidden (`crt off`).
 

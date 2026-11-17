@@ -23,10 +23,14 @@ const EStop = ({ className = "" }: { className?: string }) => {
       onClick={() => setEstop(!isEstop())}
     >
       <Sprite name="glyph-estop" scale={2} className="px-btn__icon" />
-      {/* The name stays "E-stop" (aria-pressed carries the state); the suffix is visual only. */}
+      {/* The name stays "E-stop" (aria-pressed carries the state); "E-stop on" is
+          visual only. Both labels share one grid cell, so the button is always
+          as wide as the longer one and the nav never shifts when it toggles. */}
       <span className="estop__label">
-        E-stop
-        {pressed && <span aria-hidden="true"> on</span>}
+        <span className="estop__off">E-stop</span>
+        <span className="estop__on" aria-hidden="true">
+          E-stop on
+        </span>
       </span>
     </button>
   );
