@@ -53,7 +53,7 @@
       { "id": "teams", "label": ["ENGINEERING", "TEAMS"], "kind": "sw", "col": 3, "row": 1 }
     ],
     "edges": [
-      { "from": "manus", "to": "robots", "note": "Teleoperated humanoids" },
+      { "from": "manus", "to": "robots" },
       { "from": "foxglove", "to": "robots" },
       { "from": "robots", "to": "health", "kind": "link", "note": "Monitored" },
       { "from": "robots", "to": "demos" },

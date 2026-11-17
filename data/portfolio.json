@@ -61,7 +61,7 @@
       "category": "Robotics Teleoperation",
       "summary": "Piloted humanoid robots to collect the demonstrations their models train on.",
       "highlights": [
-        "Teleoperated humanoids with Foxglove and Manus to collect training demonstrations.",
+        "Operated humanoid robots with teleoperation, Foxglove, and Manus to collect training demonstrations.",
         "Monitored actuator health, runtime faults, and system logs.",
         "Annotated and quality-checked demonstration data with engineering teams to support model and policy updates."
       ],
