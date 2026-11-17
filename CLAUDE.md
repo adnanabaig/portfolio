@@ -2,7 +2,7 @@
 
 Guidance for Claude Code (and humans) working in this repo: Adnan Baig's portfolio, https://adnanbaig.com.
 
-The site is **Station AB-01**: a pixel-art robotics workcell console. Under the 8-bit layer it is a plain, fast, fully server-rendered resume site. A recruiter gets the name, role, key work, and the resume link in the first viewport with zero interaction. Everything playful (the Teleop Cell game, the AB-01 track, the OPS console, badges, sound, the 404 level) is an optional layer on top and is never a gate.
+The site is **Station AB-01**: a pixel-art robotics workcell console. Under the 8-bit layer it is a plain, fast, fully server-rendered resume site. A recruiter gets the name, role, key work, and the resume link in the first viewport with zero interaction. Everything playful (the AB-01 track, the OPS console, badges, sound, the 404 level) is an optional layer on top and is never a gate.
 
 **Vercel deploys `main` on push.** Work on a branch, commit locally, and do the manual QA pass below before anything reaches `main`.
 
@@ -25,9 +25,8 @@ NEXT_DIST_DIR=.next-dev npx next dev -p 3200    # dev server
 NEXT_DIST_DIR=.next-build npm run build         # production build (runs tsc + lint; prebuild writes public/sitemap.xml and public/rss.xml)
 npm run typecheck                               # tsc --noEmit for the app, then for tests/ (tests/tsconfig.json)
 npm run lint                                    # ESLint (next lint)
-npm run check:copy                              # copy guard + teleop catalog guard + OPS console guard + dossier sketch guard
+npm run check:copy                              # copy guard + OPS console guard + dossier sketch guard
 npm test                                        # the Vitest unit suite (everything in tests/)
-npm run test:teleop                             # just tests/teleop (the engine)
 npm run check:ssr                               # reads $NEXT_DIST_DIR (default .next-build)/server/pages/*.html; refuses a build older than any source file
 npm run og                                      # regenerate public/og.png and the icons, then commit them
 npm run grain                                   # regenerate public/tex/grain.png (seeded, reproducible), then commit it
@@ -42,10 +41,9 @@ Before every commit: `typecheck`, `lint`, `check:copy`, `npm test`, then one bui
 | Guard | File | What it enforces |
 | --- | --- | --- |
 | `check:copy` | `scripts/check-copy.mjs` | No em dashes, no emoji, no forbidden internal terms, no `TODO`/`_todo` in `data/*.json` (except `_todo`), `_posts/*.md`, and all source under `components/` (including `components/ops/**`), `pages/`, `lib/`, `hooks/`, plus `scripts/build-og.mjs`, `scripts/build-grain.mjs`, and `scripts/png.mjs`. Rules live in `scripts/copy-rules.mjs`. |
-| `check-teleop` | `scripts/check-teleop.mjs` | `data/teleop.json` maps every skill in `portfolio.json` to exactly one block, every group has a bin, labels are drawable by the bitmap font. |
-| `check-ops` | `scripts/check-ops.mjs` | Compiles `components/ops/commands.ts` and runs every command against a stub. Every `help` entry has a handler; all output passes the copy rules; every printed number is a fact from `portfolio.json` / `lib/facts.ts`, a level number, or labeled as the visitor's own (`your run`, `your link`, `your clock`, `SIM`, `this browser`); no availability wording; the eggs reply exactly; `open operator-hmi` targets that card and offers the dossier; `dossier <id>` goes to `/work/<id>` for every project. |
+| `check-ops` | `scripts/check-ops.mjs` | Compiles `components/ops/commands.ts` and runs every command against a stub. Every `help` entry has a handler; `teleop` and `latency` stay unknown commands; all output passes the copy rules; every printed number is a fact from `portfolio.json` / `lib/facts.ts`, a level number, or labeled as the visitor's own (`your run`, `your link`, `your clock`, `this browser`); no availability wording; the eggs reply exactly; `open operator-hmi` targets that card and offers the dossier; `dossier <id>` goes to `/work/<id>` for every project. |
 | `check-work` | `scripts/check-work.mjs` | Every project has a sketch in `data/schematics.json` (and no sketch is orphaned). Every node label and edge note appears in that project's own copy (case and punctuation folded). Labels are 1 or 2 lines of at most 13 bitmap-font characters. 4 x 2 grid, one node per cell, no backward flow, no wire through another node. |
-| `check:ssr` | `scripts/check-ssr.mjs` | On the built home page: one h1 with the name; eyebrow, lede, proof lines, and the resume link come before the cell; every visible fact string renders; hidden entries and `_todo` never leak; no invented numbers; no canvas, console, badges, or toast in SSR; skip link before TAKE CONTROL; E-STOP and track wiring; `og:image` and `twitter:card`; icons exist. Every card has an "Open dossier" link. Each built `/work/<id>`: one h1 with the title, every project field, canonical and `og:url`, CreativeWork JSON-LD, breadcrumb back to the card, the "FIG. n / system sketch (illustrative)" caption with server-rendered SVG, prev/next, source links, nothing private, listed in the sitemap. `public/rss.xml` lists every post with pubDate and description; the head links it and `/blog` shows an RSS link. On the built 404: Home, Work, and Blog links come before the "Drive AB-01 home" button. On every built page (except /lab and /500): one `<main>` with a skip link to it, exactly one nav named "Main" (the menu panel is "Menu"), a viewport meta that never disables zoom, and every SVG either `aria-hidden` or `role="img"` with a name. Every in-page fragment link on any built page, and every `card-<id>` (OPS `open`), is covered by the `scroll-margin-top` rule in `globals.css`, so no anchor lands under the status bar. |
+| `check:ssr` | `scripts/check-ssr.mjs` | On the built home page: one h1 with the name; eyebrow, lede, proof lines, and the resume link come before the cell view; every visible fact string renders; hidden entries and `_todo` never leak; no invented numbers; the cell view is an `aria-hidden` frame with server-rendered SVG paths and no controls; no canvas and no game wording (take control, auto demo, skip teleop, teleop cell); no console, badges, or toast in SSR; E-STOP and track wiring; `og:image` and `twitter:card`; icons exist. Every card has an "Open dossier" link. Each built `/work/<id>`: one h1 with the title, every project field, canonical and `og:url`, CreativeWork JSON-LD, breadcrumb back to the card, the "FIG. n / system sketch (illustrative)" caption with server-rendered SVG, prev/next, source links, nothing private, listed in the sitemap. `public/rss.xml` lists every post with pubDate and description; the head links it and `/blog` shows an RSS link. On the built 404: Home, Work, and Blog links come before the "Drive AB-01 home" button. On every built page (except /lab and /500): one `<main>` with a skip link to it, exactly one nav named "Main" (the menu panel is "Menu"), a viewport meta that never disables zoom, and every SVG either `aria-hidden` or `role="img"` with a name. Every in-page fragment link on any built page, and every `card-<id>` (OPS `open`), is covered by the `scroll-margin-top` rule in `globals.css`, so no anchor lands under the status bar. |
 
 When you add a guard-relevant feature, extend the guard in the same commit.
 
@@ -55,25 +53,18 @@ When you add a guard-relevant feature, extend the guard in the same commit.
 
 | File | Covers |
 | --- | --- |
-| `tests/teleop/ik.test.ts` | IK round trips, the elbow branch, reach limits (including targets exactly on the reach circle), unwrap, the cable-wrap window, `clampWorkspace`, the servo |
-| `tests/teleop/safety.test.ts` | The FSM: E-STOP latches until an explicit CLEAR (refused under the site stop), deadman, watchdog timing, scripted modes |
-| `tests/teleop/latency.test.ts` | `CommandBuffer` delays a 60 Hz stream by exactly the set amount; ring overflow; `RttTrace`; `CommandLink` (the engine's link: send-on-change, live command until one is due) |
-| `tests/teleop/world.test.ts` | Catalog to bin mapping, right bin sorts, every wrong bin bounces, stacking, seeded shuffles |
-| `tests/teleop/episodes.test.ts` | Recorder at 30 Hz and its 60 s cap, Player round trip and determinism, storage parsing (malformed frames dropped) |
-| `tests/teleop/pipeline.test.ts` | The headless cell (the engine's `CommandLink`, `driveArm`, `World.step`; only the three-call step order mirrors `engine/index.ts`): auto demo at several latencies, a manual misroute and re-sort, the parked servo, cable-wrap unwinding, deterministic replay |
-| `tests/teleop/engine.test.ts` | `createEngine` itself, with `render` and `loop` mocked and the clock owned by the test: E-STOP, site stop, watchdog park, deadman, latency, record and replay, through the public `Engine` API |
 | `tests/facts.test.ts` | Every `lib/facts.ts` value matches its source sentence; rewording a sentence makes the import throw (via `vi.doMock` of `portfolio.json`) |
-| `tests/ops.test.ts` | OPS parser and registry: help, open/dossier, eggs and the latch, argument checks, Tab completion, table rows (every `help` and `projects` row splits into name and description) |
+| `tests/ops.test.ts` | OPS parser and registry: help, open/dossier, eggs and the latch, `teleop` and `latency` gone, argument checks, Tab completion, table rows (every `help` and `projects` row splits into name and description) |
 | `tests/feeds.test.ts` | `scripts/feeds.mjs` sitemap and RSS builders, and that the committed `public/sitemap.xml` and `public/rss.xml` are current |
+| `tests/workcell.test.ts` | The hero cell view scene: every rect inside the 320x180 frame, palette keys only, memoized markup with an ink backdrop and CSS-variable fills; the game sprites (bin, conveyor) stay out of the sheet |
 | `tests/schematic.test.ts` | The dossier sketch renderer: arrowheads sharing a box face get separate ports (at least 16 units apart), and every tip stops `TIP_GAP` short of the box |
-| `tests/content.test.ts` | Project and job fields, unique ids, sketches, the private-data loader, copy rules on every published string |
+| `tests/content.test.ts` | Project and job fields, unique ids and skills, sketches, the private-data loader, copy rules on every published string |
 | `tests/lighting.test.ts` | Every `litSurfaces` composite holds 4.5:1 for every text token on it (via `tokens.ts` `contrast()`); every decorative light selector is reset in the Text Mode, mono, and print lists; every CSS animation sits under `.motion-ok`; no `backdrop-filter`, blur filter, or shadow blur over 60px; the `tokens.ts` lighting mirror matches `globals.css`; `grain.png` under 2 kB |
 | `tests/lamp.test.ts` | `lib/lamp.ts` on a stubbed DOM: no layout read in pointermove, one rect read on enter and one after a scroll, one style write per frame, dialogs skipped, detach and clear on E-STOP / reduced motion / Text Mode, re-attach on release |
 
 - Tests type-check under `tests/tsconfig.json` (adds node types); the app `tsconfig.json` excludes `tests/` so Next never sees them.
 - `vitest.config.mjs` swaps the server-only `require("./spriteData")` in `lib/pixel/spriteStore.ts` for a dynamic import, because vite-node cannot `require` a .ts file. App code is unchanged.
-- Use `tests/helpers/rng.ts` (`seeded()`) wherever a `World` is built, so runs are reproducible.
-- A bug fix lands in its own commit with the test that would have caught it. New engine, parser, or generator behavior gets a test in the same commit.
+- A bug fix lands in its own commit with the test that would have caught it. New parser, generator, or renderer behavior gets a test in the same commit.
 - `vite` is pinned to 6 because Vite 7 needs Node 20.19 or newer.
 
 **CI** is `.github/workflows/ci.yml`: on every push and pull request, Node from `.nvmrc` (22, matching `engines`), then `npm ci`, `lint`, `typecheck`, `check:copy`, `npm test`, `build` (into `.next-build`), and `check:ssr`. To reproduce it, export HEAD into an empty directory (`git archive HEAD | tar -x -C /tmp/ci`) and run the same steps there.
@@ -85,7 +76,7 @@ When you add a guard-relevant feature, extend the guard in the same commit.
 - **Every fact renders verbatim from `data/portfolio.json`.** Playful labels are framing only ("BAY 01 / DEPLOYED", "LV 3", "SERVICE LOG", "MOD-01").
 - **Derived numbers come from `lib/facts.ts`** (500+, 6 programs, 296 tests, 31 skills, Top 5% (2024), 2nd, May 2025). Each extractor throws if its source sentence changes shape, so the build fails instead of shipping a stale number. Never hand-type one of these numbers in a component.
 - **LV numbers** are computed from experience array order (`questLevels()`), oldest is LV 1.
-- **Game and visitor values are labeled:** joint angles, latency, episode counts, sorted n/31, ping, clock, and badge counts carry SIM, "your run", "your link", or "your clock".
+- **Visitor values are labeled:** ping, clock, and badge counts carry "your run", "your link", "your clock", or "this browser".
 - **No availability claim anywhere.** `sudo hire adnan` opens a channel (focuses Contact), nothing more.
 - **Hidden entries stay hidden.** `experience[].hidden` (Vizualty) and the `_todo` notes are never rendered. `scripts/strip-private-loader.cjs` (wired in `next.config.js`) removes both before `portfolio.json` reaches any JS bundle; node scripts read the full file.
 - **Copy voice:** plain, punchy, short. No em dashes. No emoji characters (pixel-art icons are fine).
@@ -112,7 +103,7 @@ components/
   WorkCard/         MOD/RIG cards (id="card-<id>", heading id="project-<id>", data-skills, OPEN DOSSIER link)
   Footer/           Uplink (contact) with COPY ADDRESS
   pixel/            Sprite, PixelButton, Panel, Led, Eyebrow, DitherBand
-  teleop/           TeleopCell (main-bundle shell + SSR poster), TeleopLive + engine/ (lazy)
+  workcell/         CellView: the hero CRT, a static SSR render of the workcell (decorative, aria-hidden)
   ops/              OpsButton/KeysButton, SoundToggle, sound.ts, StationLayer (shortcuts, dialogs, idle boot),
                     Terminal + commands.ts (lazy), Keymap (lazy), useModal
   Toast/            badge toast (lazy, role=status)
@@ -131,14 +122,14 @@ lib/
   hello.ts          console greeting + window.ab01 (lazy)
   puppet.ts         AB-01 wave/dance/color and the idle sit (lazy)
   lamp.ts           the inspection lamp: lights the frame under a fine pointer (lazy; see Lighting)
+  loop.ts           fixed 60 Hz step + rAF render loop (the 404 level)
   pixel/            sprites.json, font.json (5x7 bitmap), toPaths.ts (pure), spriteData.ts (the sheet,
                     lazy in the browser), spriteStore.ts (where <Sprite> finds it), raster.ts, tokens.ts, groups.ts
   clientOnly.tsx    React.lazy behind a mount guard; use it instead of next/dynamic
-  teleop/dims.ts    the cell's 320x180 frame (so the poster shell does not import the scene)
-  teleop/scene.ts   workcell geometry and drawing shared by the SSR poster and the canvas
+  workcell/dims.ts  the cell view's 320x180 frame (so the CellView shell does not import the scene)
+  workcell/scene.ts the static workcell scene: AB-01 at its desk, the arm at home, stack light, dock (server only on first load)
 data/
   portfolio.json    all content (typed by types/portfolio.ts)
-  teleop.json       skill block labels and bin labels for the cell
   schematics.json   per-project sketch spec (nodes on a 4x2 grid, edges); labels must come from that project's copy
 _drafts/            unpublished posts (never read by the build; move to _posts/ only after Adnan approves)
 scripts/            guards, feeds.mjs (pure sitemap and RSS builders) + the prebuild writers, OG renderer and grain
@@ -150,22 +141,22 @@ tests/              Vitest unit suite (see Engineering)
 ## Design tokens and pixel primitives
 
 - **Palette "Station 16"** lives as CSS custom properties in `:root` (`styles/globals.css`) and is mapped into `tailwind.config.js` colors (the default Tailwind palette is replaced). `lib/pixel/tokens.ts` mirrors it for `/lab` contrast checks. Text tokens: `--paper` (body), `--mist` (muted), `--teal` (accent, links, focus), `--amber`, `--coral`, `--leaf`, `--violet`, `--sky`. Never text: `--steel`, `--alloy`, `--rust`, `--sand`, `--moss`. No body text on a colored fill.
-- **Themes:** `html[data-theme="amber"]` and `html[data-theme="mono"]` (high contrast, all accents white, links underlined, scanlines and dither off) override the variables. The canvas reads the live variables, so it recolors too.
-- **Skill groups and bins:** Programming = teal, Robotics & ML = amber, Embedded & Hardware = leaf, Software & Infrastructure = violet. Always paired with the text label.
+- **Themes:** `html[data-theme="amber"]` and `html[data-theme="mono"]` (high contrast, all accents white, links underlined, scanlines and dither off) override the variables. The 404 canvas reads the live variables, so it recolors too; the cell view's SVG fills are the variables themselves.
+- **Skill groups:** Programming = teal, Robotics & ML = amber, Embedded & Hardware = leaf, Software & Infrastructure = violet. Always paired with the text label.
 - **Bay accents:** 00/01 teal, 02 amber, 03 leaf, 04/05 violet, 06 sky (`data-bay` / `data-accent` set `--accent`).
 - **Primitives:** `.px-frame` (2px border, stepped corner notch on `::before` so `clip-path` never clips a focus ring; variants `--active`, `--inset`, `--crt`), `.px-titlebar`, `.px-body`, `.px-btn` (`--primary`, `--secondary`, `--danger`, `--ghost`, `--compact`; 48px min height; 2px press), `.chip`, `.led` (blink 0.5 Hz, motion only), `.crt-screen` (the only place scanlines appear), `.dither` (static Bayer bands between bays). No `border-radius` anywhere.
 - **Focus:** 2px teal outline at 2px offset plus pixel corner brackets on buttons and chips (the bracket layer carries a static glow). Always visible on `:focus-visible`.
 - **Digits and ampersands:** Pixelify Sans draws 5 like an S, and Silkscreen draws & like a $. Two `unicode-range` faces fix both everywhere: "Pixel Digits" (0-9 from Silkscreen) leads `--font-pixel`, and "Label Amp" (& from Pixelify) leads `--font-label`. Big numbers (telemetry values, LV numbers) use Silkscreen outright. Silkscreen's own 2 reads as Z and its 0 equals O, so the shipped `silkscreen-latin-400-normal.woff2` has a redrawn 2 (rounded shoulder) and a slashed 0, made by `scripts/patch-silkscreen.py` (OFL, no Reserved Font Name; re-run it if the font file is ever replaced). Check any new numeric display on a screenshot.
 - **Type rules:** Silkscreen only at 16px, 24px, or 32px (multiples of its 8px grid; 32px is for LV numbers only), uppercase, 0.04em tracking, `-webkit-font-smoothing: none` on those elements only. Anything smaller uses Plex Mono 13 to 14px. Paragraphs are Plex Sans 17 to 18px, line height 1.6.
-- **Sprites:** authored at 1x as palette-indexed string rows in `lib/pixel/sprites.json` (`.` is transparent; keys come from `palette`). `components/pixel/Sprite.tsx` renders crisp SSR SVG, one `<path>` per color via `rowsToPaths` (horizontal runs merged). The art is server markup: the browser keeps it through hydration without the sheet (`hooks/useServerMarkup.ts`, `dangerouslySetInnerHTML` plus `suppressHydrationWarning`), and loads `lib/pixel/spriteData.ts` only when it must draw something the server did not (a client-side navigation, or a new frame such as the SND speaker). The cell poster (`CellPoster` + `posterArt.ts`) and the track walker frames work the same way. `--px` is 3px under 768px and 4px above. The canvas and the OG renderer use the same JSON, and canvas text uses `lib/pixel/font.json`, so no font load gates the canvas.
+- **Sprites:** authored at 1x as palette-indexed string rows in `lib/pixel/sprites.json` (`.` is transparent; keys come from `palette`). `components/pixel/Sprite.tsx` renders crisp SSR SVG, one `<path>` per color via `rowsToPaths` (horizontal runs merged). The art is server markup: the browser keeps it through hydration without the sheet (`hooks/useServerMarkup.ts`, `dangerouslySetInnerHTML` plus `suppressHydrationWarning`), and loads `lib/pixel/spriteData.ts` only when it must draw something the server did not (a client-side navigation, or a new frame such as the SND speaker). The hero cell view (`CellView` + `lib/workcell/scene.ts`) and the track walker frames work the same way. `--px` is 3px under 768px and 4px above. The cell view, the 404 canvas, and the OG renderer use the same JSON, and their text uses `lib/pixel/font.json`, so no font load gates them.
 
 ## Lighting
 
 "Pixels snap, light glides." Station AB-01 is rendered with modern lighting, but no pixel changes: sprites, the notch, 2px borders, the hard 4px shadows, dither, and scanlines are the same lit or unlit. The tokens are the "Lighting" block in `:root` (`styles/globals.css`), mirrored as `LIGHTING` in `lib/pixel/tokens.ts`.
 
 - **`--lit` is the master switch.** Every light alpha is `calc(<alpha> * var(--lit))`. `html[data-theme="mono"]`, `html[data-plain]`, and `@media print` set `--lit: 0`, `--grain: none`, and `--titlebar-top: var(--panel-hi)`, which is exactly the flat site. Layers `--lit` cannot zero (pseudo-element lights, non-alpha gradients, border-image) are reset explicitly in the "Lights off" block (mono and Text Mode) and in the print block; `tests/lighting.test.ts` keeps the three lists in step. Add any new light to all three.
-- **Derived tokens** (`--hi`, `--edge`, `--depth`, `--depth-lg`, `--bloom`, `--bloom-live`, `--bloom-half`, `--rail`) are declared on `:root, [data-lit], html[data-estop] .cell .crt-screen`, because a custom property that uses `var()` resolves where it is declared. A subtree with `data-lit="0"` is unlit (`/lab` uses it for the side-by-side).
-- **Light sources:** the powered CELL VIEW CRT (`--bloom`, `--bloom-live` once live, coral `--fault-rgb` under E-STOP; a glass `::before` with a hard glint and vignette under the scanlines; a one-shot `steps(4)` warm-up under `.motion-ok`), the hero light (`.hero::before`: teal key from the cell, violet rim, sky bounce, grain, masked out before the next bay), LED halos, telemetry glows, dither strips as light bars, the status bar's 2px `--rail`, the dossier plate key (4% bay accent), the FIG sketch and the 404 level screen (`--bloom-half`), and the 404 coral fault light behind the level.
+- **Derived tokens** (`--hi`, `--edge`, `--depth`, `--depth-lg`, `--bloom`, `--bloom-half`, `--rail`) are declared on `:root, [data-lit], html[data-estop] .cell .crt-screen`, because a custom property that uses `var()` resolves where it is declared. A subtree with `data-lit="0"` is unlit (`/lab` uses it for the side-by-side).
+- **Light sources:** the powered CELL VIEW CRT (`--bloom`, coral `--fault-rgb` under E-STOP; a glass `::before` with a hard glint and vignette under the scanlines), the hero light (`.hero::before`: teal key from the cell, violet rim, sky bounce, grain, masked out before the next bay), LED halos, telemetry glows, dither strips as light bars, the status bar's 2px `--rail`, the dossier plate key (4% bay accent), the FIG sketch and the 404 level screen (`--bloom-half`), and the 404 coral fault light behind the level.
 - **Hierarchy:** the CRT is the brightest object; primary buttons (and the command palette, if added) are second; everything else stays at 10% light alpha or less; the hard 4px outline shadow stays dominant on every frame (`--depth` sits under it). No `backdrop-filter`, no blur filter, no shadow blur over 60px, no fixed full-viewport layer.
 - **Motion:** pixel objects keep `steps(4)`, 2px presses, and hard shadows. Only light (button glows, the lamp ring) moves, on `--ease-light`. Primary and secondary buttons lift 1px on hover only with `(hover: hover)`, `.motion-ok`, and no E-STOP or Text Mode.
 - **Caps (measured, AA at full light):** `--hi` 3% sheen, `--edge` 6%, lamp wash `--wash-max` 5% (only on `--panel` faces; never on `--inset`, `--crt`, dialogs, or the plate), palette row `--row-mix` 10%, grain alpha at most 8/255 (`npm run grain`, 96x96 drawn at 192px pixelated). `litSurfaces` in `tokens.ts` composites each worst case; `/lab` renders them with live ratios, and `tests/lighting.test.ts` fails under 4.5:1. Today's worst is coral on a leaf-washed frame face at 4.52:1. Raise any alpha only after adding its composite there.
@@ -182,8 +173,8 @@ tests/              Vitest unit suite (see Engineering)
 
 ## Adding or editing content
 
-- **A project:** add it to `projects` (Selected work) or `engineeringProjects` (Independent builds) in `data/portfolio.json`, following `types/portfolio.ts` (at most four highlights). That one entry feeds the card (MOD/RIG number from position), its `/work/<id>` dossier and sitemap entry, the Inventory cross-reference (via its stack and highlights), the OPS console (`projects`, `open <id>`, `dossier <id>`, Tab completion), and `check:ssr` (every field must render on the home page and on the dossier). Add a sketch to `data/schematics.json` using only parts the project's copy names (`check-work` fails until you do). Add a 32x32 icon to `sprites.json` and map it in `lib/projects.ts` (`PROJECT_ICONS`), or it falls back to a skill block.
-- **A skill:** add it to `skills` and give it exactly one block in `data/teleop.json` (2 to 6 uppercase chars the bitmap font can draw). `check-teleop` fails until you do.
+- **A project:** add it to `projects` (Selected work) or `engineeringProjects` (Independent builds) in `data/portfolio.json`, following `types/portfolio.ts` (at most four highlights). That one entry feeds the card (MOD/RIG number from position), its `/work/<id>` dossier and sitemap entry, the Inventory cross-reference (via its stack and highlights), the OPS console (`projects`, `open <id>`, `dossier <id>`, Tab completion), and `check:ssr` (every field must render on the home page and on the dossier). Add a sketch to `data/schematics.json` using only parts the project's copy names (`check-work` fails until you do). Add a 32x32 icon to `sprites.json` and map it in `lib/projects.ts` (`PROJECT_ICONS`), or it falls back to the `skill-block` sprite.
+- **A skill:** add it to `skills`. It appears in Inventory (add an honest alias in `lib/skillIndex.ts` if the copy names it differently), the OPS `skills` output, and the derived skill count.
 - **A job:** add to `experience` newest first; LV numbers update automatically. `current: true` gets the CURRENT badge. `hidden: true` keeps it out of every page and bundle.
 - **A number you want to show:** derive it in `lib/facts.ts` with an extractor that throws on drift. Then use the export.
 
@@ -193,10 +184,7 @@ Independent islands talk through typed window CustomEvents (`lib/bus.ts`, `emit`
 
 | Event | Emitted by | Used by |
 | --- | --- | --- |
-| `ab:skill` | Teleop engine (correct sort) | Inventory chip "found" mark |
-| `ab:cell` | Teleop engine: grip, sort, misroute, stop, clear, rec, saved, replay, complete | sound, badges |
-| `ab:cmd` | OPS `latency <ms>` | live Teleop engine |
-| `ab:estop` | `setEstop` | track, canvas, 404 level, sound (mutes) |
+| `ab:estop` | `setEstop` | track, 404 level, sound (mutes) |
 | `ab:ops` | OPS console: open, key, run, deny | sound, badges |
 | `ab:open` | OPS>/Keys buttons | StationLayer (opens the dialog, remembers the opener), Header (closes the menu) |
 | `ab:bot` | `window.ab01`, head-logo triple-click | `lib/puppet.ts` |
@@ -210,7 +198,7 @@ Flags on `<html>`, all applied by the inline pre-paint script in `pages/_documen
 - `motion-ok`: the visitor has not asked for reduced motion. **Every CSS animation must be gated on `.motion-ok`.**
 - `data-plain`: Text Mode (`?plain=1`, or the saved choice). Everything in Plex, one column, no pixel decoration.
 - `data-theme="amber" | "mono"`: saved theme (`theme` command).
-- `data-estop`: the global E-STOP is latched (persists across visits). CSS shows the coral "Site stop" strip under the status bar and the button's "E-stop on" label (both labels share one grid cell, so the nav never shifts). Stops every CSS animation and transition (`animation: none`, so one-shot entrances such as the OPS drawer and toast land on their visible final state instead of freezing invisible at keyframe 0), freezes the track, the cell, and the 404 level, and mutes sound.
+- `data-estop`: the global E-STOP is latched (persists across visits). CSS shows the coral "Site stop" strip under the status bar and the button's "E-stop on" label (both labels share one grid cell, so the nav never shifts). Stops every CSS animation and transition (`animation: none`, so one-shot entrances such as the OPS drawer and toast land on their visible final state instead of freezing invisible at keyframe 0), freezes the track and the 404 level, turns the hero CRT's glow to a coral fault light, and mutes sound.
 - `data-booted`: the boot POST already played this session.
 - `data-crt="off"`: scanlines hidden (`crt off`).
 
@@ -222,10 +210,9 @@ The first viewport is plain SSR HTML. Heavy or optional pieces load on intent:
 
 | Piece | Loads when | Budget (gzip) |
 | --- | --- | --- |
-| `/` First Load JS | always | 110 kB target, 130 kB hard ceiling (99 kB after the sprite split) |
+| `/` First Load JS | always | 110 kB target, 130 kB hard ceiling (98.7 kB today, with the static cell view) |
 | `/work/<id>` First Load JS | always on a dossier | about 94 kB; the sketch SVG is built in `getStaticProps`, so `lib/schematic.ts` and `font.json` never ship |
 | Sprite sheet (`lib/pixel/spriteData`) | a client-side navigation, a live sprite frame change, or a lazy chunk that draws sprites | about 4 kB |
-| Teleop engine + live cell (`TeleopLive`) | TAKE CONTROL / AUTO DEMO, or idle prefetch once the cell is half visible | 25 kB |
 | OPS console UI (`Terminal`) | first open (`/`, `` ` ``, OPS>) | 8 kB per chunk (about 4 kB today) |
 | OPS parser + command table (`commands.ts`) | `import()` as the console mounts | 8 kB per chunk (about 6.5 kB today; the two together are about 10 kB) |
 | Keymap placard | first `?` / Keys | small |
@@ -235,25 +222,25 @@ The first viewport is plain SSR HTML. Heavy or optional pieces load on intent:
 | Visitor badges row | after hydration, client-only | small |
 | 404 level (`LostSignal`) | "Drive AB-01 home" click | 8 kB |
 
-After a build, check the table Next prints, and confirm lazy chunks are not in `build-manifest.json` for `/`. Client-only lazy components use `lib/clientOnly` (React.lazy behind a mount guard), not `next/dynamic`, which drags its loadable runtime into the first load. Server-only code behind `typeof window === "undefined" ? require(...) : null` is dropped from the browser build (Next compiles `typeof window` to a constant). Sprites cost zero image requests. Fixed aspect-ratio boxes mean no layout shift when the poster swaps for the canvas.
+After a build, check the table Next prints, and confirm lazy chunks are not in `build-manifest.json` for `/`. Client-only lazy components use `lib/clientOnly` (React.lazy behind a mount guard), not `next/dynamic`, which drags its loadable runtime into the first load. Server-only code behind `typeof window === "undefined" ? require(...) : null` is dropped from the browser build (Next compiles `typeof window` to a constant). Sprites cost zero image requests. The cell view and the 404 level sit in fixed aspect-ratio boxes, so nothing shifts.
 
 ## Motion, sound, and access contract
 
 - Animate only transform, opacity, and canvas. UI transitions are 120ms (buttons, chips) and 160ms (panels) with `steps(4)`. Light (glows, the lamp ring) is the one exception: opacity on `--ease-light` (see Lighting).
 - Nothing blinks faster than 1 Hz; nothing flashes above 3 Hz. Highlight pulses fire once for 600ms.
-- **Reduced motion:** final states immediately; static conveyor; AB-01 cuts between checkpoints (no walk, beam, or idle sit; puppet acts hold one pose); no boot typing, reels, particles, shake, or landing squash; smooth scroll off.
-- **Canvas loops** (cell, 404 level) run a fixed 60 Hz step with rAF render and stop off-screen, on a hidden tab, under E-STOP, and when settled.
-- **Keyboard:** arrow keys are captured only while the cell (or the 404 level) has focus; Esc releases. Global shortcuts (`/`, `` ` ``, `?`) ignore inputs, textareas, selects, contenteditable, and any Ctrl/Meta/Alt chord. Dialogs (OPS console, keymap) are native modal `<dialog>`s via `useModal`: Tab wraps inside, Esc and backdrop close, focus returns to the opener (or the menu button if the opener was in the closed menu).
-- **Touch:** D-pad, GRIP, HOLD, and the 404 pads are 56px or larger; every other control is at least 44px on a coarse pointer (track checkpoints are 44px wide, and a Writing entry is its title link's target). The status bar fits from 320px (below 375px it tightens gaps and uses 44px E-STOP and menu squares). Nothing is hover-only.
+- **Reduced motion:** final states immediately; AB-01 cuts between checkpoints (no walk, beam, or idle sit; puppet acts hold one pose); no boot typing, reels, particles, shake, or landing squash; smooth scroll off.
+- **The canvas loop** (the 404 level, `lib/loop.ts`) runs a fixed 60 Hz step with rAF render and stops off-screen, on a hidden tab, under E-STOP, and when settled.
+- **Keyboard:** arrow keys are captured only while the 404 level has focus; Esc releases. The hero cell view takes no input. Global shortcuts (`/`, `` ` ``, `?`) ignore inputs, textareas, selects, contenteditable, and any Ctrl/Meta/Alt chord. Dialogs (OPS console, keymap) are native modal `<dialog>`s via `useModal`: Tab wraps inside, Esc and backdrop close, focus returns to the opener (or the menu button if the opener was in the closed menu).
+- **Touch:** the 404 pads are 56px or larger; every other control is at least 44px on a coarse pointer (track checkpoints are 44px wide, and a Writing entry is its title link's target). The status bar fits from 320px (below 375px it tightens gaps and uses 44px E-STOP and menu squares). Nothing is hover-only.
 - **iOS:** `viewport-fit=cover`, so the container gutter, the OPS drawer, and the toast take `env(safe-area-inset-*)`. Use `svh` (with a `vh` fallback line) for viewport heights. The OPS input is 16px so Safari does not zoom on focus. No `backdrop-filter`, and no `overflow` on any ancestor of the sticky status bar.
 - **Sound** is off by default. The AudioContext is created only inside `lib/audio.ts` `enable()`, reached only through `import()` in `components/ops/sound.ts` after an opt-in (SND click, `sound on`, or the first gesture of a visit after a saved opt-in). Master gain 0.06. Every sound doubles a visual or text cue.
-- **Content is HTML.** The canvas is `aria-hidden` and only duplicates labels that exist in the HTML; narration goes through one polite live region per island. The page is complete with JS off, in Text Mode, and in print.
+- **Content is HTML.** The 404 canvas and the hero cell view are `aria-hidden` and only duplicate labels that exist in the HTML; narration goes through one polite live region per island. The page is complete with JS off, in Text Mode, and in print.
 
 ## OPS console
 
 Opened with `/`, `` ` ``, or the OPS> button. Commands (all output generated from `portfolio.json` and `lib/facts.ts`):
 
-`help`, `whoami`, `status`, `resume`, `projects` / `ls`, `open <id>`, `dossier <id>`, `experience`, `skills`, `education`, `awards`, `contact`, `email` (copy), `github`, `linkedin`, `blog`, `teleop`, `latency <ms>` (0 to 300, SIM), `estop`, `keys`, `badges`, `clear`, `theme cyan|amber|mono`, `sound on|off`, `crt on|off`, `ping` (your link), `history`, `date` (your clock), `exit`.
+`help`, `whoami`, `status`, `resume`, `projects` / `ls`, `open <id>`, `dossier <id>`, `experience`, `skills`, `education`, `awards`, `contact`, `email` (copy), `github`, `linkedin`, `blog`, `estop`, `keys`, `badges`, `clear`, `theme cyan|amber|mono`, `sound on|off`, `crt on|off`, `ping` (your link), `history`, `date` (your clock), `exit`.
 
 Table output (`help`, `projects`) goes through `tableRows()` in `components/ops/table.ts` (names padded to the longest plus two spaces) and is printed with kind `"row"`. `Terminal.tsx` splits only `row` lines (via `splitRow`) into two cells that stack under 640px, so a visitor's own text (`history`) is never split. Use the same helper for new tables; `tests/ops.test.ts` asserts every row splits.
 
@@ -261,7 +248,7 @@ Eggs (not listed in `help`): `sudo hire adnan` ("Access granted. Opening a chann
 
 Other discoveries: `window.ab01.wave()`, `.dance()`, `.color('amber')`; triple-click the AB-01 head in the status bar; AB-01 sits after 20 s idle; a view-source hello in the pre-paint script. The keymap placard lists secrets only after they are found.
 
-**Visitor badges** (`lib/badges.ts`): Calibrated (sort 31/31), Fail-closed (latch and clear a stop), Recorded (record and replay), Root access (open the console), Signal found (finish the 404 level), Night shift (visit 22:00 to 05:00 local), Read the manual (open the resume). They live in localStorage, render only after mount in their own clearly labeled row, and never mix with the real awards. No points.
+**Visitor badges** (`lib/badges.ts`): Root access (open the console), Signal found (finish the 404 level), Night shift (visit 22:00 to 05:00 local), Read the manual (open the resume). They live in localStorage, render only after mount in their own clearly labeled row, and never mix with the real awards. No points.
 
 ## Social card and icons
 
@@ -273,12 +260,12 @@ Headless browsers are blocked in the agent environment, so a human pass is the o
 
 1. First viewport, no interaction: name, role, lede, three proof rows, RESUME.PDF (also in the status bar). Nothing waits on a boot screen.
 2. Read every section top to bottom. Facts match the resume PDF. No overflow in the status bar at 320px, 375px, 768px, 1024px, 1280px.
-3. Keyboard only: Tab from the top (skip links work, focus is always visible), TAKE CONTROL, drive with arrows, Space to grip, X then C, R to record, Esc releases. Inventory chips toggle highlights; Clear works.
+3. Keyboard only: Tab from the top (skip links work, focus is always visible, and the hero cell view takes no focus). Inventory chips toggle highlights; Clear works.
 4. `/` opens the console; run `help`, `open operator-hmi`, `sudo hire adnan`, `rm -rf /` then `clear`, `theme amber`, `theme mono`, `theme cyan`, Esc. `?` opens the placard. Focus returns where it was.
-5. Header E-STOP: everything freezes, sound mutes, the cell refuses CLEAR until the header stop is released.
-6. SND on: a short chime; grip and sort blip. Reload: sound stays on but starts only after your first click.
-7. macOS "Reduce motion" on: no walking, typing, particles, or shake; the conveyor is static.
-8. Phone: menu opens and closes, touch pads drive the cell, the 404 level (visit `/nope`) is playable with pads.
+5. Header E-STOP: everything freezes, sound mutes, the hero CRT glows coral until the stop is released.
+6. SND on: a short chime; opening the console blips. Reload: sound stays on but starts only after your first click.
+7. macOS "Reduce motion" on: no walking, typing, particles, or shake.
+8. Phone: menu opens and closes, the cell view fits the column, the 404 level (visit `/nope`) is playable with pads.
 9. Text mode, print preview, and JS disabled all show the full content.
 10. `/lab`: review new art against the original-art rule; check the OG card.
 11. Paste a page URL into a link-preview tool (or Slack DM to yourself) after deploy to confirm the card.
