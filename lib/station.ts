@@ -25,6 +25,7 @@ export function setPlain(on: boolean) {
   if (!el) return;
   el.toggleAttribute("data-plain", on);
   write(KEYS.plain, on ? "1" : "0");
+  emit("ab:plain", { on });
 }
 
 export type Theme = "default" | "amber" | "mono";

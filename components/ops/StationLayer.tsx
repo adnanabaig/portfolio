@@ -56,7 +56,9 @@ export default function StationLayer() {
       }
     };
     document.addEventListener("keydown", onKey);
-    const offOpen = on("ab:open", ({ what, from }) => show(what, from));
+    const offOpen = on("ab:open", ({ what, from }) => {
+      if (what !== "palette") show(what, from);
+    });
 
     let done = false;
     const boot = () => {

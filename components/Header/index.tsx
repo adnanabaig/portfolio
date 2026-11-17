@@ -94,6 +94,8 @@ const Header = ({ current = "home", checkpoints = CHECKPOINTS }: HeaderProps) =>
 
   // Opening a station dialog from the menu closes the menu (focus returns to the menu button later).
   useEffect(() => onBus("ab:open", () => setOpen(false)), []);
+  // Text Mode can also flip from the command palette; keep both toggles' aria-pressed true to it.
+  useEffect(() => onBus("ab:plain", ({ on }) => setPlain(on)), []);
 
   // Triple-click the AB-01 head: it waves on the track (an easter egg; the logo is not the h1).
   const onBrandClick = (e: React.MouseEvent<HTMLAnchorElement>) => {

@@ -11,8 +11,15 @@ export interface BusEvents {
   "ab:sound": { on: boolean };
   /** OPS console moments (sound, badges). */
   "ab:ops": { type: "open" | "key" | "run" | "deny" };
-  /** Open a station dialog; the opener is remembered for focus return. */
-  "ab:open": { what: "ops" | "keys"; from?: HTMLElement | null };
+  /**
+   * Open a station dialog; the opener is remembered for focus return. `cmd`
+   * pre-fills the OPS console input (it runs only when the visitor presses Enter).
+   */
+  "ab:open": { what: "ops" | "keys" | "palette"; from?: HTMLElement | null; cmd?: string };
+  /** A short action confirmation for the toast (never takes focus). */
+  "ab:toast": { text: string; tone: "teal" | "amber" | "coral" };
+  /** Text Mode was turned on or off (the status bar and menu toggles stay in sync). */
+  "ab:plain": { on: boolean };
   /** Puppet AB-01 on the track (window.ab01, the head logo). */
   "ab:bot": { act: "wave" | "dance" | "color"; color?: string };
   /** The 404 micro-level was finished. */

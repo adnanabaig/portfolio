@@ -18,6 +18,8 @@ export interface TerminalProps {
   onClose(restore: boolean): void;
   /** Swap to the keymap placard (keeps the original opener for focus return). */
   onKeys(): void;
+  /** Pre-fills the input (the command palette's ">" hand-off). Never runs on its own. */
+  cmd?: string;
 }
 
 const BANNER: Line[] = [
@@ -49,12 +51,12 @@ function renderText(l: Line) {
 
 const behavior = (): ScrollBehavior => (prefersReducedMotion() ? "auto" : "smooth");
 
-export default function Terminal({ onClose, onKeys }: TerminalProps) {
+export default function Terminal({ onClose, onKeys, cmd = "" }: TerminalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const logRef = useRef<HTMLDivElement>(null);
   const [lines, setLines] = useState<Line[]>(BANNER);
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState(cmd);
   const hist = useRef<string[]>([]);
   const cursor = useRef(-1);
   const latched = useRef(false);
