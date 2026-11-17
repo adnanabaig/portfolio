@@ -2938,10 +2938,24 @@ html[data-crt="off"] .crt-screen::after {
 /* Badge toast: bottom left, never takes focus. */
 .toast {
   position: fixed;
+  /* Undo the popover UA box (inset 0, margin auto, border, padding, canvas fill). */
+  inset: auto;
   left: max(16px, env(safe-area-inset-left));
   bottom: calc(16px + env(safe-area-inset-bottom));
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  overflow: visible;
+  width: auto;
+  height: auto;
   z-index: 60;
   pointer-events: none;
+}
+/* Closed popover: keep the (empty) live region rendered so it can announce. */
+.toast[popover]:not(:popover-open) {
+  display: block;
 }
 .toast__card {
   display: flex;
