@@ -225,8 +225,9 @@ html[data-estop] .cell .crt-screen {
     transparent 100%
   );
 }
-html[data-estop] .cell .crt-screen {
-  --glow-rgb: var(--fault-rgb); /* a static fault light */
+html[data-estop] .cell .crt-screen,
+html[data-estop] .px-frame--crt.cell::before {
+  --glow-rgb: var(--fault-rgb); /* a static fault light on the tube and its bezel */
 }
 
 /* Themes (WS3 exposes the switch; the _document script applies the saved one). */
@@ -2969,9 +2970,12 @@ html[data-plain] .dossier__links {
   margin-top: 0;
   border-top: 0;
 }
-/* Under the title: splits the 32px gap above the body (15 + 2 + 15). */
+/* Under the title: sits in the 32px gap above the body. The -17px bottom
+   margin collapses with the body's 32px (and its first child's), so the gap
+   below is 15px and the total is exactly what it was. */
 .post-rule--head {
   margin-top: 15px;
+  margin-bottom: -17px;
 }
 .post-end .post-pager {
   margin-top: 20px;
@@ -3676,14 +3680,19 @@ html:not(.js) .inventory__readout {
   isolation: isolate;
   margin-top: 48px;
 }
-/* A coral fault light behind the optional level; the plain links above stay flat. */
+/* A coral fault light behind the level screen once it is open; the plain
+   links above stay flat. (No :has() support: no light, nothing else changes.) */
 .lost__level::before {
   content: "";
   position: absolute;
   inset: -48px 0 -24px;
   z-index: -1;
+  display: none;
   pointer-events: none;
-  background: radial-gradient(50% 60% at 50% 45%, rgb(var(--fault-rgb) / calc(0.06 * var(--lit))), transparent 70%);
+  background: radial-gradient(50% 60% at 50% 55%, rgb(var(--fault-rgb) / calc(0.06 * var(--lit))), transparent 70%);
+}
+.lost__level:has(.level)::before {
+  display: block;
 }
 .level {
   max-width: 980px;
