@@ -535,8 +535,11 @@ html[data-theme="mono"] .crt-screen::after {
   box-shadow: none;
   transform: none;
 }
+/* The 32px glyph overhangs the 10px padding by 4px each way, so an icon
+   button is 48px tall like a text button. */
 .px-btn__icon {
   margin-left: -2px;
+  margin-block: -4px;
 }
 
 /* Pixel corner brackets around focused buttons and chips (the outline still shows). */
@@ -2113,10 +2116,17 @@ html[data-estop] .sitestop {
   gap: 16px;
   margin-top: 24px;
 }
+/* Its own line after both buttons when it has text; out of the flex flow (no
+   doubled gap) when empty. */
 .uplink__status {
+  order: 1;
+  flex-basis: 100%;
   font-family: var(--font-mono);
   font-size: 14px;
   color: var(--leaf);
+}
+.uplink__status:empty {
+  position: absolute;
 }
 .uplink__socials {
   margin-top: 16px;
