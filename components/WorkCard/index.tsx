@@ -30,7 +30,7 @@ const WorkCard = ({ project, index, kind = "module", skills = "" }: WorkCardProp
     >
       <div className="px-titlebar">
         <span className="px-titlebar__label">
-          {unit} {id}
+          <span className="whitespace-nowrap">{unit}</span> <span className="whitespace-nowrap">{id}</span>
         </span>
         {status === "in-progress" && (
           <span className="px-titlebar__right card__status">

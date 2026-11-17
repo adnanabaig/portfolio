@@ -418,9 +418,10 @@ html[data-theme="mono"] .crt-screen::after {
 
 .px-titlebar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 2px 16px;
   min-height: 40px;
   padding: 6px 14px;
   background: var(--panel-hi);
@@ -431,11 +432,14 @@ html[data-theme="mono"] .crt-screen::after {
   min-width: 0;
   overflow-wrap: anywhere;
 }
+/* When the label and the right slot do not fit one line, the slot drops to
+   its own line, still right-aligned (unit and slug never split mid-word). */
 .px-titlebar__right {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   flex: none;
+  margin-left: auto;
 }
 .px-body {
   padding: 16px;

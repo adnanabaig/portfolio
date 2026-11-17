@@ -99,7 +99,7 @@ export default function Dossier({ entry, prev, next, sketch }: DossierProps) {
           <header className="dossier__plate px-frame" data-accent={bay.accent}>
             <div className="px-titlebar">
               <span className="px-titlebar__label">
-                {unit} {id}
+                <span className="whitespace-nowrap">{unit}</span> <span className="whitespace-nowrap">{id}</span>
               </span>
               {status === "in-progress" ? (
                 <span className="px-titlebar__right card__status">
