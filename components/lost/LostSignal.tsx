@@ -6,6 +6,9 @@
 // Raster, the 5x7 bitmap font, and theme colors read from CSS.
 // Keys only while the level has focus; Esc releases. Reduced motion: no
 // landing squash, no dust, no screen motion.
+// Narrow screens (under NARROW css px) show half the world at twice the size,
+// in a taller 8:9 box: the view follows AB-01 (or cuts between the two halves
+// under reduced motion) and the HUD text stays in view.
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { MouseEvent as RMouseEvent, PointerEvent as RPointerEvent } from "react";
@@ -34,6 +37,9 @@ const CASES = [
 const CASE_W = 16;
 const CASE_H = 12;
 const DOCK_X = 284;
+/** Below this canvas width (css px) the view is half the world wide, at 2x. */
+const NARROW = 560;
+const HALF = W / 2;
 
 interface Box {
   x: number;
@@ -89,12 +95,16 @@ export default function LostSignal() {
       });
     };
     let scale = 1;
+    let viewW = W;
     const resize = () => {
       const rect = canvas.getBoundingClientRect();
-      const s = Math.max(1, Math.min(4, Math.floor((rect.width * (window.devicePixelRatio || 1)) / W) || 1));
-      if (s !== scale || canvas.width !== W * s) {
+      // Only the width decides, so the taller narrow box cannot flip it back.
+      viewW = rect.width > 0 && rect.width < NARROW ? HALF : W;
+      wrap.closest(".level")?.toggleAttribute("data-narrow", viewW === HALF);
+      const s = Math.max(1, Math.min(4, Math.floor((rect.width * (window.devicePixelRatio || 1)) / viewW) || 1));
+      if (s !== scale || canvas.width !== viewW * s) {
         scale = s;
-        canvas.width = W * s;
+        canvas.width = viewW * s;
         canvas.height = H * s;
       }
     };
@@ -202,6 +212,9 @@ export default function LostSignal() {
     };
 
     const render = () => {
+      // The view's left edge in world pixels (0 unless narrow).
+      const camX =
+        viewW === W ? 0 : reduced ? (x + BOT_W / 2 > HALF ? HALF : 0) : Math.max(0, Math.min(W - viewW, Math.round(x + BOT_W / 2 - viewW / 2)));
       r.clear();
       // Back wall: rack silhouettes and a dither horizon, then the floor.
       for (let i = 0; i < 6; i++) r.rect(8 + i * 54, 60, 30, GROUND - 60, "c");
@@ -211,8 +224,8 @@ export default function LostSignal() {
       r.rect(0, GROUND, W, 2, "a");
       for (let xx = 0; xx < W; xx += 16) r.rect(xx, GROUND + 2, 1, H - GROUND, "i");
 
-      r.text("SIGNAL LOST", 8, 8, "r");
-      r.text("DRIVE AB-01 HOME", 8, 20, "m");
+      r.text("SIGNAL LOST", camX + 8, 8, "r");
+      r.text("DRIVE AB-01 HOME", camX + 8, 20, "m");
       for (const c of CASES) for (let k = 0; k < c.n; k++) r.sprite("case", c.x, GROUND - (k + 1) * CASE_H);
       r.sprite("dock", DOCK_X, GROUND - 32);
       r.text("HOME", DOCK_X + 1, GROUND - 44, done ? "g" : "t");
@@ -222,13 +235,13 @@ export default function LostSignal() {
       else if (done) r.sprite("ab01-wave", Math.round(x), Math.round(y), 0, facingLeft);
       else r.sprite("ab01", Math.round(x), Math.round(y), frame, facingLeft);
       for (const d of dust) r.set(d.x, d.y, "m");
-      if (done) r.text("SIGNAL FOUND", W - 8 - Raster.textWidth("SIGNAL FOUND"), 8, "g");
+      if (done) r.text("SIGNAL FOUND", camX + viewW - 8 - Raster.textWidth("SIGNAL FOUND"), viewW === W ? 8 : 32, "g");
 
       const out = new Uint32Array(image.data.buffer);
       for (let i = 0; i < r.px.length; i++) out[i] = lut[r.px[i]];
       bctx.putImageData(image, 0, 0);
       ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(buf, 0, 0, W * scale, H * scale);
+      ctx.drawImage(buf, camX, 0, viewW, H, 0, 0, viewW * scale, H * scale);
     };
 
     const settled = () => done || (grounded && !held("left") && !held("right") && buffered <= 0 && squash <= 0 && dust.length === 0);

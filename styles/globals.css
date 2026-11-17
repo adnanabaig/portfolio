@@ -3153,6 +3153,14 @@ html:not(.js) .inventory__readout {
 .level__screen {
   aspect-ratio: 16 / 9;
 }
+/* Narrow: half the world at 2x (LostSignal sets data-narrow from the canvas width). */
+.level[data-narrow] .level__screen {
+  aspect-ratio: 8 / 9;
+}
+/* Once the level runs, the big AB-01 beside the links would be a second robot. */
+main:has(.level) .lost__bot {
+  display: none;
+}
 .level__play {
   position: relative;
   width: 100%;
@@ -3181,6 +3189,20 @@ html:not(.js) .inventory__readout {
   align-items: center;
   gap: 12px;
   padding: 0 12px 12px;
+}
+/* Phones: the four pads stay on one row. */
+@media (max-width: 479px) {
+  .level__pads {
+    gap: 8px;
+    padding: 0 8px 8px;
+  }
+  .level__pads .level__pad--jump {
+    flex: 1 1 64px;
+    min-width: 64px;
+  }
+  .level__pads .px-btn {
+    padding-inline: 10px;
+  }
 }
 .level__pad--jump {
   min-width: 96px;

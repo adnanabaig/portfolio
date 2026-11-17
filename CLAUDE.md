@@ -112,7 +112,7 @@ components/
                     Terminal + commands.ts (lazy), Keymap (lazy), useModal
   Toast/            badge toast (lazy, role=status)
   Badges/           "Visitor badges (earned in this browser)" row (lazy, client-only)
-  lost/             LostSignal, the 404 micro-level (lazy)
+  lost/             LostSignal, the 404 micro-level (lazy; under 560px it shows half the world at 2x in an 8:9 box, following AB-01)
 lib/
   facts.ts          derived numbers (see Fact rules)
   projects.ts       every project in order with its MOD/RIG unit, FIG. number, icon (PROJECT_ICONS), dossier href
