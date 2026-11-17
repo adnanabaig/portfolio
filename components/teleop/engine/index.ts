@@ -10,7 +10,8 @@ import { CARRY_Z, SKILL_COUNT, World, buildCatalog, type CatalogEntry } from "./
 import { Player, Recorder, keepLatest, parseEpisodes, type Command, type Episode } from "./episodes";
 import { clampWorkspace } from "./ik";
 import { Controls, type Dir } from "./input";
-import { CommandBuffer, RttTrace } from "./latency";
+import { RttTrace } from "./latency";
+import { CommandLink } from "./link";
 import { createLoop } from "./loop";
 import { Screen, drawFrame, type Particle } from "./render";
 import { WATCHDOG_MS, transition, type Mode, type SafetyEvent } from "./safety";
@@ -77,7 +78,6 @@ export function createEngine(wrapper: HTMLElement, canvas: HTMLCanvasElement, cb
   const world = new World(buildCatalog());
   const arm = new Arm(PARK);
   const controls = new Controls();
-  const buffer = new CommandBuffer<Command>(256);
   const rtt = new RttTrace(40);
   const recorder = new Recorder();
 
@@ -92,8 +92,7 @@ export function createEngine(wrapper: HTMLElement, canvas: HTMLCanvasElement, cb
   let deadman = false;
   let reduced = opts.reduced;
   const op: Command = { x: PARK.x, y: PARK.y, grip: false };
-  let pushed: Command = { ...op };
-  buffer.reset({ ...op });
+  const link = new CommandLink(op);
 
   let lastInput = performance.now();
   let opLimited = false;
@@ -118,8 +117,7 @@ export function createEngine(wrapper: HTMLElement, canvas: HTMLCanvasElement, cb
     const w = arm.wrist;
     op.x = w.x;
     op.y = w.y;
-    pushed = { ...op };
-    buffer.reset({ ...op });
+    link.reset(op);
   }
 
   function fire(ev: SafetyEvent) {
@@ -175,7 +173,7 @@ export function createEngine(wrapper: HTMLElement, canvas: HTMLCanvasElement, cb
 
     const hold = controls.hold;
     if (deadman && prevHold && !hold) {
-      fire({ type: "DEADMAN_RELEASE", moving: controls.anyDir || !!controls.pointer || arm.moving || buffer.pending > 0 });
+      fire({ type: "DEADMAN_RELEASE", moving: controls.anyDir || !!controls.pointer || arm.moving || link.pending > 0 });
     }
     prevHold = hold;
 
@@ -213,7 +211,7 @@ export function createEngine(wrapper: HTMLElement, canvas: HTMLCanvasElement, cb
     }
 
     if (mode === "AUTO" && auto) {
-      if (auto.step(dt, op, world, arm, latency, buffer.pending)) fire({ type: "AUTO_END" });
+      if (auto.step(dt, op, world, arm, latency, link.pending)) fire({ type: "AUTO_END" });
     } else if (mode === "REPLAY" && player) {
       const cmd = player.next(now);
       if (!cmd) fire({ type: "REPLAY_END" });
@@ -224,16 +222,13 @@ export function createEngine(wrapper: HTMLElement, canvas: HTMLCanvasElement, cb
       }
     }
 
-    if (op.x !== pushed.x || op.y !== pushed.y || op.grip !== pushed.grip) {
-      pushed = { ...op };
-      buffer.push(now, pushed);
-    }
+    link.offer(now, op);
     if (recorder.active && !recorder.sample(now, op)) stopRec(now);
 
     if (mode === "STOPPED") {
       arm.freeze();
     } else {
-      const cmd = buffer.sample(now, latency) ?? op;
+      const cmd = link.sample(now, latency, op);
       const gripped = driveArm(arm, world, cmd, dt, { springy: !reduced, reduced, parked: mode === "PARKED" });
       if (gripped) {
         cb.announce(`Gripped ${gripped.entry.skill}`);
@@ -347,7 +342,7 @@ export function createEngine(wrapper: HTMLElement, canvas: HTMLCanvasElement, cb
     !recorder.active &&
     !controls.anyDir &&
     !controls.pointer &&
-    buffer.pending === 0 &&
+    link.pending === 0 &&
     arm.settled &&
     !world.busy &&
     particles.length === 0 &&

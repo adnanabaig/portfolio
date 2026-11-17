@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { CommandBuffer, RttTrace } from "../../components/teleop/engine/latency";
+import { CommandLink } from "../../components/teleop/engine/link";
 
 describe("CommandBuffer (simulated link latency)", () => {
   it("holds the last delivered command until a newer one is old enough", () => {
@@ -73,5 +74,23 @@ describe("RttTrace", () => {
     const r = new RttTrace(3);
     r.add(0, 0);
     expect(r.ordered()[0]).toBeGreaterThanOrEqual(0);
+  });
+});
+
+describe("CommandLink", () => {
+  it("sends only changed commands and hands the arm the live command until one is due", () => {
+    const op = { x: 10, y: 20, grip: false };
+    const link = new CommandLink(op);
+    link.offer(0, op);
+    expect(link.pending).toBe(0);
+    op.x = 11;
+    link.offer(0, op);
+    link.offer(5, op);
+    expect(link.pending).toBe(1);
+    const live = { x: 99, y: 99, grip: true };
+    expect(link.sample(0, 100, live)).toEqual({ x: 10, y: 20, grip: false });
+    expect(link.sample(100, 100, live)).toEqual({ x: 11, y: 20, grip: false });
+    link.reset({ x: 1, y: 2, grip: false });
+    expect(link.pending).toBe(0);
   });
 });

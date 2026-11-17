@@ -1,13 +1,17 @@
-// The headless cell: the same pipeline the engine runs every 60 Hz step
-// (operator command -> CommandBuffer latency link -> driveArm servo and
-// gripper -> World physics), without a canvas.
+// The headless cell: the pipeline the engine runs every 60 Hz step
+// (operator command -> CommandLink latency link -> driveArm servo and
+// gripper -> World physics), without a canvas. The link, servo, and world are
+// the engine's own modules; only the three-call order of one step (offer and
+// sample the link, drive the arm, step the world) mirrors
+// components/teleop/engine/index.ts. engine.test.ts covers that order, the
+// safety modes, and the watchdog through createEngine itself.
 import { describe, expect, it } from "vitest";
 import portfolio from "../../data/portfolio.json";
 import { Arm, PARK, driveArm } from "../../components/teleop/engine/arm";
 import { AutoPilot, binDrop } from "../../components/teleop/engine/autopilot";
 import { BELT_STOP, BLOCK_H, World, binRect, buildCatalog, type WorldEvent } from "../../components/teleop/engine/blocks";
 import { Player, Recorder, type Command } from "../../components/teleop/engine/episodes";
-import { CommandBuffer } from "../../components/teleop/engine/latency";
+import { CommandLink } from "../../components/teleop/engine/link";
 import { LINK } from "../../lib/teleop/scene";
 import { seeded } from "../helpers/rng";
 
@@ -17,26 +21,20 @@ const MS = 1000 / 60;
 function cell(seed: number) {
   const world = new World(buildCatalog(), seeded(seed));
   const arm = new Arm(PARK);
-  const buffer = new CommandBuffer<Command>(256);
   const op: Command = { x: PARK.x, y: PARK.y, grip: false };
-  buffer.reset({ ...op });
-  let pushed = { ...op };
+  const link = new CommandLink(op);
   let step = 0;
   const events: WorldEvent[] = [];
-  /** One engine step: push a changed command, sample it through the link, drive the arm, step the world. */
+  /** One engine step: offer the command to the link, sample it, drive the arm, step the world. */
   const tick = (latencyMs: number, reduced = false, parked = false) => {
     const now = step++ * MS;
-    if (op.x !== pushed.x || op.y !== pushed.y || op.grip !== pushed.grip) {
-      pushed = { ...op };
-      buffer.push(now, pushed);
-    }
-    const cmd = buffer.sample(now, latencyMs) ?? op;
-    driveArm(arm, world, cmd, DT, { springy: !reduced, reduced, parked });
+    link.offer(now, op);
+    driveArm(arm, world, link.sample(now, latencyMs, op), DT, { springy: !reduced, reduced, parked });
     const evs = world.step(DT, reduced);
     events.push(...evs);
     return evs;
   };
-  return { world, arm, buffer, op, tick, events, now: () => step * MS };
+  return { world, arm, link, op, tick, events, now: () => step * MS };
 }
 
 describe("auto demo through the full pipeline", () => {
@@ -50,7 +48,7 @@ describe("auto demo through the full pipeline", () => {
     const pilot = new AutoPilot(3);
     let done = false;
     for (let i = 0; i < 60 * 90 && !done; i++) {
-      done = pilot.step(DT, c.op, c.world, c.arm, latency, c.buffer.pending);
+      done = pilot.step(DT, c.op, c.world, c.arm, latency, c.link.pending);
       if (!done) c.tick(latency, reduced);
     }
     expect(done).toBe(true);
@@ -120,7 +118,7 @@ describe("manual teleop", () => {
   });
 });
 
-describe("watchdog park", () => {
+describe("parked servo", () => {
   it("a parked arm returns to PARK and ignores grip commands", () => {
     const c = cell(2);
     Object.assign(c.op, { x: 120, y: 60, grip: false });

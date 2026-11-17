@@ -56,10 +56,10 @@ When you add a guard-relevant feature, extend the guard in the same commit.
 | --- | --- |
 | `tests/teleop/ik.test.ts` | IK round trips, the elbow branch, reach limits (including targets exactly on the reach circle), unwrap, the cable-wrap window, `clampWorkspace`, the servo |
 | `tests/teleop/safety.test.ts` | The FSM: E-STOP latches until an explicit CLEAR (refused under the site stop), deadman, watchdog timing, scripted modes |
-| `tests/teleop/latency.test.ts` | `CommandBuffer` delays a 60 Hz stream by exactly the set amount; ring overflow; `RttTrace` |
+| `tests/teleop/latency.test.ts` | `CommandBuffer` delays a 60 Hz stream by exactly the set amount; ring overflow; `RttTrace`; `CommandLink` (the engine's link: send-on-change, live command until one is due) |
 | `tests/teleop/world.test.ts` | Catalog to bin mapping, right bin sorts, every wrong bin bounces, stacking, seeded shuffles |
 | `tests/teleop/episodes.test.ts` | Recorder at 30 Hz and its 60 s cap, Player round trip and determinism, storage parsing (malformed frames dropped) |
-| `tests/teleop/pipeline.test.ts` | The headless cell (latency link, `driveArm`, `World.step`): auto demo at several latencies, a manual misroute and re-sort, park, cable-wrap unwinding, deterministic replay |
+| `tests/teleop/pipeline.test.ts` | The headless cell (the engine's `CommandLink`, `driveArm`, `World.step`; only the three-call step order mirrors `engine/index.ts`): auto demo at several latencies, a manual misroute and re-sort, the parked servo, cable-wrap unwinding, deterministic replay |
 | `tests/teleop/engine.test.ts` | `createEngine` itself, with `render` and `loop` mocked and the clock owned by the test: E-STOP, site stop, watchdog park, deadman, latency, record and replay, through the public `Engine` API |
 | `tests/facts.test.ts` | Every `lib/facts.ts` value matches its source sentence; rewording a sentence makes the import throw (via `vi.doMock` of `portfolio.json`) |
 | `tests/ops.test.ts` | OPS parser and registry: help, open/dossier, eggs and the latch, argument checks, Tab completion |
