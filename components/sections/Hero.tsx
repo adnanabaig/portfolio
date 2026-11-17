@@ -11,6 +11,13 @@ import Telemetry from "./Telemetry";
 
 const data = portfolio as PortfolioData;
 
+// "Role · Place": the place (with its separator in front) never splits, so a
+// wrap moves "· San Jose, CA" down whole instead of leaving a dangling dot or "CA".
+const SEP = " · ";
+const sepAt = data.hero.eyebrow.lastIndexOf(SEP);
+const role = sepAt > 0 ? data.hero.eyebrow.slice(0, sepAt) : data.hero.eyebrow;
+const place = sepAt > 0 ? data.hero.eyebrow.slice(sepAt + SEP.length) : "";
+
 const Hero = () => (
   <section id="boot" aria-labelledby="hero-heading" className="hero bay" data-bay="0">
     <div className="container mx-auto">
@@ -21,7 +28,15 @@ const Hero = () => (
               <Led color="leaf" blink />
               LIVE
             </span>
-            <span>{data.hero.eyebrow}</span>
+            <span>
+              {role}
+              {place && (
+                <>
+                  {" "}
+                  <span className="whitespace-nowrap">· {place}</span>
+                </>
+              )}
+            </span>
           </p>
           <h1 id="hero-heading" className="hero__name">
             {data.name}
