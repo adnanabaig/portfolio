@@ -11,7 +11,7 @@ import { pngIndexed } from "./png.mjs";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const SIZE = 96;
 const LEVELS = 8; // alpha 1/255 to 8/255
-const DENSITY = 0.16; // share of pixels that carry a speck
+const DENSITY = 0.12; // share of pixels that carry a speck
 
 // mulberry32: small, fast, and deterministic for a fixed seed.
 function mulberry32(seed) {

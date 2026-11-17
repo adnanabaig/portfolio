@@ -69,7 +69,7 @@ export const LIGHTING = {
   rowMix: 0.1, // --row-mix: palette active row (accent into --panel-hi)
   grainMax: 8 / 255, // public/tex/grain.png: brightest speck (white)
   auroraMax: 0.1, // hottest hero light (key .09, rounded up)
-  livePill: 0.1, // LIVE eyebrow pill (leaf over ink)
+  livePill: 0.1, // LIVE eyebrow pill (leaf over the chip's --panel)
   titlebarTop: "#202A3E", // --titlebar-top
 } as const;
 
@@ -144,8 +144,8 @@ export const litSurfaces: LitSurface[] = [
   },
   {
     name: "LIVE pill",
-    recipe: `ink + ${LIGHTING.livePill * 100}% leaf`,
-    hex: over(hexOf("--ink"), hexOf("--leaf"), LIGHTING.livePill),
+    recipe: `panel + ${LIGHTING.livePill * 100}% leaf`,
+    hex: over(hexOf("--panel"), hexOf("--leaf"), LIGHTING.livePill),
     text: [TEXT[0], TEXT[1], { name: "--leaf", hex: hexOf("--leaf") }],
   },
   {

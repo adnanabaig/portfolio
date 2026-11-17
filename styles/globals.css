@@ -679,6 +679,12 @@ html[data-theme="mono"] .crt-screen::after {
   padding: 6px 12px;
   color: var(--paper);
 }
+@supports (color: color-mix(in srgb, red 50%, transparent)) {
+  .chip--live {
+    background: linear-gradient(90deg, color-mix(in srgb, var(--leaf) calc(10% * var(--lit)), transparent), transparent 60%),
+      var(--panel);
+  }
+}
 .chip__tag {
   display: inline-flex;
   align-items: center;
@@ -688,6 +694,7 @@ html[data-theme="mono"] .crt-screen::after {
 .chip--part {
   min-height: 28px;
   background: var(--ink);
+  background: linear-gradient(180deg, rgb(255 255 255 / calc(0.04 * var(--lit))), transparent 60%), var(--ink);
   color: var(--mist);
 }
 .chip--skill {
@@ -706,6 +713,14 @@ html[data-theme="mono"] .crt-screen::after {
   background: var(--accent);
   color: var(--ink);
   transform: translate(2px, 2px);
+}
+@supports (color: color-mix(in srgb, red 50%, transparent)) {
+  .chip--skill[aria-pressed="true"] {
+    box-shadow: 0 0 12px color-mix(in srgb, var(--accent) calc(35% * var(--lit)), transparent);
+  }
+  .chip--skill[data-hit] {
+    box-shadow: 0 0 12px color-mix(in srgb, var(--accent) calc(25% * var(--lit)), transparent);
+  }
 }
 .chip--skill[data-hit]::before {
   content: "";
@@ -753,6 +768,13 @@ html[data-theme="mono"] .crt-screen::after {
   background: var(--led);
   box-shadow: 0 0 0 2px var(--outline), inset -2px -2px 0 rgba(0, 0, 0, 0.28);
 }
+/* The halo blinks with the LED (same element, same opacity), so no new motion. */
+@supports (color: color-mix(in srgb, red 50%, transparent)) {
+  .led {
+    box-shadow: 0 0 0 2px var(--outline), inset -2px -2px 0 rgba(0, 0, 0, 0.28),
+      0 0 8px 1px color-mix(in srgb, var(--led) calc(55% * var(--lit)), transparent);
+  }
+}
 .led--amber {
   --led: var(--amber);
 }
@@ -787,6 +809,13 @@ html[data-theme="mono"] .crt-screen::after {
   position: relative;
   height: 16px;
   opacity: 0.7;
+}
+/* The strips are light bars: a soft spill above and below (both pseudos draw the dither). */
+@supports (color: color-mix(in srgb, red 50%, transparent)) {
+  .dither {
+    box-shadow: 0 0 22px 2px color-mix(in srgb, var(--from) calc(16% * var(--lit)), transparent),
+      0 0 56px 0 color-mix(in srgb, var(--to) calc(8% * var(--lit)), transparent);
+  }
 }
 .dither::before,
 .dither::after {
@@ -1292,7 +1321,38 @@ html[data-estop] .sitestop {
 
 /* BAY 00 / BOOT */
 .hero {
+  position: relative;
+  isolation: isolate;
   padding-top: 40px;
+}
+/*
+ * The hero's light: a teal key from the cell, a violet rim top left, a sky
+ * bounce off the floor, and grain. Every ellipse fades to 0 inside the box,
+ * so there is no seam at any width; the mask fades the whole layer out
+ * before the next bay.
+ */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: -40px 0 -80px;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(42% 58% at 80% 32%, rgb(var(--glow-rgb) / calc(0.09 * var(--lit))), transparent 70%),
+    radial-gradient(34% 44% at 10% 4%, rgb(var(--rim-rgb) / calc(0.07 * var(--lit))), transparent 70%),
+    radial-gradient(55% 40% at 45% 104%, rgb(var(--bounce-rgb) / calc(0.05 * var(--lit))), transparent 70%),
+    var(--grain) 0 0 / 192px 192px;
+  image-rendering: pixelated;
+  -webkit-mask-image: linear-gradient(#000 55%, transparent);
+  mask-image: linear-gradient(#000 55%, transparent);
+}
+@media (max-width: 1023px) {
+  /* One column: the cell sits under the copy, so the key light moves down with it. */
+  .hero::before {
+    background: radial-gradient(42% 58% at 50% 78%, rgb(var(--glow-rgb) / calc(0.08 * var(--lit))), transparent 70%),
+      radial-gradient(34% 44% at 10% 4%, rgb(var(--rim-rgb) / calc(0.07 * var(--lit))), transparent 70%),
+      radial-gradient(55% 40% at 45% 104%, rgb(var(--bounce-rgb) / calc(0.05 * var(--lit))), transparent 70%),
+      var(--grain) 0 0 / 192px 192px;
+  }
 }
 .hero__grid {
   display: grid;
@@ -1320,7 +1380,7 @@ html[data-estop] .sitestop {
   line-height: 1;
   letter-spacing: 0.01em;
   color: var(--paper);
-  text-shadow: 4px 4px 0 var(--teal-deep);
+  text-shadow: 4px 4px 0 var(--teal-deep), 0 0 28px rgb(var(--glow-rgb) / calc(0.2 * var(--lit)));
 }
 .hero__lede {
   margin-top: 20px;
@@ -1387,8 +1447,50 @@ html[data-estop] .sitestop {
 .cell__after:focus {
   outline: none;
 }
+/*
+ * The powered CRT is the brightest object on the page: a --bloom around the
+ * tube (hotter once live, coral under E-STOP), and a glass layer of a hard
+ * pixel glint plus a tube vignette. Inside the screen: content, then the
+ * glass (::before), then the scanlines (::after), then the live cell's
+ * focus ring and banner. The TAKE CONTROL bar sits outside at z 2.
+ */
 .cell .crt-screen {
   aspect-ratio: 16 / 9;
+  isolation: isolate;
+  box-shadow: 0 0 0 2px var(--steel), var(--bloom);
+}
+.cell__stage[data-live] .crt-screen {
+  box-shadow: 0 0 0 2px var(--steel), var(--bloom-live);
+}
+.cell .crt-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(158deg, rgb(255 255 255 / calc(0.07 * var(--lit))) 0 21%, transparent 21.3%),
+    radial-gradient(120% 95% at 50% 45%, transparent 58%, rgb(0 0 0 / 0.42) 100%);
+  box-shadow: inset 0 0 0 1px rgb(var(--glow-rgb) / 0.14), inset 0 0 28px rgb(var(--glow-rgb) / 0.1);
+}
+.cell .crt-screen::after {
+  z-index: 1;
+}
+/* A one-shot tube warm-up when the cell powers on. */
+.motion-ok .cell__stage[data-live] .crt-screen::before {
+  animation: tube-warm 480ms steps(4, end) both;
+}
+@keyframes tube-warm {
+  from {
+    opacity: 0.4;
+  }
+  to {
+    opacity: 1;
+  }
+}
+/* The bezel is lit by its own tube. */
+.px-frame--crt.cell::before {
+  background: radial-gradient(70% 60% at 50% 55%, rgb(var(--glow-rgb) / calc(0.07 * var(--lit))), transparent 75%),
+    var(--frame-bg);
 }
 .cell-poster,
 .cell canvas {
@@ -1457,7 +1559,7 @@ html[data-estop] .sitestop {
   content: "";
   position: absolute;
   inset: 0;
-  z-index: 1;
+  z-index: 2;
   pointer-events: none;
   box-shadow: inset 0 0 0 3px var(--teal);
 }
@@ -1469,7 +1571,7 @@ html[data-estop] .sitestop {
   position: absolute;
   top: 18%;
   left: 50%;
-  z-index: 1;
+  z-index: 2;
   transform: translateX(-50%);
   padding: 6px 12px;
   border: 2px solid var(--coral);
@@ -1702,8 +1804,10 @@ html[data-estop] .sitestop {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  position: relative;
   padding: 12px 14px 14px;
   background: var(--panel);
+  background: linear-gradient(180deg, var(--hi), transparent 45%), var(--panel);
   border: 2px solid var(--grid);
   box-shadow: inset 2px 2px 0 var(--panel-hi), inset -2px -2px 0 var(--steel);
 }
@@ -1728,6 +1832,14 @@ html[data-estop] .sitestop {
   -webkit-font-smoothing: none;
   -moz-osx-font-smoothing: unset;
   color: var(--accent);
+}
+@supports (color: color-mix(in srgb, red 50%, transparent)) {
+  .telemetry__value {
+    text-shadow: 0 0 14px color-mix(in srgb, var(--accent) calc(35% * var(--lit)), transparent);
+  }
+  .telemetry__gauge i {
+    box-shadow: 0 0 6px color-mix(in srgb, var(--accent) calc(40% * var(--lit)), transparent);
+  }
 }
 .telemetry__gauge {
   order: 3;
@@ -3388,8 +3500,45 @@ main:has(.level) .lost__bot {
    lists in step.
    ========================================================================== */
 html[data-plain] .statusbar::after,
-html[data-theme="mono"] .statusbar::after {
+html[data-theme="mono"] .statusbar::after,
+html[data-plain] .hero::before,
+html[data-theme="mono"] .hero::before,
+html[data-plain] .cell .crt-screen::before,
+html[data-theme="mono"] .cell .crt-screen::before {
   display: none !important;
+}
+html[data-plain] .cell .crt-screen,
+html[data-theme="mono"] .cell .crt-screen {
+  box-shadow: 0 0 0 2px var(--steel);
+}
+html[data-plain] .chip--live,
+html[data-theme="mono"] .chip--live,
+html[data-plain] .telemetry__item,
+html[data-theme="mono"] .telemetry__item {
+  background: var(--panel);
+}
+html[data-plain] .chip--part,
+html[data-theme="mono"] .chip--part {
+  background: var(--ink);
+}
+html[data-plain] .dither,
+html[data-theme="mono"] .dither,
+html[data-plain] .chip--skill,
+html[data-theme="mono"] .chip--skill,
+html[data-plain] .telemetry__gauge i,
+html[data-theme="mono"] .telemetry__gauge i {
+  box-shadow: none;
+}
+html[data-plain] .led,
+html[data-theme="mono"] .led {
+  box-shadow: 0 0 0 2px var(--outline), inset -2px -2px 0 rgba(0, 0, 0, 0.28);
+}
+html[data-plain] .telemetry__value,
+html[data-theme="mono"] .telemetry__value {
+  text-shadow: none;
+}
+html[data-theme="mono"] .hero__name {
+  text-shadow: 4px 4px 0 var(--teal-deep);
 }
 html[data-plain] .statusbar,
 html[data-theme="mono"] .statusbar {
@@ -3589,12 +3738,28 @@ html[data-estop] *::after {
     margin-top: 24px;
   }
   /* Lights off (the same list as the mono and Text Mode block above). */
-  .statusbar::after {
+  .statusbar::after,
+  .hero::before,
+  .cell .crt-screen::before {
     display: none !important;
   }
   .statusbar,
-  .px-frame::before {
+  .px-frame::before,
+  .chip--live,
+  .chip--part,
+  .telemetry__item {
     background: none;
+  }
+  .cell .crt-screen,
+  .dither,
+  .chip--skill,
+  .led,
+  .telemetry__gauge i {
+    box-shadow: none;
+  }
+  .telemetry__value,
+  .hero__name {
+    text-shadow: none;
   }
   .px-titlebar {
     border-image: none;
