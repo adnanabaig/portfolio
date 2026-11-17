@@ -73,7 +73,7 @@ When you add a guard-relevant feature, extend the guard in the same commit.
 - A bug fix lands in its own commit with the test that would have caught it. New engine, parser, or generator behavior gets a test in the same commit.
 - `vite` is pinned to 6 because Vite 7 needs Node 20.19 or newer.
 
-**CI** is `.github/workflows/ci.yml`: on every push and pull request, Node from `.nvmrc` (20, matching `engines`), then `npm ci`, `lint`, `typecheck`, `check:copy`, `npm test`, `build` (into `.next-build`), and `check:ssr`. To reproduce it, export HEAD into an empty directory (`git archive HEAD | tar -x -C /tmp/ci`) and run the same steps there.
+**CI** is `.github/workflows/ci.yml`: on every push and pull request, Node from `.nvmrc` (22, matching `engines`), then `npm ci`, `lint`, `typecheck`, `check:copy`, `npm test`, `build` (into `.next-build`), and `check:ssr`. To reproduce it, export HEAD into an empty directory (`git archive HEAD | tar -x -C /tmp/ci`) and run the same steps there.
 
 ## Fact rules (non-negotiable)
 
