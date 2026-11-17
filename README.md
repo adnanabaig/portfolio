@@ -12,7 +12,7 @@ The page is complete with JavaScript off, in Text mode, and in print. It support
 
 ## Run it
 
-Node 20 (see `.nvmrc`) and npm.
+Node 22 (see `.nvmrc`) and npm.
 
 ```bash
 npm ci
