@@ -837,17 +837,6 @@ html[data-estop] .px-btn--danger::before {
   .chip--skill[aria-pressed="true"] {
     box-shadow: 0 0 12px color-mix(in srgb, var(--accent) calc(35% * var(--lit)), transparent);
   }
-  .chip--skill[data-hit] {
-    box-shadow: 0 0 12px color-mix(in srgb, var(--accent) calc(25% * var(--lit)), transparent);
-  }
-}
-.chip--skill[data-hit]::before {
-  content: "";
-  width: 8px;
-  height: 8px;
-  flex: none;
-  background: var(--leaf);
-  box-shadow: 0 0 0 2px var(--outline);
 }
 
 .cartridge {

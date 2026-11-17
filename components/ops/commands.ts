@@ -1,7 +1,7 @@
 // The OPS console's parser and command table. Loaded with the terminal on
 // first open. Every fact printed here comes from data/portfolio.json or
-// lib/facts.ts; numbers the visitor generates (ping, clock, badge counts,
-// latency) are labeled "your link", "your clock", "your run", or SIM.
+// lib/facts.ts; numbers the visitor generates (ping, clock, badge counts)
+// are labeled "your link", "your clock", "your run", or "this browser".
 // DOM side effects go through Ctx, so scripts/check-ops.mjs can run every
 // command in node with a stub and check the output against the copy rules.
 import portfolio from "../../data/portfolio.json";
@@ -37,9 +37,6 @@ export interface Ctx {
   focusCard(id: string): boolean;
   /** Focus a section (by id). False when it is not on this page. */
   focusSection(id: string): boolean;
-  takeControl(): boolean;
-  cellLive(): boolean;
-  setLatency(ms: number): void;
   ping(): Promise<number>;
   soundOn(): boolean;
   setSound(on: boolean): void;
@@ -247,32 +244,6 @@ const COMMANDS: Command[] = [
       }
       c.close();
       c.navigate("/blog");
-    },
-  },
-  {
-    name: "teleop",
-    help: "Take control of the Teleop Cell.",
-    run(_a, c) {
-      c.close();
-      if (!c.takeControl()) c.navigate("/#boot");
-    },
-  },
-  {
-    name: "latency",
-    usage: "<ms>",
-    help: "Set the cell link latency, 0 to 300 (SIM).",
-    run(args, c) {
-      const ms = Number(args[0]);
-      if (!args[0] || !Number.isInteger(ms) || ms < 0 || ms > 300) {
-        c.print("Usage: latency <ms>, a whole number from 0 to 300 (SIM).", "err");
-        return;
-      }
-      if (!c.cellLive()) {
-        c.print("The cell is offline. Type teleop to take control first.", "err");
-        return;
-      }
-      c.setLatency(ms);
-      c.print(`SIM link latency set to ${ms} ms (your run).`, "ok");
     },
   },
   {

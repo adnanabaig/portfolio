@@ -45,7 +45,6 @@ export const KEYS = {
   sound: "ab:sound",
   badges: "ab:badges",
   estop: "ab:estop",
-  episodes: "ab:episodes",
   crt: "ab:crt",
   history: "ab:history",
   secrets: "ab:secrets",

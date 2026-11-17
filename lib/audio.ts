@@ -12,12 +12,8 @@ type Note = [number, number, Voice];
 
 const SFX: Record<string, Note[]> = {
   boot: [[392, 90, "t"], [587, 160, "t"]],
-  grip: [[740, 35, "s"], [988, 45, "s"]],
-  sort: [[587, 55, "s"], [740, 55, "s"], [1109, 110, "t"]],
-  misroute: [[208, 90, "s"], [156, 150, "s"]],
-  stop: [[0, 90, "n"], [117, 220, "s"]],
-  clear: [[349, 60, "t"], [523, 100, "t"]],
-  rec: [[932, 60, "t"]],
+  open: [[349, 60, "t"], [523, 100, "t"]],
+  home: [[587, 55, "s"], [740, 55, "s"], [1109, 110, "t"]],
   badge: [[659, 60, "s"], [831, 60, "s"], [988, 60, "s"], [1319, 150, "t"]],
   key: [[0, 14, "n"]],
   deny: [[185, 180, "s"]],
@@ -66,14 +62,9 @@ export function play(name: Sfx) {
 function wire() {
   if (wired) return;
   wired = true;
-  on("ab:cell", ({ type }) => {
-    if (type === "grip" || type === "sort" || type === "misroute" || type === "clear" || type === "rec") play(type);
-    else if (type === "complete" || type === "replay") play(type === "complete" ? "badge" : "rec");
-    else if (type === "stop") play("stop");
-  });
-  on("ab:ops", ({ type }) => play(type === "deny" ? "deny" : type === "open" ? "clear" : "key"));
+  on("ab:ops", ({ type }) => play(type === "deny" ? "deny" : type === "open" ? "open" : "key"));
   on("ab:badge", () => play("badge"));
-  on("ab:home", () => play("sort"));
+  on("ab:home", () => play("home"));
   on("ab:estop", ({ on: latched }) => {
     if (!ctx) return;
     if (latched) ctx.suspend().catch(() => undefined);

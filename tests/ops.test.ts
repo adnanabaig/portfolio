@@ -22,9 +22,6 @@ function stub(over: Partial<Ctx> = {}) {
     copy: async (t) => (calls.push(["copy", t]), true),
     focusCard: (id) => (calls.push(["focusCard", id]), true),
     focusSection: (id) => (calls.push(["focusSection", id]), true),
-    takeControl: () => (calls.push(["takeControl"]), true),
-    cellLive: () => true,
-    setLatency: (ms) => calls.push(["setLatency", ms]),
     ping: async () => 12,
     soundOn: () => false,
     setSound: (on) => calls.push(["setSound", on]),
@@ -73,6 +70,12 @@ describe("help and the registry", () => {
     const r = await exec("frobnicate now");
     expect(r.result).toBe("deny");
     expect(r.out).toEqual([{ text: "frobnicate: command not found. Type help.", kind: "err" }]);
+  });
+
+  it.each(["teleop", "latency 120"])("%s is gone with the teleop game", async (line) => {
+    const { exec } = stub();
+    expect((await exec(line)).result).toBe("deny");
+    expect(commandNames()).not.toContain(line.split(" ")[0]);
   });
 });
 
@@ -148,25 +151,6 @@ describe("eggs", () => {
 });
 
 describe("argument checks", () => {
-  it.each(["latency", "latency 999", "latency -1", "latency 12.5", "latency fast"])("%s is rejected", async (line) => {
-    const { exec } = stub();
-    const r = await exec(line);
-    expect(r.out[0].kind).toBe("err");
-    expect(r.calls.some(([k]) => k === "setLatency")).toBe(false);
-  });
-
-  it("latency reaches a live cell, labeled SIM and your run", async () => {
-    const { exec } = stub();
-    const r = await exec("latency 120");
-    expect(r.calls).toContainEqual(["setLatency", 120]);
-    expect(r.text[0]).toBe("SIM link latency set to 120 ms (your run).");
-  });
-
-  it("latency refuses when the cell is offline", async () => {
-    const { exec } = stub({ cellLive: () => false });
-    expect((await exec("latency 50")).text[0]).toMatch(/cell is offline/);
-  });
-
   it("theme, sound, and crt reject bad values", async () => {
     const { exec } = stub();
     for (const line of ["theme pink", "sound loud", "crt maybe"]) expect((await exec(line)).out[0].kind).toBe("err");

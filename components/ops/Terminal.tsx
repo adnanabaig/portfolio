@@ -140,17 +140,6 @@ export default function Terminal({ onClose, onKeys }: TerminalProps) {
           }, 900);
           return true;
         },
-        takeControl: () => {
-          const take = document.getElementById("take-control");
-          if (!take) return false;
-          later(() => {
-            take.scrollIntoView({ block: "center", behavior: behavior() });
-            take.click();
-          });
-          return true;
-        },
-        cellLive: () => !!document.querySelector(".teleop"),
-        setLatency: (ms) => emit("ab:cmd", { type: "latency", ms }),
         ping: async () => {
           const t = performance.now();
           const res = await fetch("/robots.txt", { cache: "no-store" });

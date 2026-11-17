@@ -269,9 +269,6 @@ export default function Lab() {
             <button type="button" className="chip chip--skill" aria-pressed="true">
               Pressed
             </button>
-            <button type="button" className="chip chip--skill" data-hit="">
-              Found
-            </button>
             <span className="chip chip--part">Part chip</span>
             <span className="cartridge">Cartridge</span>
             <span className="badge badge--current">

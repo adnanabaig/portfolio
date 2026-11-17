@@ -1,9 +1,7 @@
 // INVENTORY: every skill from the resume as a toggle chip. Pressing one
 // lights up each card and role that mentions it (see lib/skillIndex.ts) and
-// dims the rest. Correct sorts in the teleop cell arrive as "ab:skill" bus
-// events and mark the chip as found.
+// dims the rest.
 import { useEffect, useState } from "react";
-import { on } from "../../lib/bus";
 import { groupAccent } from "../../lib/pixel/groups";
 import { skillToken, type SkillHits } from "../../lib/skillIndex";
 import type { SkillGroup } from "../../types/portfolio";
@@ -29,7 +27,6 @@ const HL_ROOT = "data-hl-active";
 
 const Inventory = ({ skills, index }: InventoryProps) => {
   const [selected, setSelected] = useState<string | null>(null);
-  const [found, setFound] = useState<Set<string>>(() => new Set());
   const [message, setMessage] = useState("");
 
   // Mirror the selection onto the page: matching targets get data-hl.
@@ -49,15 +46,6 @@ const Inventory = ({ skills, index }: InventoryProps) => {
       root.removeAttribute(HL_ROOT);
     };
   }, [selected]);
-
-  useEffect(
-    () =>
-      on("ab:skill", ({ skill }) => {
-        if (!(skill in index)) return;
-        setFound((prev) => (prev.has(skill) ? prev : new Set(prev).add(skill)));
-      }),
-    [index]
-  );
 
   const toggle = (skill: string) => {
     const next = selected === skill ? null : skill;
@@ -83,11 +71,9 @@ const Inventory = ({ skills, index }: InventoryProps) => {
                     type="button"
                     className="chip chip--skill"
                     aria-pressed={selected === skill}
-                    data-hit={found.has(skill) ? "" : undefined}
                     onClick={() => toggle(skill)}
                   >
                     {skill}
-                    {found.has(skill) && <span className="sr-only"> (sorted in the cell)</span>}
                   </button>
                 </li>
               ))}

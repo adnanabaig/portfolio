@@ -1,5 +1,5 @@
 // "?" opens this: a laminated control-panel placard listing every shortcut
-// (page, cell, console). Secrets appear only once found in this browser.
+// (page, console). Secrets appear only once found in this browser.
 import { useEffect, useRef, useState } from "react";
 import { SECRETS, discovered, type SecretId } from "../../lib/badges";
 import { useModal } from "./useModal";
@@ -16,18 +16,6 @@ const GROUPS: { title: string; keys: [string, string][] }[] = [
       ["?", "Open this placard"],
       ["Tab", "Move between controls"],
       ["Esc", "Close a dialog"],
-    ],
-  },
-  {
-    title: "Teleop Cell (while focused)",
-    keys: [
-      ["Arrows or WASD", "Move the gripper"],
-      ["Space or Enter", "Grip or release"],
-      ["Shift (hold)", "Deadman hold, when deadman is on"],
-      ["X", "Latch the cell E-STOP"],
-      ["C", "Clear a latched stop"],
-      ["R", "Record or stop an episode"],
-      ["Esc", "Release the cell"],
     ],
   },
   {
@@ -92,7 +80,7 @@ export default function Keymap({ onClose }: KeymapProps) {
             </p>
           </section>
         </div>
-        <p className="placard__foot">Touch: use the on-screen pads under the cell. Nothing here is required to read the site.</p>
+        <p className="placard__foot">Nothing here is required to read the site.</p>
       </div>
     </dialog>
   );

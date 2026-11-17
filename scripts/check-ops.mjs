@@ -54,7 +54,7 @@ try {
   );
   // Site rules, not claims: the 404 page's name and the Night shift window.
   const RULES = new Set(["404", "22", "00", "05"]);
-  const OWN = /your run|your link|your clock|\bSIM\b|this browser/i;
+  const OWN = /your run|your link|your clock|this browser/i;
 
   const calls = [];
   const makeCtx = (out) => ({
@@ -69,9 +69,6 @@ try {
     copy: async () => true,
     focusCard: (id) => (calls.push(["focusCard", id]), true),
     focusSection: (id) => (calls.push(["focusSection", id]), true),
-    takeControl: () => (calls.push(["takeControl"]), true),
-    cellLive: () => true,
-    setLatency: (ms) => calls.push(["setLatency", ms]),
     ping: async () => 42.4,
     soundOn: () => false,
     setSound: (on) => calls.push(["setSound", on]),
@@ -94,7 +91,6 @@ try {
   const SAMPLE_ARGS = {
     open: "operator-hmi",
     dossier: "operator-hmi",
-    latency: "120",
     theme: "amber",
     sound: "on",
     crt: "off",
@@ -114,7 +110,7 @@ try {
   for (const name of ops.commandNames()) if (!all.some((c) => c.name === name || (c.aliases || []).includes(name))) fail(`help lists "${name}" with no handler`);
 
   // 2. Run everything (plus a few bad inputs) and check every line.
-  const lines = [...all.map((c) => `${c.name} ${SAMPLE_ARGS[c.name] ?? ""}`.trim()), "open nope", "dossier nope", "dossier", "latency 999", "theme", "sudo make sandwich", "frobnicate"];
+  const lines = [...all.map((c) => `${c.name} ${SAMPLE_ARGS[c.name] ?? ""}`.trim()), "open nope", "dossier nope", "dossier", "theme", "sudo make sandwich", "frobnicate"];
   let printed = 0;
   for (const line of lines) {
     const { out } = await runLine(line);
@@ -159,8 +155,10 @@ try {
   const ping = await runLine("ping");
   if (!ping.out.some((l) => /your link/.test(l.text))) fail("ping: RTT not labeled 'your link'");
 
-  const lat = await runLine("latency 120");
-  if (!lat.calls.some(([k, ms]) => k === "setLatency" && ms === 120)) fail("latency 120 did not reach the cell");
+  for (const gone of ["teleop", "latency 120"]) {
+    const r = await runLine(gone);
+    if (r.result !== "deny") fail(`"${gone}" should be an unknown command (the teleop game is gone)`);
+  }
 
   // 4. Completion.
   const c1 = ops.complete("pro");

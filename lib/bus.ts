@@ -1,8 +1,6 @@
-// Typed window CustomEvents so independent islands (inventory, teleop cell,
-// track, terminal, sound) talk without sharing React state.
+// Typed window CustomEvents so independent islands (track, terminal, badges,
+// sound, the 404 level) talk without sharing React state.
 export interface BusEvents {
-  /** A skill block was sorted into its correct bin. */
-  "ab:skill": { skill: string; group?: string };
   /** The global E-STOP latched (true) or was cleared (false). */
   "ab:estop": { on: boolean };
   /** Something asked to navigate to a section id. */
@@ -11,10 +9,6 @@ export interface BusEvents {
   "ab:badge": { id: string };
   /** Sound was turned on or off. */
   "ab:sound": { on: boolean };
-  /** Teleop Cell moments (sound, badges). Emitted by the lazy engine. */
-  "ab:cell": { type: CellEvent };
-  /** Requests to the live cell (from the OPS console). */
-  "ab:cmd": { type: "latency"; ms: number };
   /** OPS console moments (sound, badges). */
   "ab:ops": { type: "open" | "key" | "run" | "deny" };
   /** Open a station dialog; the opener is remembered for focus return. */
@@ -24,8 +18,6 @@ export interface BusEvents {
   /** The 404 micro-level was finished. */
   "ab:home": Record<string, never>;
 }
-
-export type CellEvent = "grip" | "drop" | "sort" | "misroute" | "stop" | "clear" | "rec" | "saved" | "replay" | "complete";
 
 export type BusEvent = keyof BusEvents;
 

@@ -6,7 +6,7 @@ import portfolio from "../data/portfolio.json";
 import { emit, on } from "./bus";
 import { KEYS, read, write } from "./storage";
 
-export type BadgeId = "calibrated" | "fail-closed" | "recorded" | "root" | "signal" | "night" | "manual";
+export type BadgeId = "root" | "signal" | "night" | "manual";
 
 export interface Badge {
   id: BadgeId;
@@ -16,9 +16,6 @@ export interface Badge {
 }
 
 export const BADGES: Badge[] = [
-  { id: "calibrated", title: "Calibrated", hint: "Sort every skill block in the Teleop Cell." },
-  { id: "fail-closed", title: "Fail-closed", hint: "Latch a stop in the cell, then clear it." },
-  { id: "recorded", title: "Recorded", hint: "Record an episode in the cell, then replay it." },
   { id: "root", title: "Root access", hint: "Open the OPS console." },
   { id: "signal", title: "Signal found", hint: "Drive AB-01 home from the 404 page." },
   { id: "night", title: "Night shift", hint: "Visit between 22:00 and 05:00 your time." },
@@ -57,11 +54,6 @@ let listening = false;
 export function listen() {
   if (listening || typeof window === "undefined") return;
   listening = true;
-  on("ab:cell", ({ type }) => {
-    if (type === "complete") earn("calibrated");
-    else if (type === "clear") earn("fail-closed");
-    else if (type === "replay") earn("recorded");
-  });
   on("ab:ops", ({ type }) => {
     if (type === "open") earn("root");
   });
