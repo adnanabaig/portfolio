@@ -1656,8 +1656,11 @@ html[data-estop] .sitestop {
 }
 
 /* Cards: MOD (selected work) and RIG (independent builds) */
+/* align-items: start, so a short card (WRAM) is not stretched into a tall
+   empty panel next to a long one; its buttons follow its content. */
 .card-grid {
   display: grid;
+  align-items: start;
   gap: 28px;
   margin-top: 32px;
 }
@@ -1957,9 +1960,20 @@ html[data-estop] .sitestop {
   display: grid;
   gap: 20px;
 }
+/* Two balanced columns (shelves flow down, then across), so the short
+   Programming shelf is not stretched to the height of Robotics & ML. */
 @media (min-width: 768px) {
   .inventory__shelves {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: block;
+    columns: 2;
+    column-gap: 20px;
+  }
+  .inventory__shelves > .shelf {
+    break-inside: avoid;
+    margin-bottom: 20px;
+  }
+  .inventory__shelves > .shelf:last-child {
+    margin-bottom: 0;
   }
 }
 .shelf {
