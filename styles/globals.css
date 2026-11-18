@@ -2937,7 +2937,8 @@ html[data-crt="off"] .crt-screen::after {
 
 /* Native modal dialogs: top layer, page behind is inert. */
 .ops,
-.placard-dialog {
+.placard-dialog,
+.palette {
   padding: 0;
   border: 0;
   background: transparent;
@@ -2946,7 +2947,8 @@ html[data-crt="off"] .crt-screen::after {
   max-height: none;
 }
 .ops::backdrop,
-.placard-dialog::backdrop {
+.placard-dialog::backdrop,
+.palette::backdrop {
   background: rgba(5, 7, 10, 0.72);
 }
 .ops {
@@ -3267,6 +3269,164 @@ html[data-os="mac"] .kbd__mac {
   font-family: var(--font-mono);
   font-size: 13px;
   color: var(--mist);
+}
+
+/* Command palette (components/ops/Palette, lazy): a top-anchored modal with
+   a combobox over a grouped listbox. Second light after the CRT: a soft key
+   glow under the hard shadow (alpha on --lit, so mono, Text Mode, and print
+   drop it). The active row is panel-hi + --row-mix accent with a 4px rail. */
+.palette {
+  position: fixed;
+  inset: max(12px, 10vh) 0 auto;
+  width: min(640px, calc(100% - 24px));
+  margin: 0 auto;
+  overflow: visible;
+}
+.motion-ok .palette[open] {
+  animation: drawer-up 160ms var(--snap) both;
+}
+.palette__frame {
+  box-shadow: 4px 4px 0 0 var(--outline), var(--depth-lg), 0 0 40px -8px rgb(var(--glow-rgb) / calc(0.22 * var(--lit)));
+}
+.palette__title {
+  font-size: 16px;
+}
+.palette__field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 2px solid var(--grid);
+  background: var(--ink);
+  color: var(--teal);
+}
+.palette__glass {
+  flex: none;
+}
+.palette__input {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  padding: 6px 2px;
+  border: 0;
+  background: transparent;
+  color: var(--paper);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  caret-color: var(--teal);
+}
+.palette__input::placeholder {
+  color: var(--mist);
+  opacity: 1;
+}
+/* The field shows focus as a 2px teal rule (the input sits flush in its bar). */
+.palette__input:focus-visible {
+  outline: 0;
+}
+.palette__field:focus-within {
+  box-shadow: inset 0 -2px 0 var(--teal);
+}
+.palette__empty {
+  padding: 12px 14px 0;
+  font-size: 15px;
+  color: var(--mist);
+}
+.palette__list {
+  max-height: min(52vh, 420px);
+  max-height: min(52svh, 420px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 4px 0 8px;
+}
+.palette__heading {
+  padding: 12px 14px 4px;
+  font-family: var(--font-label);
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  -webkit-font-smoothing: none;
+  color: var(--amber);
+}
+.palette__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 6px 14px;
+  cursor: pointer;
+}
+.palette__row[aria-selected="true"] {
+  background: var(--panel-hi);
+  box-shadow: inset 4px 0 0 var(--teal);
+}
+@supports (color: color-mix(in srgb, red 50%, transparent)) {
+  .palette__row[aria-selected="true"] {
+    background: color-mix(in srgb, var(--teal) var(--row-mix), var(--panel-hi));
+  }
+}
+.palette__icon {
+  flex: none;
+  width: 32px;
+  height: 32px;
+}
+.palette__text {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+.palette__name {
+  font-size: 15px;
+  line-height: 1.35;
+  color: var(--paper);
+}
+.palette__meta {
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--mist);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* A match is teal and underlined, so it never relies on color alone. */
+.palette__row mark {
+  background: none;
+  color: var(--teal);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.palette__kbd {
+  flex: none;
+}
+.palette__foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  padding: 10px 14px 12px;
+  border-top: 2px solid var(--grid);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--mist);
+}
+@media (hover: none) {
+  .palette__foot {
+    display: none;
+  }
+}
+/* Text Mode: plain Plex (the global plain rules), no glow or tint, a 1px grid border. */
+html[data-plain] .palette__frame {
+  padding: 0;
+  border: 1px solid var(--grid);
+  background: var(--ink);
+  box-shadow: none;
+}
+html[data-plain] .palette .px-titlebar {
+  padding: 8px 14px;
+}
+html[data-plain] .palette__row[aria-selected="true"] {
+  background: var(--panel);
 }
 
 /* Badge toast: bottom left, never takes focus. */
@@ -3777,6 +3937,7 @@ html[data-estop] *::after {
   .uplink__actions,
   .nav-mobile__controls,
   .toast,
+  .palette,
   .about__badges,
   [data-slot] {
     display: none !important;

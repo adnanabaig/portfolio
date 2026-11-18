@@ -32,8 +32,12 @@ export interface ProjectEntry {
   order: number;
 }
 
+// No array or object spread here: the command palette's lazy chunk imports
+// this, and the transpiled spread helpers would roughly double its size.
 export function projectEntries(data: Pick<PortfolioData, "projects" | "engineeringProjects">): ProjectEntry[] {
-  const mods = data.projects.map((project, i) => ({ project, kind: "module" as const, index: i + 1 }));
-  const rigs = data.engineeringProjects.map((project, i) => ({ project, kind: "bench" as const, index: i + 1 }));
-  return [...mods, ...rigs].map((e, i) => ({ ...e, unit: unitLabel(e.kind, e.index), order: i + 1 }));
+  const entry = (kind: ProjectKind) => (project: Project, i: number) => ({ project, kind, index: i + 1 });
+  return data.projects
+    .map(entry("module"))
+    .concat(data.engineeringProjects.map(entry("bench")))
+    .map((e, i) => ({ project: e.project, kind: e.kind, index: e.index, unit: unitLabel(e.kind, e.index), order: i + 1 }));
 }

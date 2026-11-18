@@ -1,6 +1,7 @@
-// Pure builders for public/sitemap.xml and public/rss.xml. The prebuild
+// Pure builders for public/sitemap.xml, public/rss.xml, and
+// data/posts-index.json (the command palette's POSTS group). The prebuild
 // scripts (generate-sitemap.mjs, generate-rss.mjs) read the files and write
-// the output; these functions only turn data into XML, so tests can call
+// the output; these functions only turn data into text, so tests can call
 // them with fixtures.
 import fs from "fs";
 import path from "path";
@@ -101,4 +102,24 @@ export function buildRss(portfolio, posts) {
     "",
   ].join("\n");
   return { xml, count: items.length };
+}
+
+/**
+ * The command palette's post list: slug, title, and ISO timestamp (shown
+ * with the same ISOToDate as the Writing section), newest first,
+ * as stable JSON. Empty when the blog is off. Same validation as the feed.
+ */
+export function buildPostsIndex(portfolio, posts) {
+  const list = !portfolio.showBlog
+    ? []
+    : posts
+        .map(({ slug, data }) => {
+          const parsed = new Date(data.date);
+          const date = Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString();
+          if (!date) throw new Error(`posts-index: ${slug}.md has no valid date`);
+          if (!data.title) throw new Error(`posts-index: ${slug}.md has no title`);
+          return { slug, title: squash(data.title), date };
+        })
+        .sort((a, b) => (a.date === b.date ? (a.slug < b.slug ? -1 : 1) : a.date < b.date ? 1 : -1));
+  return JSON.stringify(list, null, 2) + "\n";
 }

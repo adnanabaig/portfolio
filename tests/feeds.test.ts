@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 import { describe, expect, it } from "vitest";
 import portfolio from "../data/portfolio.json";
-import { RSS_DESCRIPTION, buildRss, buildSitemap, readPosts } from "../scripts/feeds.mjs";
+import { RSS_DESCRIPTION, buildPostsIndex, buildRss, buildSitemap, readPosts } from "../scripts/feeds.mjs";
 
 const root = path.resolve(__dirname, "..");
 const site = { ...portfolio, siteUrl: "https://example.test/" };
@@ -86,6 +86,25 @@ describe("buildRss", () => {
   });
 });
 
+describe("buildPostsIndex", () => {
+  it("lists slug, title, and date, newest first, with whitespace squashed", () => {
+    expect(JSON.parse(buildPostsIndex(site, posts))).toEqual([
+      { slug: "newer", title: "Fish & Chips <live>", date: "2025-06-01T08:00:00.000Z" },
+      { slug: "older", title: "Older post", date: "2025-01-02T08:00:00.000Z" },
+    ]);
+  });
+
+  it("is empty when the blog is off, and stable across input order", () => {
+    expect(JSON.parse(buildPostsIndex({ ...site, showBlog: false }, posts))).toEqual([]);
+    expect(buildPostsIndex(site, posts)).toBe(buildPostsIndex(site, [...posts].reverse()));
+  });
+
+  it("fails the build on a post with no title or no valid date", () => {
+    expect(() => buildPostsIndex(site, [post("bad", { date: "2025-01-01" })])).toThrow(/bad\.md has no title/);
+    expect(() => buildPostsIndex(site, [post("bad", { title: "x", date: "someday" })])).toThrow(/bad\.md has no valid date/);
+  });
+});
+
 describe("the committed feeds match the generators", () => {
   const real = readPosts(path.join(root, "_posts"));
 
@@ -97,6 +116,10 @@ describe("the committed feeds match the generators", () => {
 
   it("public/sitemap.xml is up to date", () => {
     expect(fs.readFileSync(path.join(root, "public/sitemap.xml"), "utf8")).toBe(buildSitemap(portfolio, real).xml);
+  });
+
+  it("data/posts-index.json is up to date", () => {
+    expect(fs.readFileSync(path.join(root, "data/posts-index.json"), "utf8")).toBe(buildPostsIndex(portfolio, real));
   });
 
   it("public/rss.xml is up to date", () => {

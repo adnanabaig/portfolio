@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import portfolio from "../../data/portfolio.json";
 import type { PortfolioData } from "../../types/portfolio";
+import { copyEmail } from "../../lib/copy";
 import DitherBand from "../pixel/DitherBand";
 import Eyebrow from "../pixel/Eyebrow";
 import PixelButton from "../pixel/PixelButton";
@@ -9,37 +10,14 @@ import Socials from "../Socials";
 
 const data = portfolio as PortfolioData;
 
-/** Copies the address; falls back to selecting it when the clipboard API is unavailable. */
+/** Copies the address (lib/copy: falls back to selecting it when the clipboard API is unavailable). */
 function CopyAddress({ targetId }: { targetId: string }) {
   const [status, setStatus] = useState("");
   const timer = useRef<number>();
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
   const copy = async () => {
-    let ok = false;
-    try {
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(data.email);
-        ok = true;
-      }
-    } catch {
-      ok = false;
-    }
-    if (!ok) {
-      const node = document.getElementById(targetId);
-      const selection = window.getSelection();
-      if (node && selection) {
-        const range = document.createRange();
-        range.selectNodeContents(node);
-        selection.removeAllRanges();
-        selection.addRange(range);
-        try {
-          ok = document.execCommand("copy");
-        } catch {
-          ok = false;
-        }
-      }
-    }
+    const ok = await copyEmail(targetId);
     setStatus(ok ? "Copied" : "Address selected. Press Ctrl+C or Cmd+C to copy.");
     window.clearTimeout(timer.current);
     timer.current = window.setTimeout(() => setStatus(""), 4000);

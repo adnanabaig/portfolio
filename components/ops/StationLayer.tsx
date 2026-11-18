@@ -1,16 +1,17 @@
-// Mounted once by the Header. Owns the global shortcuts ("/" or "`" for the
-// OPS console, "?" for the keymap), the two dialogs (each lazy-loaded on
-// first open), and the idle boot: badge toast + rules, the console greeting,
+// Mounted once by the Header. Owns the global shortcuts (Cmd/Ctrl+K for the
+// command palette, "/" or "`" for the OPS console, "?" for the keymap), the
+// three dialogs (each lazy-loaded on first open), and the idle boot: badge toast + rules, the console greeting,
 // AB-01 puppetry, the inspection lamp, and a saved sound opt-in. Renders
 // nothing on the server.
 import { useCallback, useEffect, useRef, useState } from "react";
-import { on } from "../../lib/bus";
+import { emit, on } from "../../lib/bus";
 import { clientOnly } from "../../lib/clientOnly";
 import { isEstop, isPlain, prefersReducedMotion } from "../../lib/station";
 import { resumeSavedSound } from "./sound";
 
 const Terminal = clientOnly(() => import("./Terminal"));
 const Keymap = clientOnly(() => import("./Keymap"));
+const Palette = clientOnly(() => import("./Palette"));
 const Toast = clientOnly(() => import("../Toast"));
 
 /** True for text fields and editable regions, where shortcuts must not fire. */
@@ -20,15 +21,24 @@ export function isTypingTarget(target: EventTarget | null) {
   return /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName) || el.isContentEditable;
 }
 
-type Which = "ops" | "keys";
+type Which = "ops" | "keys" | "palette";
+
+/** The Cmd/Ctrl+K chord (Shift allowed, Alt not). */
+export const isPaletteChord = (e: KeyboardEvent) => (e.metaKey || e.ctrlKey) && !e.altKey && (e.key || "").toLowerCase() === "k";
 
 export default function StationLayer() {
   const [open, setOpen] = useState<Which | null>(null);
+  const [cmd, setCmd] = useState("");
   const [booted, setBooted] = useState(false);
   const opener = useRef<HTMLElement | null>(null);
+  const openRef = useRef<Which | null>(null);
+  openRef.current = open;
 
-  const show = useCallback((what: Which, from?: HTMLElement | null) => {
-    opener.current = from ?? (document.activeElement as HTMLElement | null);
+  const show = useCallback((what: Which, from?: HTMLElement | null, text?: string) => {
+    // A hand-off from the palette (to the console or keymap) keeps the palette's
+    // opener, so focus still returns to where the visitor started.
+    if (from || openRef.current !== "palette") opener.current = from ?? (document.activeElement as HTMLElement | null);
+    setCmd(text ?? "");
     setOpen(what);
   }, []);
 
@@ -45,6 +55,16 @@ export default function StationLayer() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      // The one chord shortcut, checked before the chord filter below. It works
+      // from text fields too (devtool convention), but never inside the 404
+      // level, and never over another open dialog. Pressed again, it closes.
+      if (isPaletteChord(e)) {
+        if ((e.target as Element | null)?.closest?.(".lost__level")) return;
+        e.preventDefault();
+        if (openRef.current === "palette") close(true);
+        else if (!document.querySelector("dialog[open]")) emit("ab:open", { what: "palette" });
+        return;
+      }
       if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey || isTypingTarget(e.target)) return;
       if (document.querySelector("dialog[open]")) return;
       if (e.key === "/" || e.key === "`") {
@@ -56,9 +76,7 @@ export default function StationLayer() {
       }
     };
     document.addEventListener("keydown", onKey);
-    const offOpen = on("ab:open", ({ what, from }) => {
-      if (what !== "palette") show(what, from);
-    });
+    const offOpen = on("ab:open", ({ what, from, cmd: text }) => show(what, from, text));
 
     let done = false;
     const boot = () => {
@@ -88,12 +106,13 @@ export default function StationLayer() {
       if (c.cancelIdleCallback) c.cancelIdleCallback(idle);
       else window.clearTimeout(idle);
     };
-  }, [show]);
+  }, [show, close]);
 
   return (
     <>
       {booted && <Toast />}
-      {open === "ops" && <Terminal onClose={close} onKeys={() => setOpen("keys")} />}
+      {open === "palette" && <Palette onClose={close} />}
+      {open === "ops" && <Terminal onClose={close} onKeys={() => setOpen("keys")} cmd={cmd} />}
       {open === "keys" && <Keymap onClose={close} />}
     </>
   );

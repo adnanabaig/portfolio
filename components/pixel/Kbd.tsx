@@ -7,32 +7,23 @@
 
 export type KeyName = "mod" | "up" | "down" | "enter" | string;
 
-// 7x7 glyphs as rows ("#" on). Original art: a looped command key, two arrows, and a return arrow.
-const GLYPHS = {
-  cmd: [".#...#.", "#.#.#.#", ".#####.", "..#.#..", ".#####.", "#.#.#.#", ".#...#."],
-  up: ["...#...", "..###..", ".#####.", "...#...", "...#...", "...#...", "...#..."],
-  down: ["...#...", "...#...", "...#...", "...#...", ".#####.", "..###..", "...#..."],
-  enter: ["......#", "......#", "..#...#", ".##...#", "#######", ".##....", "..#...."],
+// 7x7 glyphs (original art), drawn as pixel rects:
+//   cmd      up       down     enter
+//   .#...#.  ...#...  ...#...  ......#
+//   #.#.#.#  ..###..  ...#...  ......#
+//   .#####.  .#####.  ...#...  ..#...#
+//   ..#.#..  ...#...  ...#...  .##...#
+//   .#####.  ...#...  .#####.  #######
+//   #.#.#.#  ...#...  ..###..  .##....
+//   .#...#.  ...#...  ...#...  ..#....
+const PATHS = {
+  cmd: "M1 0h1v1H1zM5 0h1v1H5zM0 1h1v1H0zM2 1h1v1H2zM4 1h1v1H4zM6 1h1v1H6zM1 2h5v1H1zM2 3h1v1H2zM4 3h1v1H4zM1 4h5v1H1zM0 5h1v1H0zM2 5h1v1H2zM4 5h1v1H4zM6 5h1v1H6zM1 6h1v1H1zM5 6h1v1H5z",
+  up: "M3 0h1v7H3zM2 1h3v1H2zM1 2h5v1H1z",
+  down: "M3 0h1v7H3zM1 4h5v1H1zM2 5h3v1H2z",
+  enter: "M6 0h1v5H6zM0 4h6v1H0zM2 2h1v5H2zM1 3h1v3H1z",
 };
 
-/** Horizontal runs of "#" as one path. */
-function runs(rows: string[]) {
-  let d = "";
-  rows.forEach((row, y) => {
-    for (let x = 0; x < row.length; x++) {
-      if (row[x] !== "#") continue;
-      let w = 1;
-      while (row[x + w] === "#") w++;
-      d += `M${x} ${y}h${w}v1h-${w}z`;
-      x += w - 1;
-    }
-  });
-  return d;
-}
-
-const PATHS = Object.fromEntries(Object.entries(GLYPHS).map(([k, rows]) => [k, runs(rows)])) as Record<keyof typeof GLYPHS, string>;
-
-export const Glyph = ({ name }: { name: keyof typeof GLYPHS }) => (
+export const Glyph = ({ name }: { name: keyof typeof PATHS }) => (
   <svg className="kbd__glyph" width="14" height="14" viewBox="0 0 7 7" shapeRendering="crispEdges" aria-hidden="true" focusable="false">
     <path d={PATHS[name]} fill="currentColor" />
   </svg>
