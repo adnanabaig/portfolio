@@ -223,7 +223,7 @@ The first viewport is plain SSR HTML. Heavy or optional pieces load on intent:
 | OPS console UI (`Terminal`) | first open (`/`, `` ` ``, OPS>) | 8 kB per chunk (about 4 kB today) |
 | OPS parser + command table (`commands.ts`) | `import()` as the console mounts | 8 kB per chunk (about 6.5 kB today; the two together are about 10 kB) |
 | Keymap placard | first `?` / Keys | small |
-| Command palette (`Palette`, with `lib/fuzzy`, `lib/copy`, `data/posts-index.json`) | first Cmd/Ctrl+K or search button (warmed on hover/focus of the button) | under 7 kB (about 6.7 kB today). No array/object spread or `for...of` in it or its imports: Babel inlines the helpers into the chunk |
+| Command palette (`Palette`, with `lib/fuzzy`, `lib/copy`, `data/posts-index.json`) | first Cmd/Ctrl+K or search button (warmed on hover/focus of the button) | under 7 kB (about 6.4 kB today). No array/object spread or `for...of` in it or its imports: Babel inlines the helpers into the chunk |
 | Synth (`lib/audio.ts`) | SND opt-in (warmed on hover/focus of the toggle) | 2 kB |
 | Toast (badges and action toasts) + badge rules, console greeting, puppetry | idle (or first input) | small |
 | Inspection lamp (`lib/lamp.ts`) | idle (or first input), only for a hovering fine pointer with motion allowed and no E-STOP or Text Mode | under 1 kB |
