@@ -1134,6 +1134,58 @@ html[data-estop] .px-btn--danger::before {
   width: 48px;
   padding: 0;
 }
+/* Gliding section light (Header sets data-ink to the bay and --ink-x/--ink-w
+   on the nav once per section change). From 1280px only; the dashed
+   per-link underline stays as the SSR and no-JS fallback. Transform only,
+   on --ease-light with motion allowed; coral under E-STOP. */
+.nav-ink {
+  display: none;
+}
+@media (min-width: 1280px) {
+  .nav-desktop {
+    position: relative;
+  }
+  /* 100px at scale 1: --ink-w is the link width / 100; 0.12 trims the 6px link padding each side. */
+  .nav-ink {
+    --ink-c: var(--teal);
+    display: block;
+    position: absolute;
+    left: 0;
+    bottom: 6px;
+    width: 100px;
+    height: 4px;
+    background: var(--ink-c);
+    opacity: 0;
+    pointer-events: none;
+    transform-origin: left center;
+    transform: translateX(calc(var(--ink-x, 0px) + 6px)) scaleX(calc(var(--ink-w, 0) - 0.12));
+  }
+  .nav-desktop[data-ink] .nav-ink {
+    opacity: 1;
+  }
+  .nav-desktop[data-ink] .nav-link[aria-current]::after {
+    display: none;
+  }
+  .nav-desktop[data-ink="2"] .nav-ink {
+    --ink-c: var(--amber);
+  }
+  .nav-desktop[data-ink="3"] .nav-ink {
+    --ink-c: var(--leaf);
+  }
+  .nav-desktop[data-ink="4"] .nav-ink,
+  .nav-desktop[data-ink="5"] .nav-ink {
+    --ink-c: var(--violet);
+  }
+  .nav-desktop[data-ink="6"] .nav-ink {
+    --ink-c: var(--sky);
+  }
+  html.motion-ok .nav-ink {
+    transition: transform 240ms var(--ease-light), opacity 160ms var(--ease-light);
+  }
+  html[data-estop] .nav-ink {
+    --ink-c: var(--coral);
+  }
+}
 /* Command palette launcher. Bar: a 48px glyph square at 768 to 1023px, the
    glyph plus Cmd/Ctrl K keycaps at 1024 to 1279px, and no bar button from
    1280px (the row is full). Menu: the Search row under 768px and from 1280px. */

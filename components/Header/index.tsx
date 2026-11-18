@@ -75,6 +75,7 @@ const Header = ({ current = "home", checkpoints = CHECKPOINTS }: HeaderProps) =>
   const [plain, setPlain] = useState(false);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const panelRef = useRef<HTMLElement | null>(null);
+  const navRef = useRef<HTMLElement | null>(null);
 
   // The inline _document script already applied ?plain=1 or the saved choice.
   useEffect(() => {
@@ -91,6 +92,29 @@ const Header = ({ current = "home", checkpoints = CHECKPOINTS }: HeaderProps) =>
     setOpen(false);
     if (restoreFocus) buttonRef.current?.focus();
   }, []);
+
+  // The gliding section light (from 1280px): measure the current link once
+  // per section change (and on resize or font load), never per frame. CSS
+  // moves the bar with transform; without JS the dashed underline stays.
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+    const place = () => {
+      const link = nav.querySelector<HTMLElement>(".nav-link[aria-current]");
+      if (!link || !link.offsetWidth) {
+        nav.removeAttribute("data-ink");
+        return;
+      }
+      nav.style.setProperty("--ink-x", `${link.offsetLeft}px`);
+      nav.style.setProperty("--ink-w", String(link.offsetWidth / 100));
+      nav.setAttribute("data-ink", current === "blog" ? "5" : String(Math.max(1, CHECKPOINTS.indexOf(activeSection))));
+    };
+    place();
+    const ro = typeof ResizeObserver === "function" ? new ResizeObserver(place) : null;
+    ro?.observe(nav);
+    document.fonts?.ready.then(place).catch(() => undefined);
+    return () => ro?.disconnect();
+  }, [activeSection, current]);
 
   // Opening a station dialog from the menu closes the menu (focus returns to the menu button later).
   useEffect(() => onBus("ab:open", () => setOpen(false)), []);
@@ -178,8 +202,9 @@ const Header = ({ current = "home", checkpoints = CHECKPOINTS }: HeaderProps) =>
           </a>
         </Link>
 
-        <nav aria-label="Main" className="nav-desktop">
+        <nav ref={navRef} aria-label="Main" className="nav-desktop">
           {renderLinks()}
+          <span className="nav-ink" aria-hidden="true" />
         </nav>
 
         <div className="statusbar__actions">
