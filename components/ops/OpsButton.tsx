@@ -26,7 +26,7 @@ export const OpsButton = ({ className = "" }: { className?: string }) => (
       <Kbd keys={["/"]} />
       {/* From 1280px the bar has no search button, so OPS> also teaches the palette chord. */}
       <span className="kbd-tip__more">
-        <Kbd keys={["mod", "K"]} /> search
+        console <Kbd keys={["mod", "K"]} /> search
       </span>
     </span>
   </button>
