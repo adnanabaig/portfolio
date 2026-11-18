@@ -11,6 +11,7 @@ import portfolio from "../data/portfolio.json";
 // - `data-booted` when the boot log already played this session.
 // - `data-estop` when the visitor latched the global E-STOP (it persists).
 // - `data-crt="off"` when the visitor turned the scanlines off (OPS: crt off).
+// - `data-os="mac"` on Apple platforms, so keycaps show Cmd instead of Ctrl.
 // The leading comment is a hello for anyone who views the page source.
 const viewSourceHello = [
   "/*",
@@ -27,7 +28,7 @@ const viewSourceHello = [
   "*/",
   "",
 ].join("\n");
-const prePaint = viewSourceHello + `(function(){var d=document.documentElement;d.classList.add('js');try{var m=window.matchMedia('(prefers-reduced-motion: no-preference)');var s=function(){d.classList.toggle('motion-ok',m.matches)};s();if(m.addEventListener){m.addEventListener('change',s)}else if(m.addListener){m.addListener(s)}}catch(e){}var q=/[?&]plain=([01])/.exec(location.search);var p=q?q[1]:null;try{var ls=window.localStorage;if(p){ls.setItem('ab:plain',p)}else{p=ls.getItem('ab:plain')}var t=ls.getItem('ab:theme');if(t==='amber'||t==='mono'){d.setAttribute('data-theme',t)}if(ls.getItem('ab:estop')==='1'){d.setAttribute('data-estop','')}if(ls.getItem('ab:crt')==='off'){d.setAttribute('data-crt','off')}}catch(e){}if(p==='1'){d.setAttribute('data-plain','')}try{var ss=window.sessionStorage;if(ss.getItem('ab:booted')){d.setAttribute('data-booted','')}else{ss.setItem('ab:booted','1')}}catch(e){}})();`;
+const prePaint = viewSourceHello + `(function(){var d=document.documentElement;d.classList.add('js');try{var m=window.matchMedia('(prefers-reduced-motion: no-preference)');var s=function(){d.classList.toggle('motion-ok',m.matches)};s();if(m.addEventListener){m.addEventListener('change',s)}else if(m.addListener){m.addListener(s)}}catch(e){}var q=/[?&]plain=([01])/.exec(location.search);var p=q?q[1]:null;try{var ls=window.localStorage;if(p){ls.setItem('ab:plain',p)}else{p=ls.getItem('ab:plain')}var t=ls.getItem('ab:theme');if(t==='amber'||t==='mono'){d.setAttribute('data-theme',t)}if(ls.getItem('ab:estop')==='1'){d.setAttribute('data-estop','')}if(ls.getItem('ab:crt')==='off'){d.setAttribute('data-crt','off')}}catch(e){}if(p==='1'){d.setAttribute('data-plain','')}try{var nv=navigator;if(/Mac|iPhone|iPad/.test((nv.userAgentData&&nv.userAgentData.platform)||nv.platform||'')){d.setAttribute('data-os','mac')}}catch(e){}try{var ss=window.sessionStorage;if(ss.getItem('ab:booted')){d.setAttribute('data-booted','')}else{ss.setItem('ab:booted','1')}}catch(e){}})();`;
 
 export default function Document() {
   return (

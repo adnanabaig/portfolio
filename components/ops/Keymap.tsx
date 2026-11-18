@@ -2,29 +2,41 @@
 // (page, console). Secrets appear only once found in this browser.
 import { useEffect, useRef, useState } from "react";
 import { SECRETS, discovered, type SecretId } from "../../lib/badges";
+import Kbd, { type KeyName } from "../pixel/Kbd";
 import { useModal } from "./useModal";
 
 export interface KeymapProps {
   onClose(restore: boolean): void;
 }
 
-const GROUPS: { title: string; keys: [string, string][] }[] = [
+// Each row: the alternatives (each a key combo), then what it does.
+const GROUPS: { title: string; keys: [KeyName[][], string][] }[] = [
   {
     title: "Page",
     keys: [
-      ["/  or  `", "Open the OPS console"],
-      ["?", "Open this placard"],
-      ["Tab", "Move between controls"],
-      ["Esc", "Close a dialog"],
+      [[["mod", "K"]], "Open the command palette"],
+      [[["/"], ["`"]], "Open the OPS console"],
+      [[["?"]], "Open this placard"],
+      [[["Tab"]], "Move between controls"],
+      [[["Esc"]], "Close a dialog"],
+    ],
+  },
+  {
+    title: "Command palette",
+    keys: [
+      [[["up"], ["down"]], "Move through results"],
+      [[["enter"]], "Open the result"],
+      [[["Shift", "enter"]], "Jump to the card instead (home page)"],
+      [[[">"]], "Type a console command"],
     ],
   },
   {
     title: "OPS console",
     keys: [
-      ["Enter", "Run the command"],
-      ["Tab", "Complete a command or project id"],
-      ["Up / Down", "Walk command history"],
-      ["Esc", "Close the console"],
+      [[["enter"]], "Run the command"],
+      [[["Tab"]], "Complete a command or project id"],
+      [[["up"], ["down"]], "Walk command history"],
+      [[["Esc"]], "Close the console"],
     ],
   },
 ];
@@ -53,10 +65,15 @@ export default function Keymap({ onClose }: KeymapProps) {
             <section key={g.title} className="placard__group" aria-label={g.title}>
               <h3 className="placard__group-title">{g.title}</h3>
               <dl>
-                {g.keys.map(([k, what]) => (
-                  <div key={k + what} className="placard__row">
+                {g.keys.map(([alts, what]) => (
+                  <div key={what} className="placard__row">
                     <dt>
-                      <kbd>{k}</kbd>
+                      {alts.map((keys, i) => (
+                        <span key={keys.join("+")}>
+                          {i > 0 && <span className="placard__or"> or </span>}
+                          <Kbd keys={keys} />
+                        </span>
+                      ))}
                     </dt>
                     <dd>{what}</dd>
                   </div>
