@@ -3473,6 +3473,52 @@ body:has(dialog[open]) .toast {
   font-size: 13px;
   color: var(--amber);
 }
+/* Action toasts (ab:toast): a tone rail, the dialog depth, and a drain bar
+   that empties over the 4 s the toast stays (static full width under E-STOP
+   and reduced motion). */
+.toast__card--action {
+  --frame-border: var(--tone);
+  padding: 12px 18px 14px 22px;
+  font-size: 15px;
+  box-shadow: 4px 4px 0 0 var(--outline), var(--depth-lg);
+}
+.toast__card--action[data-tone="teal"] {
+  --tone: var(--teal);
+}
+.toast__card--action[data-tone="amber"] {
+  --tone: var(--amber);
+}
+.toast__card--action[data-tone="coral"] {
+  --tone: var(--coral);
+}
+.toast__rail {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: 2px;
+  width: 6px;
+  background: var(--tone);
+}
+.toast__drain {
+  position: absolute;
+  left: 8px;
+  right: 2px;
+  bottom: 2px;
+  height: 2px;
+  background: var(--tone);
+  transform-origin: left center;
+}
+.motion-ok .toast__drain {
+  animation: toast-drain 4s linear both;
+}
+@keyframes toast-drain {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
 
 /* Visitor badges: deliberately apart from the real Trophies above. */
 .about__badges {

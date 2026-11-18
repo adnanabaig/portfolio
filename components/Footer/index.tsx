@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import portfolio from "../../data/portfolio.json";
 import type { PortfolioData } from "../../types/portfolio";
+import { emit } from "../../lib/bus";
 import { copyEmail } from "../../lib/copy";
 import DitherBand from "../pixel/DitherBand";
 import Eyebrow from "../pixel/Eyebrow";
@@ -18,7 +19,9 @@ function CopyAddress({ targetId }: { targetId: string }) {
 
   const copy = async () => {
     const ok = await copyEmail(targetId);
-    setStatus(ok ? "Copied" : "Address selected. Press Ctrl+C or Cmd+C to copy.");
+    const text = ok ? "Copied" : "Address selected. Press Ctrl+C or Cmd+C to copy.";
+    setStatus(text);
+    emit("ab:toast", { text: ok ? "Email copied" : text, tone: ok ? "teal" : "amber" });
     window.clearTimeout(timer.current);
     timer.current = window.setTimeout(() => setStatus(""), 4000);
   };

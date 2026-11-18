@@ -9,6 +9,7 @@ import type { PortfolioData } from "../../types/portfolio";
 import { issuesResolved, automatedTests, questLevels, robotPrograms, skillCount } from "../../lib/facts";
 import { BADGES, discover, earn, earned, type SecretId } from "../../lib/badges";
 import { getTheme, isCrtOn, isEstop, setCrt, setEstop, setTheme } from "../../lib/station";
+import { emit } from "../../lib/bus";
 import { tableRows } from "./table";
 
 const data = portfolio as PortfolioData;
@@ -292,6 +293,7 @@ const COMMANDS: Command[] = [
       setTheme(t === "cyan" ? "default" : (t as "amber" | "mono"));
       if (t !== "cyan") found("theme");
       c.print(`Theme set to ${t}.`, "ok");
+      emit("ab:toast", { text: `Theme ${t}`, tone: "amber" });
     },
   },
   {
@@ -305,6 +307,7 @@ const COMMANDS: Command[] = [
       }
       c.setSound(args[0] === "on");
       c.print(`Sound ${args[0]}.`, "ok");
+      emit("ab:toast", { text: `Sound ${args[0]}`, tone: "teal" });
     },
   },
   {
@@ -318,6 +321,7 @@ const COMMANDS: Command[] = [
       }
       setCrt(args[0] === "on");
       c.print(`CRT scanlines ${args[0]}.`, "ok");
+      emit("ab:toast", { text: `CRT scanlines ${args[0]}`, tone: "teal" });
     },
   },
   {
