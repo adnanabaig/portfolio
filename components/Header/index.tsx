@@ -4,7 +4,7 @@ import portfolio from "../../data/portfolio.json";
 import type { PortfolioData } from "../../types/portfolio";
 import { isPlain, setPlain as savePlain } from "../../lib/station";
 import { emit, on as onBus } from "../../lib/bus";
-import { KeysButton, OpsButton } from "../ops/OpsButton";
+import { KeysButton, OpsButton, PaletteButton } from "../ops/OpsButton";
 import SoundToggle from "../ops/SoundToggle";
 import StationLayer from "../ops/StationLayer";
 import { useSections } from "../../hooks/useSections";
@@ -190,6 +190,7 @@ const Header = ({ current = "home", checkpoints = CHECKPOINTS }: HeaderProps) =>
           <EStop />
           <div className="hud-slot" data-slot="hud">
             <OpsButton />
+            <PaletteButton variant="bar" />
           </div>
           <button
             ref={buttonRef}
@@ -215,6 +216,7 @@ const Header = ({ current = "home", checkpoints = CHECKPOINTS }: HeaderProps) =>
         <div className="container mx-auto nav-mobile__inner">
           {renderLinks(() => close(false))}
           <div className="nav-mobile__controls">
+            <PaletteButton variant="menu" />
             <OpsButton className="nav-mobile__ops" />
             <SoundToggle />
             <KeysButton />

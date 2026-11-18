@@ -424,7 +424,7 @@ export default function Palette({ onClose }: PaletteProps) {
             aria-activedescendant={current ? optId(current) : undefined}
             aria-label="Search the station"
             aria-describedby="palette-hint"
-            placeholder="Search, or type > for the console"
+            placeholder="Search, or > for the console"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={onKeyDown}

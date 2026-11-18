@@ -1134,6 +1134,105 @@ html[data-estop] .px-btn--danger::before {
   width: 48px;
   padding: 0;
 }
+/* Command palette launcher. Bar: a 48px glyph square at 768 to 1023px, the
+   glyph plus Cmd/Ctrl K keycaps at 1024 to 1279px, and no bar button from
+   1280px (the row is full). Menu: the Search row under 768px and from 1280px. */
+.palette-btn {
+  gap: 10px;
+}
+.palette-btn__glass {
+  flex: none;
+}
+.palette-btn--bar {
+  width: 48px;
+  padding: 0;
+}
+.palette-btn--bar .palette-btn__kbd {
+  display: none;
+}
+@media (min-width: 768px) and (max-width: 1279px) {
+  .palette-btn--menu {
+    display: none;
+  }
+}
+@media (min-width: 1024px) {
+  .palette-btn--bar {
+    width: auto;
+    padding-inline: 12px;
+  }
+  .palette-btn--bar .palette-btn__kbd {
+    display: inline-flex;
+  }
+  .palette-btn--bar .kbd-tip {
+    display: none;
+  }
+}
+@media (min-width: 1280px) {
+  .palette-btn--bar {
+    display: none;
+  }
+}
+@media (hover: none) {
+  .palette-btn--menu .palette-btn__kbd {
+    display: none;
+  }
+}
+/* Shortcut tips under OPS>, Keys, and the launcher: absolutely placed (no
+   layout shift), shown after a 400ms hover or at once on :focus-visible. */
+.kbd-tip {
+  position: absolute;
+  z-index: 2;
+  top: calc(100% + 6px);
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 6px;
+  border: 2px solid var(--grid);
+  background: var(--ink);
+  box-shadow: 4px 4px 0 0 var(--outline);
+  color: var(--mist);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: normal;
+  text-transform: none;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -2px);
+  transition: opacity 120ms var(--snap), transform 120ms var(--snap);
+}
+.kbd-tip__more {
+  display: none;
+  align-items: center;
+  gap: 6px;
+}
+@media (min-width: 1280px) {
+  .statusbar__actions .kbd-tip__more {
+    display: inline-flex;
+  }
+}
+@media (hover: hover) {
+  .has-tip:hover .kbd-tip {
+    opacity: 1;
+    transform: translate(-50%, 0);
+    transition-delay: 400ms;
+  }
+}
+.has-tip:focus-visible .kbd-tip {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  transition-delay: 0s;
+}
+/* The menu panel scrolls (overflow-y: auto), so a tip there would add
+   scroll height even while invisible; Keys shows its "?" in the label. */
+.nav-mobile .kbd-tip {
+  display: none;
+}
+@media (hover: none) {
+  .kbd-tip {
+    display: none;
+  }
+}
 /* 320 to 374px phones (and Display Zoom): tighter gaps and 44px squares so the menu button stays on screen. */
 @media (max-width: 374px) {
   .statusbar__row {
@@ -3427,6 +3526,10 @@ html[data-plain] .palette .px-titlebar {
 }
 html[data-plain] .palette__row[aria-selected="true"] {
   background: var(--panel);
+}
+/* Sprites are hidden in Text Mode (.deco), so drop their slot too. */
+html[data-plain] .palette__icon {
+  display: none;
 }
 
 /* Badge toast: bottom left, never takes focus. */
