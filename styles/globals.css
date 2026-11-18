@@ -1250,7 +1250,8 @@ html[data-estop] .px-btn--danger::before {
   text-transform: none;
   pointer-events: none;
   opacity: 0;
-  transform: translate(-50%, -2px);
+  --tip-x: -50%;
+  transform: translate(var(--tip-x), -2px);
   transition: opacity 120ms var(--snap), transform 120ms var(--snap);
 }
 .kbd-tip__more {
@@ -1258,21 +1259,27 @@ html[data-estop] .px-btn--danger::before {
   align-items: center;
   gap: 6px;
 }
+/* From 1280px OPS> sits near the edge with the wider tip: right-align it so it never overflows. */
 @media (min-width: 1280px) {
   .statusbar__actions .kbd-tip__more {
     display: inline-flex;
+  }
+  .statusbar__actions .ops-btn .kbd-tip {
+    left: auto;
+    right: 0;
+    --tip-x: 0;
   }
 }
 @media (hover: hover) {
   .has-tip:hover .kbd-tip {
     opacity: 1;
-    transform: translate(-50%, 0);
+    transform: translate(var(--tip-x), 0);
     transition-delay: 400ms;
   }
 }
 .has-tip:focus-visible .kbd-tip {
   opacity: 1;
-  transform: translate(-50%, 0);
+  transform: translate(var(--tip-x), 0);
   transition-delay: 0s;
 }
 /* The menu panel scrolls (overflow-y: auto), so a tip there would add
