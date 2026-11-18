@@ -77,6 +77,26 @@ describe("lit surfaces hold AA at full light", () => {
   });
 });
 
+describe("command palette active row", () => {
+  // The palette's selected row is panel-hi + 10% teal (amber in the amber theme). Its
+  // meta line (mist) and title (paper) keep a margin over AA, not just 4.5:1.
+  const row = (name: string) => litSurfaces.find((s) => s.name === name)!;
+  for (const [surface, mist, paper] of [
+    ["Palette row, teal", "--mist", "--paper"],
+    ["Palette row, amber theme", "--mist (amber)", "--paper (amber)"],
+  ]) {
+    it(`${surface}: mist at least 5.2:1, paper at least 9.7:1`, () => {
+      const s = row(surface);
+      const ratio = (n: string) => contrast(s.text.find((t) => t.name === n)!.hex, s.hex);
+      expect(ratio(mist)).toBeGreaterThanOrEqual(5.2);
+      expect(ratio(paper)).toBeGreaterThanOrEqual(9.7);
+    });
+  }
+  it("the CSS mixes --row-mix of teal into --panel-hi for the selected row", () => {
+    expect(css).toMatch(/\.palette__row\[aria-selected="true"\] \{\s*background: color-mix\(in srgb, var\(--teal\) var\(--row-mix\), var\(--panel-hi\)\);/);
+  });
+});
+
 describe("lights off: mono, Text Mode, and print reset every decorative light", () => {
   // Every new light layer that --lit cannot zero on its own (pseudo-element
   // lights, gradients, glows, border-image, grain). Each must be reset in

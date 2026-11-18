@@ -163,6 +163,14 @@ check(/class="track"[^>]*aria-hidden="true"/.test(header), "AB-01 track is in th
 // 8. Station extras are client-only; social card and icons are wired.
 check(!/role="log"|class="ops[\s"]|<dialog/.test(raw), "no OPS console markup in SSR HTML");
 check(!/visitor-badges|Visitor badge|class="toast/.test(raw), "no visitor badges or toast in SSR HTML");
+check(!/class="palette[\s"]|palette__|role="combobox"|Command \/ AB-01/i.test(raw), "no command palette markup in SSR HTML");
+const launchers = header.match(/<button[^>]*class="[^"]*palette-btn[^"]*"[^>]*>/g) ?? [];
+check(
+  launchers.length === 2 && launchers.every((b) => b.includes('aria-keyshortcuts="Meta+K Control+K"') && b.includes('aria-haspopup="dialog"')),
+  `palette launchers (bar and menu) carry aria-keyshortcuts and aria-haspopup (found ${launchers.length})`
+);
+check(/class="kbd__mac"/.test(header) && /class="kbd__pc">Ctrl</.test(header), "keycaps render both the Cmd and the Ctrl label");
+check(/data-os/.test(raw) && /userAgentData/.test(raw), "pre-paint script sets the data-os flag");
 check(raw.includes(`<meta property="og:image" content="${data.siteUrl}/og.png"/>`), "og:image is /og.png");
 check(raw.includes('<meta name="twitter:card" content="summary_large_image"/>'), "twitter:card is summary_large_image");
 check(/rel="apple-touch-icon" href="\/apple-touch-icon.png"/.test(raw) && /href="\/icon-32.png"/.test(raw), "icon links present");
